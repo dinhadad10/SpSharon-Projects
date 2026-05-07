@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מערכת ניהול עסקית</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&family=Frank+Ruhl+Libre:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --bg2: #161b27;
+    --bg3: #1e2535;
+    --card: #1a2035;
+    --border: #2a3347;
+    --accent: #4f8ef7;
+    --accent2: #7c5cfc;
+    --gold: #f5c842;
+    --green: #3ecf8e;
+    --red: #f46e6e;
+    --text: #e8ecf4;
+    --text2: #8a9bbf;
+    --text3: #5a6a8a;
+    --radius: 14px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.35);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; direction: rtl; }
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; }
+
+  /* LOGIN */
+  #screen-login { align-items: center; justify-content: center; background: radial-gradient(ellipse at 30% 40%, #1a2a5e 0%, #0f1117 60%); }
+  .login-box { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 48px 40px; width: 380px; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
+  .login-logo { font-family: 'Frank Ruhl Libre', serif; font-size: 32px; font-weight: 900; color: var(--accent); margin-bottom: 8px; text-align: center; }
+  .login-sub { color: var(--text2); text-align: center; margin-bottom: 36px; font-size: 14px; }
+  .field { margin-bottom: 18px; }
+  .field label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 7px; font-weight: 500; }
+  .field input { width: 100%; padding: 12px 16px; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 15px; font-family: 'Heebo', sans-serif; transition: border 0.2s; }
+  .field input:focus { outline: none; border-color: var(--accent); }
+  .btn-primary { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; font-family: 'Heebo', sans-serif; cursor: pointer; transition: opacity 0.2s, transform 0.1s; margin-top: 8px; }
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .err-msg { color: var(--red); font-size: 13px; margin-top: 10px; text-align: center; min-height: 18px; }
+
+  /* LAYOUT */
+  #screen-main, #screen-employees, #screen-prices, #screen-clients, #screen-billing, #screen-signature, #screen-library { flex-direction: column; }
+  .topbar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .topbar-logo { font-family: 'Frank Ruhl Libre', serif; font-size: 20px; font-weight: 900; color: var(--accent); }
+  .topbar-nav { display: flex; gap: 4px; flex-wrap: wrap; }
+  .nav-btn { padding: 7px 12px; background: transparent; border: 1px solid transparent; border-radius: 8px; color: var(--text2); font-size: 12px; font-family: 'Heebo', sans-serif; cursor: pointer; transition: all 0.18s; font-weight: 500; }
+  .nav-btn:hover, .nav-btn.active { background: var(--bg3); border-color: var(--border); color: var(--text); }
+  .topbar-user { display: flex; align-items: center; gap: 10px; }
+  .avatar { width: 34px; height: 34px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+  .logout-btn { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 13px; font-family: 'Heebo', sans-serif; }
+  .logout-btn:hover { color: var(--red); }
+  .content { padding: 32px 28px; flex: 1; }
+
+  /* DASHBOARD */
+  .dash-title { font-family: 'Frank Ruhl Libre', serif; font-size: 28px; font-weight: 900; margin-bottom: 6px; }
+  .dash-sub { color: var(--text2); margin-bottom: 32px; font-size: 14px; }
+  .dash-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; max-width: 900px; }
+  .dash-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 24px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 12px; }
+  .dash-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: var(--shadow); }
+  .dash-card-icon { font-size: 32px; }
+  .dash-card-title { font-size: 16px; font-weight: 700; }
+  .dash-card-desc { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .dash-card-arrow { color: var(--accent); font-size: 18px; margin-top: auto; }
+
+  /* TABLES */
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .section-title { font-family: 'Frank Ruhl Libre', serif; font-size: 24px; font-weight: 900; }
+  .search-bar { display: flex; gap: 10px; margin-bottom: 18px; }
+  .search-input { flex: 1; padding: 10px 16px; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 14px; font-family: 'Heebo', sans-serif; }
+  .search-input:focus { outline: none; border-color: var(--accent); }
+  .btn-add { padding: 10px 18px; background: var(--accent); color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; font-family: 'Heebo', sans-serif; cursor: pointer; transition: opacity 0.2s; }
+  .btn-add:hover { opacity: 0.85; }
+  .table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: var(--bg3); padding: 13px 16px; font-size: 12px; color: var(--text2); font-weight: 600; text-align: right; border-bottom: 1px solid var(--border); }
+  td { padding: 13px 16px; font-size: 14px; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(79,142,247,0.04); }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .badge-green { background: rgba(62,207,142,0.12); color: var(--green); }
+  .badge-blue { background: rgba(79,142,247,0.12); color: var(--accent); }
+  .badge-gold { background: rgba(245,200,66,0.12); color: var(--gold); }
+  .badge-red { background: rgba(244,110,110,0.12); color: var(--red); }
+  .action-btn { padding: 5px 12px; border-radius: 7px; font-size: 12px; font-family: 'Heebo', sans-serif; cursor: pointer; font-weight: 600; border: 1px solid var(--border); background: var(--bg3); color: var(--text2); transition: all 0.15s; margin-left: 4px; }
+  .action-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .action-btn.danger:hover { border-color: var(--red); color: var(--red); }
+
+  /* BILLING */
+  .billing-grid { display: grid; grid-template-columns: 1fr 360px; gap: 24px; }
+  .billing-form, .billing-archive { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; }
+  .form-title { font-size: 16px; font-weight: 700; margin-bottom: 20px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .form-field label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
+  .form-field input, .form-field select, .form-field textarea { width: 100%; padding: 10px 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: 9px; color: var(--text); font-size: 14px; font-family: 'Heebo', sans-serif; }
+  .form-field textarea { resize: vertical; min-height: 80px; }
+  .form-field input:focus, .form-field select:focus, .form-field textarea:focus { outline: none; border-color: var(--accent); }
+  .item-row { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 8px; align-items: center; margin-bottom: 10px; }
+  .item-row input { padding: 9px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; font-family: 'Heebo', sans-serif; width: 100%; }
+  .remove-item { background: none; border: none; color: var(--red); cursor: pointer; font-size: 18px; padding: 4px; }
+  .billing-total { background: var(--bg3); border-radius: 10px; padding: 16px; margin: 14px 0; display: flex; justify-content: space-between; align-items: center; }
+  .total-label { color: var(--text2); font-size: 14px; }
+  .total-amount { font-size: 22px; font-weight: 800; color: var(--gold); }
+  .archive-item { background: var(--bg3); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .archive-month { font-size: 14px; font-weight: 600; }
+  .archive-sum { color: var(--gold); font-weight: 700; font-size: 15px; }
+  .archive-date { color: var(--text3); font-size: 12px; margin-top: 2px; }
+
+  /* SIGNATURE */
+  .sig-layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
+  .sig-form, .sig-panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; }
+  .canvas-wrap { border: 2px dashed var(--border); border-radius: 12px; overflow: hidden; margin: 14px 0; background: #fff; cursor: crosshair; }
+  canvas { display: block; }
+  .sig-btns { display: flex; gap: 10px; }
+  .btn-clear { padding: 9px 18px; background: var(--bg3); border: 1px solid var(--border); border-radius: 9px; color: var(--text2); font-family: 'Heebo', sans-serif; cursor: pointer; font-size: 13px; font-weight: 600; }
+  .btn-save-sig { padding: 9px 18px; background: var(--green); border: none; border-radius: 9px; color: #fff; font-family: 'Heebo', sans-serif; cursor: pointer; font-size: 13px; font-weight: 600; }
+  .cert-item { background: var(--bg3); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+  .cert-name { font-size: 14px; font-weight: 600; }
+  .cert-date { color: var(--text3); font-size: 12px; }
+  .export-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--accent2), var(--accent)); color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; font-family: 'Heebo', sans-serif; cursor: pointer; margin-top: 14px; }
+
+  /* LIBRARY */
+  .lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 18px; }
+  .lib-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 18px; cursor: pointer; transition: all 0.2s; }
+  .lib-card:hover { border-color: var(--accent2); transform: translateY(-2px); }
+  .lib-icon { font-size: 28px; margin-bottom: 12px; }
+  .lib-name { font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+  .lib-type { font-size: 12px; color: var(--text3); }
+  .lib-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+  .lib-tab { padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text2); font-family: 'Heebo', sans-serif; font-size: 13px; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+  .lib-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 8px; margin-bottom: 22px; }
+  .tab { padding: 9px 20px; border-radius: 9px; border: 1px solid var(--border); background: transparent; color: var(--text2); font-family: 'Heebo', sans-serif; font-size: 14px; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+  .tab.active { background: var(--bg3); border-color: var(--accent); color: var(--text); }
+
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 32px; width: 500px; max-width: 96vw; box-shadow: 0 8px 40px rgba(0,0,0,0.5); max-height: 90vh; overflow-y: auto; }
+  .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 22px; }
+  .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+  .btn-cancel { padding: 10px 20px; background: var(--bg3); border: 1px solid var(--border); border-radius: 9px; color: var(--text2); font-family: 'Heebo', sans-serif; cursor: pointer; font-size: 14px; }
+  .btn-save { padding: 10px 20px; background: var(--accent); border: none; border-radius: 9px; color: #fff; font-family: 'Heebo', sans-serif; cursor: pointer; font-size: 14px; font-weight: 700; }
+  .mform-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .mform-field label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
+  .mform-field input { width: 100%; padding: 10px 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: 9px; color: var(--text); font-size: 14px; font-family: 'Heebo', sans-serif; }
+  .mform-field input:focus { outline: none; border-color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- SCREEN 1: LOGIN -->
+<div id="screen-login" class="screen active">
+  <div class="login-box">
+    <div class="login-logo">⚡ ניהול עסקי</div>
+    <div class="login-sub">כניסה למערכת הניהול</div>
+    <div class="field"><label>שם משתמש</label><input type="text" id="login-user" placeholder="הכנס שם משתמש" /></div>
+    <div class="field"><label>סיסמה</label><input type="password" id="login-pass" placeholder="הכנס סיסמה" /></div>
+    <button class="btn-primary" onclick="doLogin()">כניסה למערכת</button>
+    <div class="err-msg" id="login-err"></div>
+    <p style="color:var(--text3);font-size:12px;text-align:center;margin-top:18px">משתמש: admin | סיסמה: 1234</p>
+  </div>
+</div>
+
+<!-- SCREEN 2: MAIN -->
+<div id="screen-main" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo">⚡ ניהול עסקי</div>
+    <div class="topbar-nav" id="nav-main"></div>
+    <div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div>
+  </div>
+  <div class="content">
+    <div class="dash-title">שלום, Admin 👋</div>
+    <div class="dash-sub">בחר מסך לניווט</div>
+    <div class="dash-grid">
+      <div class="dash-card" onclick="go('employees')"><div class="dash-card-icon">👥</div><div class="dash-card-title">עובדים</div><div class="dash-card-desc">פרטי עובדים, מספרי רכב, מיילים וקודים</div><div class="dash-card-arrow">← כניסה</div></div>
+      <div class="dash-card" onclick="go('prices')"><div class="dash-card-icon">💰</div><div class="dash-card-title">מחירונים</div><div class="dash-card-desc">כל מוצרי החברה עם מחירים וחיפוש מהיר</div><div class="dash-card-arrow">← כניסה</div></div>
+      <div class="dash-card" onclick="go('clients')"><div class="dash-card-icon">🏢</div><div class="dash-card-title">לקוחות וספקים</div><div class="dash-card-desc">טבלאות לקוחות וספקים עם כל הפרטים</div><div class="dash-card-arrow">← כניסה</div></div>
+      <div class="dash-card" onclick="go('billing')"><div class="dash-card-icon">📋</div><div class="dash-card-title">חיוב אורון</div><div class="dash-card-desc">תיעוד חיובים חודשיים וארכיון</div><div class="dash-card-arrow">← כניסה</div></div>
+      <div class="dash-card" onclick="go('signature')"><div class="dash-card-icon">✍️</div><div class="dash-card-title">חתימה דיגיטלית</div><div class="dash-card-desc">כתיבת תעודות וחתימת לקוחות</div><div class="dash-card-arrow">← כניסה</div></div>
+      <div class="dash-card" onclick="go('library')"><div class="dash-card-icon">📚</div><div class="dash-card-title">ספריות ומדריכים</div><div class="dash-card-desc">קישורים, מדריכים ותמונות חשובות</div><div class="dash-card-arrow">← כניסה</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 3: EMPLOYEES -->
+<div id="screen-employees" class="screen" style="flex-direction:column">
+  <div class="topbar"><div class="topbar-logo">⚡ ניהול עסקי</div><div class="topbar-nav" id="nav-employees"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="content">
+    <div class="section-header"><div class="section-title">👥 עובדים</div><button class="btn-add" onclick="openModal('emp')">+ הוסף עובד</button></div>
+    <div class="search-bar"><input class="search-input" id="emp-search" placeholder="חיפוש עובד..." oninput="renderEmployees()" /></div>
+    <div class="table-wrap"><table><thead><tr><th>שם</th><th>תפקיד</th><th>מייל</th><th>טלפון</th><th>מספר רכב</th><th>קוד</th><th>פעולות</th></tr></thead><tbody id="emp-tbody"></tbody></table></div>
+  </div>
+</div>
+
+<!-- SCREEN 4: PRICES -->
+<div id="screen-prices" class="screen" style="flex-direction:column">
+  <div class="topbar"><div class="topbar-logo">⚡ ניהול עסקי</div><div class="topbar-nav" id="nav-prices"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="content">
+    <div class="section-header"><div class="section-title">💰 מחירונים</div><button class="btn-add" onclick="openModal('price')">+ הוסף מוצר</button></div>
+    <div class="search-bar"><input class="search-input" id="price-search" placeholder="חיפוש מוצר..." oninput="renderPrices()" /></div>
+    <div class="table-wrap"><table><thead><tr><th>שם מוצר</th><th>קטגוריה</th><th>מחיר</th><th>יחידה</th><th>הערות</th><th>פעולות</th></tr></thead><tbody id="price-tbody"></tbody></table></div>
+  </div>
+</div>
+
+<!-- SCREEN 5: CLIENTS & SUPPLIERS -->
+<div id="screen-clients" class="screen" style="flex-direction:column">
+  <div class="topbar"><div class="topbar-logo">⚡ ניהול עסקי</div><div class="topbar-nav" id="nav-clients"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="content">
+    <div class="tabs">
+      <button class="tab active" id="tab-clients" onclick="switchTab('clients')">🧑‍💼 לקוחות</button>
+      <button class="tab" id="tab-suppliers" onclick="switchTab('suppliers')">🏭 ספקים</button>
+    </div>
+    <div id="clients-panel">
+      <div class="section-header"><div class="section-title">לקוחות</div><button class="btn-add" onclick="openModal('client')">+ הוסף לקוח</button></div>
+      <div class="search-bar"><input class="search-input" id="client-search" placeholder="חיפוש לקוח..." oninput="renderClients()" /></div>
+      <div class="table-wrap"><table><thead><tr><th>שם</th><th>חברה</th><th>טלפון</th><th>מייל</th><th>עיר</th><th>סטטוס</th><th>פעולות</th></tr></thead><tbody id="client-tbody"></tbody></table></div>
+    </div>
+    <div id="suppliers-panel" style="display:none">
+      <div class="section-header"><div class="section-title">ספקים</div><button class="btn-add" onclick="openModal('supplier')">+ הוסף ספק</button></div>
+      <div class="search-bar"><input class="search-input" id="supplier-search" placeholder="חיפוש ספק..." oninput="renderSuppliers()" /></div>
+      <div class="table-wrap"><table><thead><tr><th>שם</th><th>חברה</th><th>טלפון</th><th>מייל</th><th>מוצר עיקרי</th><th>תנאי תשלום</th><th>פעולות</th></tr></thead><tbody id="supplier-tbody"></tbody></table></div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 6: BILLING -->
+<div id="screen-billing" class="screen" style="flex-direction:column">
+  <div class="topbar"><div class="topbar-logo">⚡ ניהול עסקי</div><div class="topbar-nav" id="nav-billing"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="content">
+    <div class="section-title" style="margin-bottom:24px">📋 חיוב אורון</div>
+    <div class="billing-grid">
+      <div class="billing-form">
+        <div class="form-title">חיוב חודשי — <span style="color:var(--accent)">אורון</span></div>
+        <div class="form-row">
+          <div class="form-field"><label>חודש</label><input type="month" id="bill-month" /></div>
+          <div class="form-field"><label>תאריך</label><input type="date" id="bill-date" /></div>
+        </div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:600">פריטים לחיוב</div>
+        <div id="bill-items-list"></div>
+        <button onclick="addBillItem()" style="background:none;border:1px dashed var(--border);border-radius:8px;color:var(--accent);width:100%;padding:9px;cursor:pointer;font-family:'Heebo',sans-serif;font-size:13px;margin-bottom:14px;">+ הוסף פריט</button>
+        <div class="billing-total"><span class="total-label">סה"כ לחיוב</span><span class="total-amount" id="bill-total">₪0</span></div>
+        <div class="form-field" style="margin-bottom:16px"><label>הערות</label><textarea id="bill-notes" placeholder="הערות נוספות..."></textarea></div>
+        <button class="btn-primary" onclick="saveBilling()">שמור חיוב</button>
+      </div>
+      <div class="billing-archive">
+        <div class="form-title">📂 ארכיון חיובים — אורון</div>
+        <div id="billing-archive-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 7: SIGNATURE -->
+<div id="screen-signature" class="screen" style="flex-direction:column">
+  <div class="topbar"><div class="topbar-logo">⚡ ניהול עסקי</div><div class="topbar-nav" id="nav-signature"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="content">
+    <div class="section-title" style="margin-bottom:24px">✍️ חתימה דיגיטלית</div>
+    <div class="sig-layout">
+      <div class="sig-form">
+        <div class="form-title">כתיבת תעודה</div>
+        <div class="form-row">
+          <div class="form-field"><label>שם לקוח</label><input type="text" id="sig-client" placeholder="שם הלקוח" /></div>
+          <div class="form-field"><label>תאריך</label><input type="date" id="sig-date" /></div>
+        </div>
+        <div class="form-field" style="margin-bottom:14px"><label>תיאור העבודה שבוצעה</label><textarea id="sig-desc" placeholder="תאר את העבודה..." style="min-height:110px"></textarea></div>
+        <div class="form-row">
+          <div class="form-field"><label>שעות / כמות</label><input type="number" id="sig-hours" placeholder="0" /></div>
+          <div class="form-field"><label>מחיר (₪)</label><input type="number" id="sig-price" placeholder="0" /></div>
+        </div>
+        <div style="font-size:13px;color:var(--text2);font-weight:600;margin-bottom:8px">חתימת לקוח</div>
+        <div class="canvas-wrap"><canvas id="sig-canvas" width="480" height="150"></canvas></div>
+        <div class="sig-btns">
+          <button class="btn-clear" onclick="clearCanvas()">נקה חתימה</button>
+          <button class="btn-save-sig" onclick="saveCert()">שמור תעודה ✓</button>
+        </div>
+      </div>
+      <div class="sig-panel">
+        <div class="form-title">תעודות החודש הנוכחי</div>
+        <div id="cert-list-el"></div>
+        <button class="export-btn" onclick="exportCerts()">📄 ייצוא כל התעודות</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 8: LIBRARY -->
+<div id="screen-library" class="screen" style="flex-direction:column">
+  <div class="topbar"><div class="topbar-logo">⚡ ניהול עסקי</div><div class="topbar-nav" id="nav-library"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="content">
+    <div class="section-header"><div class="section-title">📚 ספריות ומדריכים</div><button class="btn-add" onclick="openModal('lib')">+ הוסף פריט</button></div>
+    <div class="lib-tabs">
+      <button class="lib-tab active" onclick="filterLib('all',this)">הכל</button>
+      <button class="lib-tab" onclick="filterLib('link',this)">🔗 קישורים</button>
+      <button class="lib-tab" onclick="filterLib('guide',this)">📖 מדריכים</button>
+      <button class="lib-tab" onclick="filterLib('image',this)">🖼️ תמונות</button>
+    </div>
+    <div class="lib-grid" id="lib-grid"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-title" id="modal-title"></div>
+    <div id="modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">ביטול</button>
+      <button class="btn-save" onclick="saveModal()">שמור</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// DATA
+const defaultData = {
+  employees: [
+    {name:'דוד כהן',role:'מנהל',email:'david@co.il',phone:'050-1111111',car:'12-345-67',code:'DC01'},
+    {name:'שרה לוי',role:'טכנאית',email:'sara@co.il',phone:'052-2222222',car:'98-765-43',code:'SL02'},
+    {name:'משה גולן',role:'נהג',email:'moshe@co.il',phone:'054-3333333',car:'55-111-22',code:'MG03'},
+  ],
+  prices: [
+    {name:'שירות מלא',cat:'תחזוקה',price:'450',unit:'ביקור',notes:'כולל חלקים'},
+    {name:'התקנה בסיסית',cat:'התקנה',price:'280',unit:'יחידה',notes:''},
+    {name:'ייעוץ טכני',cat:'ייעוץ',price:'200',unit:'שעה',notes:''},
+    {name:'חלק חילוף A',cat:'חלקים',price:'120',unit:"יח'",notes:'מלאי מוגבל'},
+  ],
+  clients: [
+    {name:'אורון ברקת',company:'ברקת בע"מ',phone:'050-9999999',email:'oron@barkat.co.il',city:'תל אביב',status:'פעיל'},
+    {name:'יוסי מזרחי',company:'מזרחי תעשיות',phone:'052-8888888',email:'yosi@miz.co.il',city:'חיפה',status:'פעיל'},
+    {name:'רונית שמיר',company:'שמיר בניה',phone:'053-7777777',email:'ronit@shamir.co.il',city:'ירושלים',status:'לא פעיל'},
+  ],
+  suppliers: [
+    {name:'אבי ספק',company:'ספק בע"מ',phone:'03-1234567',email:'avi@sapak.co.il',product:'חלקי חילוף',terms:'30 יום'},
+    {name:'חנה יבואנית',company:'יבוא ישיר',phone:'04-7654321',email:'hana@yabaot.co.il',product:'ציוד',terms:'שוטף+60'},
+  ],
+  billing: [],
+  certs: [],
+  library: [
+    {name:'מדריך התקנה',type:'guide',url:'#',icon:'📖'},
+    {name:'קטלוג ספק ראשי',type:'link',url:'#',icon:'🔗'},
+    {name:'תמונות עבודות 2023',type:'image',url:'#',icon:'🖼️'},
+    {name:'פרוטוקול בטיחות',type:'guide',url:'#',icon:'📋'},
+    {name:'מחירון ספק B',type:'link',url:'#',icon:'🔗'},
+  ]
+};
+
+function ld(k){try{return JSON.parse(localStorage.getItem(k))||defaultData[k];}catch{return defaultData[k];}}
+function sd(k,v){localStorage.setItem(k,JSON.stringify(v));}
+
+// NAV
+const screens = ['main','employees','prices','clients','billing','signature','library'];
+const navLabels = {main:'ראשי',employees:'עובדים',prices:'מחירונים',clients:'לקוחות וספקים',billing:'חיוב אורון',signature:'חתימה דיגיטלית',library:'ספריות'};
+
+function buildNavs() {
+  screens.forEach(s => {
+    const el = document.getElementById('nav-'+s);
+    if(!el) return;
+    el.innerHTML = screens.map(t => `<button class="nav-btn${s===t?' active':''}" onclick="go('${t}')">${navLabels[t]}</button>`).join('');
+  });
+}
+
+function go(screen) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+screen).classList.add('active');
+  if(screen==='employees') renderEmployees();
+  if(screen==='prices') renderPrices();
+  if(screen==='clients'){renderClients();renderSuppliers();}
+  if(screen==='billing'){initBilling();renderBillingArchive();}
+  if(screen==='signature'){renderCerts();initCanvas();}
+  if(screen==='library') renderLibrary('all');
+}
+
+function doLogin(){
+  const u=document.getElementById('login-user').value;
+  const p=document.getElementById('login-pass').value;
+  if(u==='admin'&&p==='1234'){
+    document.getElementById('screen-login').classList.remove('active');
+    buildNavs(); go('main');
+  } else { document.getElementById('login-err').textContent='שם משתמש או סיסמה שגויים'; }
+}
+document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+function doLogout(){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-login').classList.add('active');}
+
+// EMPLOYEES
+function renderEmployees(){
+  const q=(document.getElementById('emp-search')?.value||'').toLowerCase();
+  const data=ld('employees').filter(e=>!q||e.name.toLowerCase().includes(q)||e.role.toLowerCase().includes(q));
+  document.getElementById('emp-tbody').innerHTML=data.length?data.map((e,i)=>`<tr><td><b>${e.name}</b></td><td><span class="badge badge-blue">${e.role}</span></td><td>${e.email}</td><td>${e.phone}</td><td>${e.car}</td><td><span class="badge badge-gold">${e.code}</span></td><td><button class="action-btn" onclick="editItem('emp',${i})">✏️</button><button class="action-btn danger" onclick="delItem('employees',${i},renderEmployees)">🗑️</button></td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו עובדים</td></tr>';
+}
+
+// PRICES
+function renderPrices(){
+  const q=(document.getElementById('price-search')?.value||'').toLowerCase();
+  const data=ld('prices').filter(p=>!q||p.name.toLowerCase().includes(q)||p.cat.toLowerCase().includes(q));
+  document.getElementById('price-tbody').innerHTML=data.length?data.map((p,i)=>`<tr><td><b>${p.name}</b></td><td><span class="badge badge-green">${p.cat}</span></td><td style="color:var(--gold);font-weight:700">₪${p.price}</td><td>${p.unit}</td><td style="color:var(--text2)">${p.notes}</td><td><button class="action-btn" onclick="editItem('price',${i})">✏️</button><button class="action-btn danger" onclick="delItem('prices',${i},renderPrices)">🗑️</button></td></tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו מוצרים</td></tr>';
+}
+
+// CLIENTS/SUPPLIERS
+function switchTab(tab){
+  document.getElementById('clients-panel').style.display=tab==='clients'?'block':'none';
+  document.getElementById('suppliers-panel').style.display=tab==='suppliers'?'block':'none';
+  document.getElementById('tab-clients').className='tab'+(tab==='clients'?' active':'');
+  document.getElementById('tab-suppliers').className='tab'+(tab==='suppliers'?' active':'');
+}
+function renderClients(){
+  const q=(document.getElementById('client-search')?.value||'').toLowerCase();
+  const data=ld('clients').filter(c=>!q||c.name.toLowerCase().includes(q)||c.company.toLowerCase().includes(q));
+  document.getElementById('client-tbody').innerHTML=data.length?data.map((c,i)=>`<tr><td><b>${c.name}</b></td><td>${c.company}</td><td>${c.phone}</td><td>${c.email}</td><td>${c.city}</td><td><span class="badge ${c.status==='פעיל'?'badge-green':'badge-red'}">${c.status}</span></td><td><button class="action-btn" onclick="editItem('client',${i})">✏️</button><button class="action-btn danger" onclick="delItem('clients',${i},renderClients)">🗑️</button></td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו לקוחות</td></tr>';
+}
+function renderSuppliers(){
+  const q=(document.getElementById('supplier-search')?.value||'').toLowerCase();
+  const data=ld('suppliers').filter(s=>!q||s.name.toLowerCase().includes(q)||s.company.toLowerCase().includes(q));
+  document.getElementById('supplier-tbody').innerHTML=data.length?data.map((s,i)=>`<tr><td><b>${s.name}</b></td><td>${s.company}</td><td>${s.phone}</td><td>${s.email}</td><td>${s.product}</td><td><span class="badge badge-blue">${s.terms}</span></td><td><button class="action-btn" onclick="editItem('supplier',${i})">✏️</button><button class="action-btn danger" onclick="delItem('suppliers',${i},renderSuppliers)">🗑️</button></td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו ספקים</td></tr>';
+}
+
+// BILLING
+function initBilling(){
+  const t=new Date();
+  if(!document.getElementById('bill-date').value) document.getElementById('bill-date').value=t.toISOString().split('T')[0];
+  if(!document.getElementById('bill-month').value) document.getElementById('bill-month').value=t.toISOString().slice(0,7);
+  if(!document.getElementById('bill-items-list').children.length) addBillItem();
+}
+function addBillItem(){
+  const d=document.createElement('div'); d.className='item-row';
+  d.innerHTML=`<input placeholder="תיאור פריט" oninput="calcTotal()"/><input type="number" placeholder="כמות" value="1" oninput="calcTotal()"/><input type="number" placeholder="מחיר" oninput="calcTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcTotal()">×</button>`;
+  document.getElementById('bill-items-list').appendChild(d);
+}
+function calcTotal(){
+  let t=0;
+  document.querySelectorAll('#bill-items-list .item-row').forEach(r=>{
+    const inp=r.querySelectorAll('input');
+    t+=(parseFloat(inp[1]?.value)||0)*(parseFloat(inp[2]?.value)||0);
+  });
+  document.getElementById('bill-total').textContent='₪'+t.toLocaleString('he-IL');
+}
+function saveBilling(){
+  const month=document.getElementById('bill-month').value;
+  const date=document.getElementById('bill-date').value;
+  const notes=document.getElementById('bill-notes').value;
+  const items=[]; let total=0;
+  document.querySelectorAll('#bill-items-list .item-row').forEach(r=>{
+    const inp=r.querySelectorAll('input');
+    const desc=inp[0]?.value; const qty=parseFloat(inp[1]?.value)||0; const price=parseFloat(inp[2]?.value)||0;
+    if(desc){items.push({desc,qty,price});total+=qty*price;}
+  });
+  if(!month||!items.length){alert('אנא מלא חודש ולפחות פריט אחד');return;}
+  const data=ld('billing'); data.unshift({month,date,notes,items,total});
+  sd('billing',data); renderBillingArchive(); alert('החיוב נשמר! ✓');
+}
+function renderBillingArchive(){
+  const data=ld('billing');
+  const el=document.getElementById('billing-archive-list');
+  if(!data.length){el.innerHTML='<div style="color:var(--text3);text-align:center;padding:30px;font-size:14px">אין חיובים בארכיון</div>';return;}
+  el.innerHTML=data.map(b=>`<div class="archive-item"><div><div class="archive-month">📅 ${b.month}</div><div class="archive-date">${b.date||''}</div></div><div class="archive-sum">₪${(b.total||0).toLocaleString('he-IL')}</div></div>`).join('');
+}
+
+// SIGNATURE
+let isDrawing=false,lastX=0,lastY=0,ctx=null;
+function initCanvas(){
+  const canvas=document.getElementById('sig-canvas'); if(!canvas)return;
+  ctx=canvas.getContext('2d'); ctx.strokeStyle='#1a1a2e'; ctx.lineWidth=2.5; ctx.lineCap='round';
+  const pos=(c,e)=>{const r=c.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top];};
+  canvas.onmousedown=e=>{isDrawing=true;[lastX,lastY]=pos(canvas,e);};
+  canvas.onmousemove=e=>{if(!isDrawing)return;const[x,y]=pos(canvas,e);ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(x,y);ctx.stroke();[lastX,lastY]=[x,y];};
+  canvas.onmouseup=canvas.onmouseleave=()=>isDrawing=false;
+  canvas.ontouchstart=e=>{e.preventDefault();isDrawing=true;[lastX,lastY]=pos(canvas,e.touches[0]);};
+  canvas.ontouchmove=e=>{e.preventDefault();if(!isDrawing)return;const[x,y]=pos(canvas,e.touches[0]);ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(x,y);ctx.stroke();[lastX,lastY]=[x,y];};
+  canvas.ontouchend=()=>isDrawing=false;
+  if(!document.getElementById('sig-date').value) document.getElementById('sig-date').value=new Date().toISOString().split('T')[0];
+}
+function clearCanvas(){if(ctx){const c=document.getElementById('sig-canvas');ctx.clearRect(0,0,c.width,c.height);}}
+function saveCert(){
+  const client=document.getElementById('sig-client').value;
+  const desc=document.getElementById('sig-desc').value;
+  if(!client||!desc){alert('אנא מלא שם לקוח ותיאור עבודה');return;}
+  const certs=ld('certs');
+  certs.unshift({client,date:document.getElementById('sig-date').value,desc,hours:document.getElementById('sig-hours').value,price:document.getElementById('sig-price').value,ts:Date.now()});
+  sd('certs',certs); clearCanvas();
+  ['sig-client','sig-desc','sig-hours','sig-price'].forEach(id=>document.getElementById(id).value='');
+  renderCerts(); alert('התעודה נשמרה! ✓');
+}
+function renderCerts(){
+  const month=new Date().toISOString().slice(0,7);
+  const thisMon=ld('certs').filter(c=>c.date?.startsWith(month));
+  const el=document.getElementById('cert-list-el');
+  if(!thisMon.length){el.innerHTML='<div style="color:var(--text3);text-align:center;padding:30px;font-size:14px">אין תעודות החודש</div>';return;}
+  el.innerHTML=thisMon.map(c=>`<div class="cert-item"><div><div class="cert-name">${c.client}</div><div class="cert-date">${c.date}</div></div><span class="badge badge-green">✓ נחתם</span></div>`).join('');
+}
+function exportCerts(){
+  const month=new Date().toISOString().slice(0,7);
+  const list=ld('certs').filter(c=>c.date?.startsWith(month));
+  if(!list.length){alert('אין תעודות לחודש זה');return;}
+  let txt=`תעודות חודש ${month}\n${'='.repeat(40)}\n\n`;
+  list.forEach((c,i)=>{txt+=`תעודה ${i+1}\nלקוח: ${c.client}\nתאריך: ${c.date}\nתיאור: ${c.desc}\nכמות: ${c.hours||'-'} | מחיר: ₪${c.price||'-'}\n${'-'.repeat(30)}\n\n`;});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain;charset=utf-8'}));
+  a.download=`תעודות_${month}.txt`; a.click();
+}
+
+// LIBRARY
+function renderLibrary(filter){
+  const typeLabel={link:'קישור',guide:'מדריך',image:'תמונה'};
+  const data=ld('library').filter(l=>filter==='all'||l.type===filter);
+  const grid=document.getElementById('lib-grid');
+  if(!data.length){grid.innerHTML='<div style="color:var(--text3);padding:40px;font-size:14px">לא נמצאו פריטים</div>';return;}
+  grid.innerHTML=data.map((l,i)=>`<div class="lib-card" onclick="openLink('${l.url}')"><div class="lib-icon">${l.icon||'📎'}</div><div class="lib-name">${l.name}</div><div class="lib-type">${typeLabel[l.type]||l.type}</div></div>`).join('');
+}
+function filterLib(type,btn){
+  document.querySelectorAll('.lib-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active'); renderLibrary(type);
+}
+function openLink(url){if(url&&url!=='#')window.open(url,'_blank');else alert('קישור לא הוגדר עדיין');}
+
+// GENERIC DELETE
+function delItem(store,i,renderFn){
+  if(!confirm('למחוק פריט זה?'))return;
+  const d=ld(store); d.splice(i,1); sd(store,d); renderFn();
+}
+
+// MODAL
+let currentModal=null, editIndex=-1;
+const modalDefs={
+  emp:{title:'עובד',fields:[['name','שם מלא'],['role','תפקיד'],['email','מייל'],['phone','טלפון'],['car','מספר רכב'],['code','קוד']],store:'employees',render:renderEmployees},
+  price:{title:'מוצר',fields:[['name','שם מוצר'],['cat','קטגוריה'],['price','מחיר'],['unit','יחידה'],['notes','הערות']],store:'prices',render:renderPrices},
+  client:{title:'לקוח',fields:[['name','שם'],['company','חברה'],['phone','טלפון'],['email','מייל'],['city','עיר'],['status','סטטוס']],store:'clients',render:renderClients},
+  supplier:{title:'ספק',fields:[['name','שם'],['company','חברה'],['phone','טלפון'],['email','מייל'],['product','מוצר עיקרי'],['terms','תנאי תשלום']],store:'suppliers',render:renderSuppliers},
+  lib:{title:'פריט ספרייה',fields:[['name','שם'],['type','סוג (link/guide/image)'],['url','קישור URL'],['icon','אייקון (emoji)']],store:'library',render:()=>renderLibrary('all')},
+};
+
+function openModal(type,data=null){
+  currentModal=type;
+  const def=modalDefs[type];
+  document.getElementById('modal-title').textContent=(data?'ערוך ':'הוסף ')+def.title;
+  document.getElementById('modal-body').innerHTML=`<div class="mform-grid">${def.fields.map(([k,label])=>`<div class="mform-field"><label>${label}</label><input id="mf-${k}" value="${data?data[k]||'':''}" /></div>`).join('')}</div>`;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function editItem(type,i){
+  const def=modalDefs[type]; editIndex=i;
+  openModal(type, ld(def.store)[i]);
+}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');currentModal=null;editIndex=-1;}
+function saveModal(){
+  const def=modalDefs[currentModal];
+  const obj={};
+  def.fields.forEach(([k])=>{obj[k]=document.getElementById('mf-'+k)?.value||'';});
+  const data=ld(def.store);
+  if(editIndex>=0)data[editIndex]=obj; else data.push(obj);
+  sd(def.store,data); closeModal(); def.render();
+}
+document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+</script>
+</body>
+</html>
