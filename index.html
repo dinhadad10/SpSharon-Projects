@@ -775,5 +775,24 @@ function importBackup(event){
 }
 
 </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const supabase = window.supabase.createClient(
+  "https://pinqjymurkspwwqyycyc.supabase.co",
+  "sb_publishable_9bPOiX5alqUylUGTQJ7WGg_NjJuNR-R"
+);
+
+async function testConnection() {
+  const { data, error } = await supabase
+    .from('employees')
+    .select('*');
+
+  console.log("DATA:", data);
+  console.log("ERROR:", error);
+}
+
+testConnection();
+</script>
 </body>
 </html>
