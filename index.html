@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>מערכת ניהול עסקית</title>
+<meta name="description" content="מערכת ניהול עסקית לניהול עובדים, מחירונים, לקוחות, ספקים, חיובים, חתימות ורכבים">
+<meta property="og:title" content="מערכת ניהול עסקית">
+<meta property="og:description" content="ניהול עובדים, מחירונים, לקוחות, ספקים, חיובים, חתימות ורכבים במקום אחד">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0f1117">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&family=Frank+Ruhl+Libre:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -151,6 +156,62 @@
   .mform-field label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
   .mform-field input { width: 100%; padding: 10px 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: 9px; color: var(--text); font-size: 14px; font-family: 'Heebo', sans-serif; }
   .mform-field input:focus { outline: none; border-color: var(--accent); }
+
+  /* BACKUP */
+  .backup-panel {
+    margin: 0 0 28px 0;
+    max-width: 900px;
+    background: rgba(79,142,247,0.06);
+    border: 1px solid rgba(79,142,247,0.22);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  .backup-title { font-weight: 800; margin-bottom: 4px; }
+  .backup-desc { color: var(--text2); font-size: 13px; line-height: 1.5; }
+  .backup-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-secondary {
+    padding: 9px 14px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    color: var(--text);
+    font-family: 'Heebo', sans-serif;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .dash-grid, .billing-grid, .sig-layout { grid-template-columns: 1fr; max-width: none; }
+    .topbar { height: auto; min-height: 60px; padding: 12px 16px; flex-direction: column; align-items: stretch; gap: 10px; }
+    .topbar-logo, .topbar-user { justify-content: center; text-align: center; }
+    .topbar-nav { justify-content: center; }
+    .content { padding: 22px 14px; }
+    .section-header { flex-direction: column; align-items: stretch; gap: 12px; }
+    .search-bar { flex-direction: column; }
+    .table-wrap { overflow-x: auto; }
+    table { min-width: 760px; }
+    .form-row, .mform-grid, .item-row { grid-template-columns: 1fr; }
+    .login-box { width: min(380px, calc(100vw - 28px)); padding: 34px 24px; }
+    .backup-panel { flex-direction: column; align-items: stretch; }
+    .backup-actions { justify-content: stretch; }
+    .backup-actions button, .backup-actions label { flex: 1; text-align: center; }
+    .canvas-wrap { overflow-x: auto; }
+  }
+
+  @media (max-width: 520px) {
+    .dash-title { font-size: 24px; }
+    .section-title { font-size: 21px; }
+    .dash-card { padding: 20px 18px; }
+    .nav-btn { flex: 1 1 42%; }
+  }
+
 </style>
 </head>
 <body>
@@ -164,7 +225,6 @@
     <div class="field"><label>סיסמה</label><input type="password" id="login-pass" placeholder="הכנס סיסמה" /></div>
     <button class="btn-primary" onclick="doLogin()">כניסה למערכת</button>
     <div class="err-msg" id="login-err"></div>
-    <p style="color:var(--text3);font-size:12px;text-align:center;margin-top:18px">משתמש: admin | סיסמה: 1234</p>
   </div>
 </div>
 
@@ -178,6 +238,17 @@
   <div class="content">
     <div class="dash-title">שלום, Admin 👋</div>
     <div class="dash-sub">בחר מסך לניווט</div>
+    <div class="backup-panel">
+      <div>
+        <div class="backup-title">💾 גיבוי ושחזור נתונים</div>
+        <div class="backup-desc">הנתונים נשמרים כרגע בדפדפן בלבד. מומלץ לבצע גיבוי JSON מדי פעם.</div>
+      </div>
+      <div class="backup-actions">
+        <button class="btn-secondary" onclick="exportBackup()">ייצוא גיבוי</button>
+        <label class="btn-secondary" for="backup-file" style="display:inline-block">ייבוא גיבוי</label>
+        <input type="file" id="backup-file" accept="application/json" style="display:none" onchange="importBackup(event)">
+      </div>
+    </div>
     <div class="dash-grid">
       <div class="dash-card" onclick="go('employees')"><div class="dash-card-icon">👥</div><div class="dash-card-title">עובדים</div><div class="dash-card-desc">פרטי עובדים, מספרי רכב, מיילים וקודים</div><div class="dash-card-arrow">← כניסה</div></div>
       <div class="dash-card" onclick="go('prices')"><div class="dash-card-icon">💰</div><div class="dash-card-title">מחירונים</div><div class="dash-card-desc">כל מוצרי החברה עם מחירים וחיפוש מהיר</div><div class="dash-card-arrow">← כניסה</div></div>
@@ -378,8 +449,30 @@ const defaultData = {
   ]
 };
 
-function ld(k){try{return JSON.parse(localStorage.getItem(k))||defaultData[k];}catch{return defaultData[k];}}
+function makeId(){return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,9);}
+function cloneData(v){return JSON.parse(JSON.stringify(v || []));}
 function sd(k,v){localStorage.setItem(k,JSON.stringify(v));}
+function ensureIds(k,arr){
+  if(!Array.isArray(arr)) return [];
+  let changed=false;
+  arr.forEach(item=>{
+    if(item && typeof item==='object' && !item.id){
+      item.id = makeId();
+      changed = true;
+    }
+  });
+  if(changed) sd(k,arr);
+  return arr;
+}
+function ld(k){
+  try{
+    const raw = localStorage.getItem(k);
+    const data = raw ? JSON.parse(raw) : cloneData(defaultData[k]);
+    return ensureIds(k,data);
+  }catch{
+    return ensureIds(k,cloneData(defaultData[k]));
+  }
+}
 
 // NAV
 const screens = ['main','employees','prices','clients','billing','signature','library','vehicles'];
@@ -420,14 +513,14 @@ function doLogout(){document.querySelectorAll('.screen').forEach(s=>s.classList.
 function renderEmployees(){
   const q=(document.getElementById('emp-search')?.value||'').toLowerCase();
   const data=ld('employees').filter(e=>!q||e.name.toLowerCase().includes(q)||e.role.toLowerCase().includes(q));
-  document.getElementById('emp-tbody').innerHTML=data.length?data.map((e,i)=>`<tr><td><b>${e.name}</b></td><td><span class="badge badge-blue">${e.role}</span></td><td>${e.email}</td><td>${e.phone}</td><td>${e.car}</td><td><span class="badge badge-gold">${e.code}</span></td><td><button class="action-btn" onclick="editItem('emp',${i})">✏️</button><button class="action-btn danger" onclick="delItem('employees',${i},renderEmployees)">🗑️</button></td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו עובדים</td></tr>';
+  document.getElementById('emp-tbody').innerHTML=data.length?data.map((e,i)=>`<tr><td><b>${e.name}</b></td><td><span class="badge badge-blue">${e.role}</span></td><td>${e.email}</td><td>${e.phone}</td><td>${e.car}</td><td><span class="badge badge-gold">${e.code}</span></td><td><button class="action-btn" onclick="editItemById('emp','${e.id}')">✏️</button><button class="action-btn danger" onclick="delItemById('employees','${e.id}',renderEmployees)">🗑️</button></td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו עובדים</td></tr>';
 }
 
 // PRICES
 function renderPrices(){
   const q=(document.getElementById('price-search')?.value||'').toLowerCase();
   const data=ld('prices').filter(p=>!q||p.name.toLowerCase().includes(q)||p.cat.toLowerCase().includes(q));
-  document.getElementById('price-tbody').innerHTML=data.length?data.map((p,i)=>`<tr><td><b>${p.name}</b></td><td><span class="badge badge-green">${p.cat}</span></td><td style="color:var(--gold);font-weight:700">₪${p.price}</td><td>${p.unit}</td><td style="color:var(--text2)">${p.notes}</td><td><button class="action-btn" onclick="editItem('price',${i})">✏️</button><button class="action-btn danger" onclick="delItem('prices',${i},renderPrices)">🗑️</button></td></tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו מוצרים</td></tr>';
+  document.getElementById('price-tbody').innerHTML=data.length?data.map((p,i)=>`<tr><td><b>${p.name}</b></td><td><span class="badge badge-green">${p.cat}</span></td><td style="color:var(--gold);font-weight:700">₪${p.price}</td><td>${p.unit}</td><td style="color:var(--text2)">${p.notes}</td><td><button class="action-btn" onclick="editItemById('price','${p.id}')">✏️</button><button class="action-btn danger" onclick="delItemById('prices','${p.id}',renderPrices)">🗑️</button></td></tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו מוצרים</td></tr>';
 }
 
 // CLIENTS/SUPPLIERS
@@ -440,12 +533,12 @@ function switchTab(tab){
 function renderClients(){
   const q=(document.getElementById('client-search')?.value||'').toLowerCase();
   const data=ld('clients').filter(c=>!q||c.name.toLowerCase().includes(q)||c.company.toLowerCase().includes(q));
-  document.getElementById('client-tbody').innerHTML=data.length?data.map((c,i)=>`<tr><td><b>${c.name}</b></td><td>${c.company}</td><td>${c.phone}</td><td>${c.email}</td><td>${c.city}</td><td><span class="badge ${c.status==='פעיל'?'badge-green':'badge-red'}">${c.status}</span></td><td><button class="action-btn" onclick="editItem('client',${i})">✏️</button><button class="action-btn danger" onclick="delItem('clients',${i},renderClients)">🗑️</button></td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו לקוחות</td></tr>';
+  document.getElementById('client-tbody').innerHTML=data.length?data.map((c,i)=>`<tr><td><b>${c.name}</b></td><td>${c.company}</td><td>${c.phone}</td><td>${c.email}</td><td>${c.city}</td><td><span class="badge ${c.status==='פעיל'?'badge-green':'badge-red'}">${c.status}</span></td><td><button class="action-btn" onclick="editItemById('client','${c.id}')">✏️</button><button class="action-btn danger" onclick="delItemById('clients','${c.id}',renderClients)">🗑️</button></td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו לקוחות</td></tr>';
 }
 function renderSuppliers(){
   const q=(document.getElementById('supplier-search')?.value||'').toLowerCase();
   const data=ld('suppliers').filter(s=>!q||s.name.toLowerCase().includes(q)||s.company.toLowerCase().includes(q));
-  document.getElementById('supplier-tbody').innerHTML=data.length?data.map((s,i)=>`<tr><td><b>${s.name}</b></td><td>${s.company}</td><td>${s.phone}</td><td>${s.email}</td><td>${s.product}</td><td><span class="badge badge-blue">${s.terms}</span></td><td><button class="action-btn" onclick="editItem('supplier',${i})">✏️</button><button class="action-btn danger" onclick="delItem('suppliers',${i},renderSuppliers)">🗑️</button></td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו ספקים</td></tr>';
+  document.getElementById('supplier-tbody').innerHTML=data.length?data.map((s,i)=>`<tr><td><b>${s.name}</b></td><td>${s.company}</td><td>${s.phone}</td><td>${s.email}</td><td>${s.product}</td><td><span class="badge badge-blue">${s.terms}</span></td><td><button class="action-btn" onclick="editItemById('supplier','${s.id}')">✏️</button><button class="action-btn danger" onclick="delItemById('suppliers','${s.id}',renderSuppliers)">🗑️</button></td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו ספקים</td></tr>';
 }
 
 // BILLING
@@ -550,6 +643,13 @@ function delItem(store,i,renderFn){
   if(!confirm('למחוק פריט זה?'))return;
   const d=ld(store); d.splice(i,1); sd(store,d); renderFn();
 }
+function delItemById(store,id,renderFn){
+  if(!confirm('למחוק פריט זה?'))return;
+  const d=ld(store);
+  const idx=d.findIndex(x=>x.id===id);
+  if(idx<0){alert('הפריט לא נמצא');return;}
+  d.splice(idx,1); sd(store,d); renderFn();
+}
 
 // VEHICLES
 function daysDiff(dateStr){
@@ -580,7 +680,7 @@ function renderVehicles(){
       <td><span class="badge ${insInfo.badge}">${v.insExp||'-'} (${insInfo.label})</span></td>
       <td><span class="badge ${testInfo.badge}">${v.testExp||'-'} (${testInfo.label})</span></td>
       <td>${v.notes||''}</td>
-      <td><button class="action-btn" onclick="editItem('vehicle',${i})">✏️</button><button class="action-btn danger" onclick="delItem('vehicles',${i},renderVehicles)">🗑️</button></td>
+      <td><button class="action-btn" onclick="editItemById('vehicle','${v.id}')">✏️</button><button class="action-btn danger" onclick="delItemById('vehicles','${v.id}',renderVehicles)">🗑️</button></td>
     </tr>`;
   }).join('');
   document.getElementById('vehicle-tbody').innerHTML=rows||'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו רכבים</td></tr>';
@@ -589,7 +689,7 @@ function renderVehicles(){
 }
 
 // MODAL
-let currentModal=null, editIndex=-1;
+let currentModal=null, editIndex=-1, editId=null;
 const modalDefs={
   emp:{title:'עובד',fields:[['name','שם מלא'],['role','תפקיד'],['email','מייל'],['phone','טלפון'],['car','מספר רכב'],['code','קוד']],store:'employees',render:renderEmployees},
   price:{title:'מוצר',fields:[['name','שם מוצר'],['cat','קטגוריה'],['price','מחיר'],['unit','יחידה'],['notes','הערות']],store:'prices',render:renderPrices},
@@ -607,19 +707,73 @@ function openModal(type,data=null){
   document.getElementById('modal-overlay').classList.add('open');
 }
 function editItem(type,i){
-  const def=modalDefs[type]; editIndex=i;
+  const def=modalDefs[type]; editIndex=i; editId=null;
   openModal(type, ld(def.store)[i]);
 }
-function closeModal(){document.getElementById('modal-overlay').classList.remove('open');currentModal=null;editIndex=-1;}
+function editItemById(type,id){
+  const def=modalDefs[type];
+  const data=ld(def.store);
+  const item=data.find(x=>x.id===id);
+  if(!item){alert('הפריט לא נמצא');return;}
+  editIndex=-1; editId=id;
+  openModal(type, item);
+}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');currentModal=null;editIndex=-1;editId=null;}
 function saveModal(){
   const def=modalDefs[currentModal];
   const obj={};
   def.fields.forEach(([k])=>{obj[k]=document.getElementById('mf-'+k)?.value||'';});
   const data=ld(def.store);
-  if(editIndex>=0)data[editIndex]=obj; else data.push(obj);
+  if(editId){
+    const idx=data.findIndex(x=>x.id===editId);
+    if(idx>=0) data[idx]={...data[idx],...obj,id:editId};
+  } else if(editIndex>=0){
+    data[editIndex]={...data[editIndex],...obj,id:data[editIndex]?.id || makeId()};
+  } else {
+    obj.id=makeId();
+    data.push(obj);
+  }
   sd(def.store,data); closeModal(); def.render();
 }
 document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+
+// BACKUP / RESTORE
+const backupStores = ['employees','prices','clients','suppliers','billing','certs','vehicles','library'];
+
+function exportBackup(){
+  const data = {};
+  backupStores.forEach(k=>data[k]=ld(k));
+  const stamp = new Date().toISOString().slice(0,10);
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `business-manager-backup-${stamp}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function importBackup(event){
+  const file = event.target.files?.[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if(!confirm('ייבוא הגיבוי יחליף את הנתונים הקיימים בדפדפן. להמשיך?')) return;
+      backupStores.forEach(k=>{
+        if(Array.isArray(data[k])) sd(k, ensureIds(k,data[k]));
+      });
+      alert('הגיבוי נטען בהצלחה ✓');
+      go('main');
+    } catch(err) {
+      alert('קובץ הגיבוי לא תקין');
+    } finally {
+      event.target.value = '';
+    }
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
 </script>
 </body>
 </html>
