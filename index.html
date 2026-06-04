@@ -42,7 +42,9 @@
   .err-msg { color: var(--red); font-size: 13px; margin-top: 10px; text-align: center; min-height: 18px; }
 
   /* LAYOUT */
-  #screen-main, #screen-employees, #screen-prices, #screen-clients, #screen-billing, #screen-signature, #screen-library { flex-direction: column; }
+  #screen-main, #screen-employees, #screen-prices, #screen-clients, #screen-billing, #screen-signature, #screen-library, #screen-vehicles { flex-direction: column; }
+  .alert-row { background: rgba(244,110,110,0.08); }
+  .warn-row { background: rgba(245,200,66,0.06); }
   .topbar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
   .topbar-logo { font-family: 'Frank Ruhl Libre', serif; font-size: 20px; font-weight: 900; color: var(--accent); }
   .topbar-nav { display: flex; gap: 4px; flex-wrap: wrap; }
@@ -183,6 +185,28 @@
       <div class="dash-card" onclick="go('billing')"><div class="dash-card-icon">📋</div><div class="dash-card-title">חיוב אורון</div><div class="dash-card-desc">תיעוד חיובים חודשיים וארכיון</div><div class="dash-card-arrow">← כניסה</div></div>
       <div class="dash-card" onclick="go('signature')"><div class="dash-card-icon">✍️</div><div class="dash-card-title">חתימה דיגיטלית</div><div class="dash-card-desc">כתיבת תעודות וחתימת לקוחות</div><div class="dash-card-arrow">← כניסה</div></div>
       <div class="dash-card" onclick="go('library')"><div class="dash-card-icon">📚</div><div class="dash-card-title">ספריות ומדריכים</div><div class="dash-card-desc">קישורים, מדריכים ותמונות חשובות</div><div class="dash-card-arrow">← כניסה</div></div>
+      <div class="dash-card" onclick="go('vehicles')"><div class="dash-card-icon">🚗</div><div class="dash-card-title">רכבים וביטוחים</div><div class="dash-card-desc">ניהול רכבים, ביטוחים ותאריכי טסט</div><div class="dash-card-arrow">← כניסה</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN VEHICLES -->
+<div id="screen-vehicles" class="screen" style="flex-direction:column">
+  <div class="topbar"><div class="topbar-logo">⚡ ניהול עסקי</div><div class="topbar-nav" id="nav-vehicles"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="content">
+    <div class="section-header"><div class="section-title">🚗 רכבים וביטוחים</div><button class="btn-add" onclick="openModal('vehicle')">+ הוסף רכב</button></div>
+    <div id="vehicles-alerts"></div>
+    <div class="search-bar"><input class="search-input" id="vehicle-search" placeholder="חיפוש לפי מספר רכב או עובד..." oninput="renderVehicles()" /></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>מספר רכב</th><th>בעלים / עובד</th><th>סוג ביטוח</th><th>תוקף ביטוח</th><th>טסט הבא</th><th>סטטוס</th><th>פעולות</th></tr></thead>
+        <tbody id="vehicle-tbody"></tbody>
+      </table>
+    </div>
+    <div style="display:flex;gap:16px;margin-top:14px;font-size:12px;color:var(--text3)">
+      <span>🔴 פג תוקף / קרוב ל־30 יום</span>
+      <span>🟡 קרוב ל־60 יום</span>
+      <span>🟢 תקין</span>
     </div>
   </div>
 </div>
@@ -340,6 +364,11 @@ const defaultData = {
   ],
   billing: [],
   certs: [],
+  vehicles: [
+    {plate:'12-345-67',owner:'דוד כהן',insType:'מקיף',insExp:'2025-08-15',testExp:'2025-07-20',notes:''},
+    {plate:'98-765-43',owner:'שרה לוי',insType:'חובה',insExp:'2025-12-01',testExp:'2026-03-10',notes:''},
+    {plate:'55-111-22',owner:'משה גולן',insType:'מקיף',insExp:'2026-01-30',testExp:'2025-06-30',notes:'טסט דחוף'},
+  ],
   library: [
     {name:'מדריך התקנה',type:'guide',url:'#',icon:'📖'},
     {name:'קטלוג ספק ראשי',type:'link',url:'#',icon:'🔗'},
@@ -353,8 +382,8 @@ function ld(k){try{return JSON.parse(localStorage.getItem(k))||defaultData[k];}c
 function sd(k,v){localStorage.setItem(k,JSON.stringify(v));}
 
 // NAV
-const screens = ['main','employees','prices','clients','billing','signature','library'];
-const navLabels = {main:'ראשי',employees:'עובדים',prices:'מחירונים',clients:'לקוחות וספקים',billing:'חיוב אורון',signature:'חתימה דיגיטלית',library:'ספריות'};
+const screens = ['main','employees','prices','clients','billing','signature','library','vehicles'];
+const navLabels = {main:'ראשי',employees:'עובדים',prices:'מחירונים',clients:'לקוחות וספקים',billing:'חיוב אורון',signature:'חתימה דיגיטלית',library:'ספריות',vehicles:'🚗 רכבים'};
 
 function buildNavs() {
   screens.forEach(s => {
@@ -373,6 +402,7 @@ function go(screen) {
   if(screen==='billing'){initBilling();renderBillingArchive();}
   if(screen==='signature'){renderCerts();initCanvas();}
   if(screen==='library') renderLibrary('all');
+  if(screen==='vehicles') renderVehicles();
 }
 
 function doLogin(){
@@ -521,6 +551,43 @@ function delItem(store,i,renderFn){
   const d=ld(store); d.splice(i,1); sd(store,d); renderFn();
 }
 
+// VEHICLES
+function daysDiff(dateStr){
+  if(!dateStr) return 9999;
+  return Math.ceil((new Date(dateStr)-new Date())/(1000*60*60*24));
+}
+function statusInfo(days){
+  if(days<0) return {badge:'badge-red',label:'פג תוקף',cls:'alert-row'};
+  if(days<=30) return {badge:'badge-red',label:days+'  יום',cls:'alert-row'};
+  if(days<=60) return {badge:'badge-gold',label:days+' יום',cls:'warn-row'};
+  return {badge:'badge-green',label:'תקין',cls:''};
+}
+function renderVehicles(){
+  const q=(document.getElementById('vehicle-search')?.value||'').toLowerCase();
+  const data=ld('vehicles').filter(v=>!q||v.plate.toLowerCase().includes(q)||v.owner.toLowerCase().includes(q));
+  const alerts=[];
+  const rows=data.map((v,i)=>{
+    const insDays=daysDiff(v.insExp);
+    const testDays=daysDiff(v.testExp);
+    const insInfo=statusInfo(insDays);
+    const testInfo=statusInfo(testDays);
+    if(insDays<=30) alerts.push(`⚠️ ביטוח רכב ${v.plate} (${v.owner}) — ${insDays<0?'פג תוקף':'נגמר בעוד '+insDays+' יום'}`);
+    if(testDays<=30) alerts.push(`⚠️ טסט רכב ${v.plate} (${v.owner}) — ${testDays<0?'פג תוקף':'נגמר בעוד '+testDays+' יום'}`);
+    return `<tr class="${insInfo.cls||testInfo.cls}">
+      <td><b>${v.plate}</b></td>
+      <td>${v.owner}</td>
+      <td><span class="badge badge-blue">${v.insType}</span></td>
+      <td><span class="badge ${insInfo.badge}">${v.insExp||'-'} (${insInfo.label})</span></td>
+      <td><span class="badge ${testInfo.badge}">${v.testExp||'-'} (${testInfo.label})</span></td>
+      <td>${v.notes||''}</td>
+      <td><button class="action-btn" onclick="editItem('vehicle',${i})">✏️</button><button class="action-btn danger" onclick="delItem('vehicles',${i},renderVehicles)">🗑️</button></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('vehicle-tbody').innerHTML=rows||'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו רכבים</td></tr>';
+  const alertEl=document.getElementById('vehicles-alerts');
+  alertEl.innerHTML=alerts.length?`<div style="background:rgba(244,110,110,0.1);border:1px solid rgba(244,110,110,0.3);border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:13px;line-height:2">${alerts.join('<br>')}</div>`:'';
+}
+
 // MODAL
 let currentModal=null, editIndex=-1;
 const modalDefs={
@@ -529,6 +596,7 @@ const modalDefs={
   client:{title:'לקוח',fields:[['name','שם'],['company','חברה'],['phone','טלפון'],['email','מייל'],['city','עיר'],['status','סטטוס']],store:'clients',render:renderClients},
   supplier:{title:'ספק',fields:[['name','שם'],['company','חברה'],['phone','טלפון'],['email','מייל'],['product','מוצר עיקרי'],['terms','תנאי תשלום']],store:'suppliers',render:renderSuppliers},
   lib:{title:'פריט ספרייה',fields:[['name','שם'],['type','סוג (link/guide/image)'],['url','קישור URL'],['icon','אייקון (emoji)']],store:'library',render:()=>renderLibrary('all')},
+  vehicle:{title:'רכב',fields:[['plate','מספר רכב'],['owner','בעלים / עובד'],['insType','סוג ביטוח'],['insExp','תוקף ביטוח (YYYY-MM-DD)'],['testExp','טסט הבא (YYYY-MM-DD)'],['notes','הערות']],store:'vehicles',render:renderVehicles},
 };
 
 function openModal(type,data=null){
