@@ -71,6 +71,12 @@
   .dash-card-title { font-size: 16px; font-weight: 700; }
   .dash-card-desc { font-size: 13px; color: var(--text2); line-height: 1.5; }
   .dash-card-arrow { color: var(--accent); font-size: 18px; margin-top: auto; }
+  .dash-stats { display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 12px; max-width: 900px; margin-bottom: 18px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; min-height: 88px; }
+  .stat-number { font-size: 24px; font-weight: 800; color: var(--gold); line-height: 1.2; }
+  .stat-label { color: var(--text2); font-size: 12px; margin-top: 6px; }
+  .dash-alerts { max-width: 900px; margin-bottom: 18px; color: var(--text2); font-size: 13px; line-height: 1.7; }
+  .dash-alerts strong { color: var(--text); }
 
   /* TABLES */
   .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
@@ -133,6 +139,7 @@
   .lib-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 18px; cursor: pointer; transition: all 0.2s; }
   .lib-card:hover { border-color: var(--accent2); transform: translateY(-2px); }
   .lib-icon { font-size: 28px; margin-bottom: 12px; }
+  .lib-thumb { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 12px; background: var(--bg3); }
   .lib-name { font-weight: 700; font-size: 15px; margin-bottom: 6px; }
   .lib-type { font-size: 12px; color: var(--text3); }
   .lib-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
@@ -188,7 +195,7 @@
 
   /* RESPONSIVE */
   @media (max-width: 900px) {
-    .dash-grid, .billing-grid, .sig-layout { grid-template-columns: 1fr; max-width: none; }
+    .dash-grid, .dash-stats, .billing-grid, .sig-layout { grid-template-columns: 1fr; max-width: none; }
     .topbar { height: auto; min-height: 60px; padding: 12px 16px; flex-direction: column; align-items: stretch; gap: 10px; }
     .topbar-logo, .topbar-user { justify-content: center; text-align: center; }
     .topbar-nav { justify-content: center; }
@@ -221,7 +228,7 @@
   <div class="login-box">
     <div class="login-logo">⚡ ניהול עסקי</div>
     <div class="login-sub">כניסה למערכת הניהול</div>
-    <div class="field"><label>שם משתמש</label><input type="text" id="login-user" placeholder="הכנס שם משתמש" /></div>
+    <div class="field"><label>אימייל</label><input type="email" id="login-user" placeholder="name@example.com" autocomplete="email" /></div>
     <div class="field"><label>סיסמה</label><input type="password" id="login-pass" placeholder="הכנס סיסמה" /></div>
     <button class="btn-primary" onclick="doLogin()">כניסה למערכת</button>
     <div class="err-msg" id="login-err"></div>
@@ -236,12 +243,16 @@
     <div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div>
   </div>
   <div class="content">
-    <div class="dash-title">שלום, Admin 👋</div>
-    <div class="dash-sub">בחר מסך לניווט</div>
+    <div class="dash-title" id="dash-title">שלום 👋</div>
+    <div class="dash-sub">תמונת מצב מהירה וניווט</div>
+    <div class="dash-stats" id="dash-stats">
+      <div class="stat-card"><div class="stat-number">...</div><div class="stat-label">טוען נתונים</div></div>
+    </div>
+    <div class="dash-alerts" id="dash-alerts"></div>
     <div class="backup-panel">
       <div>
         <div class="backup-title">💾 גיבוי ושחזור נתונים</div>
-        <div class="backup-desc">הנתונים נשמרים כרגע בדפדפן בלבד. מומלץ לבצע גיבוי JSON מדי פעם.</div>
+        <div class="backup-desc">הנתונים נשמרים ב־Supabase. אפשר לייצא או לייבא גיבוי JSON כשצריך.</div>
       </div>
       <div class="backup-actions">
         <button class="btn-secondary" onclick="exportBackup()">ייצוא גיבוי</button>
@@ -335,12 +346,14 @@
           <div class="form-field"><label>חודש</label><input type="month" id="bill-month" /></div>
           <div class="form-field"><label>תאריך</label><input type="date" id="bill-date" /></div>
         </div>
+        <div class="form-field" style="margin-bottom:14px"><label>פרויקט</label><input type="text" id="bill-project" placeholder="שם הפרויקט / אתר / לקוח" /></div>
         <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:600">פריטים לחיוב</div>
         <div id="bill-items-list"></div>
         <button onclick="addBillItem()" style="background:none;border:1px dashed var(--border);border-radius:8px;color:var(--accent);width:100%;padding:9px;cursor:pointer;font-family:'Heebo',sans-serif;font-size:13px;margin-bottom:14px;">+ הוסף פריט</button>
         <div class="billing-total"><span class="total-label">סה"כ לחיוב</span><span class="total-amount" id="bill-total">₪0</span></div>
         <div class="form-field" style="margin-bottom:16px"><label>הערות</label><textarea id="bill-notes" placeholder="הערות נוספות..."></textarea></div>
-        <button class="btn-primary" onclick="saveBilling()">שמור חיוב</button>
+        <button class="btn-primary" id="bill-save-btn" onclick="saveBilling()">שמור חיוב</button>
+        <button class="btn-secondary" id="bill-cancel-edit" onclick="resetBillingForm()" style="display:none;width:100%;margin-top:10px">בטל עריכה</button>
       </div>
       <div class="billing-archive">
         <div class="form-title">📂 ארכיון חיובים — אורון</div>
@@ -387,7 +400,14 @@
 <div id="screen-library" class="screen" style="flex-direction:column">
   <div class="topbar"><div class="topbar-logo">⚡ ניהול עסקי</div><div class="topbar-nav" id="nav-library"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
   <div class="content">
-    <div class="section-header"><div class="section-title">📚 ספריות ומדריכים</div><button class="btn-add" onclick="openModal('lib')">+ הוסף פריט</button></div>
+    <div class="section-header">
+      <div class="section-title">📚 ספריות ומדריכים</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <label class="btn-add" for="library-upload" style="display:inline-block">העלה קובץ</label>
+        <button class="btn-add" onclick="openModal('lib')">+ הוסף קישור</button>
+        <input type="file" id="library-upload" style="display:none" onchange="uploadLibraryFile(event)">
+      </div>
+    </div>
     <div class="lib-tabs">
       <button class="lib-tab active" onclick="filterLib('all',this)">הכל</button>
       <button class="lib-tab" onclick="filterLib('link',this)">🔗 קישורים</button>
@@ -489,6 +509,7 @@ function buildNavs() {
 function go(screen) {
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+screen).classList.add('active');
+  if(screen==='main') renderDashboard();
   if(screen==='employees') renderEmployees();
   if(screen==='prices') renderPrices();
   if(screen==='clients'){renderClients();renderSuppliers();}
@@ -498,16 +519,21 @@ function go(screen) {
   if(screen==='vehicles') renderVehicles();
 }
 
-function doLogin(){
-  const u=document.getElementById('login-user').value;
-  const p=document.getElementById('login-pass').value;
-  if(u==='admin'&&p==='1234'){
-    document.getElementById('screen-login').classList.remove('active');
-    buildNavs(); go('main');
-  } else { document.getElementById('login-err').textContent='שם משתמש או סיסמה שגויים'; }
+async function doLogin(){
+  const email=document.getElementById('login-user').value.trim();
+  const password=document.getElementById('login-pass').value;
+  const err=document.getElementById('login-err');
+  err.textContent='';
+  if(!email||!password){err.textContent='נא למלא אימייל וסיסמה';return;}
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if(error){err.textContent='אימייל או סיסמה לא נכונים';return;}
+  showApp(data.user);
 }
 document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-function doLogout(){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-login').classList.add('active');}
+async function doLogout(){
+  await supabaseClient.auth.signOut();
+  showLogin();
+}
 
 // EMPLOYEES
 function renderEmployees(){
@@ -548,9 +574,9 @@ function initBilling(){
   if(!document.getElementById('bill-month').value) document.getElementById('bill-month').value=t.toISOString().slice(0,7);
   if(!document.getElementById('bill-items-list').children.length) addBillItem();
 }
-function addBillItem(){
+function addBillItem(item={}){
   const d=document.createElement('div'); d.className='item-row';
-  d.innerHTML=`<input placeholder="תיאור פריט" oninput="calcTotal()"/><input type="number" placeholder="כמות" value="1" oninput="calcTotal()"/><input type="number" placeholder="מחיר" oninput="calcTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcTotal()">×</button>`;
+  d.innerHTML=`<input placeholder="תיאור פריט" value="${esc(item.desc||'')}" oninput="calcTotal()"/><input type="number" placeholder="כמות" value="${item.qty ?? 1}" oninput="calcTotal()"/><input type="number" placeholder="מחיר" value="${item.price ?? ''}" oninput="calcTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcTotal()">×</button>`;
   document.getElementById('bill-items-list').appendChild(d);
 }
 function calcTotal(){
@@ -795,6 +821,9 @@ let certsCache = [];
 let vehiclesCache = [];
 let libraryCache = [];
 let currentLibraryFilter = 'all';
+let currentUser = null;
+let editingBillingId = null;
+let editingCertId = null;
 
 function showDbError(area, error){
   console.error(area, error);
@@ -856,6 +885,7 @@ function certFromDb(c){
     desc: c.description || '',
     hours: c.hours ?? '',
     price: c.price ?? '',
+    signature_data: c.signature_data || '',
     created_at: c.created_at
   };
 }
@@ -878,11 +908,49 @@ function billingFromDb(b){
     id: b.id,
     month: b.month || '',
     date: b.date || '',
+    project: b.project || '',
     notes: b.notes || '',
     items: Array.isArray(b.items) ? b.items : [],
     total: Number(b.total || 0),
     created_at: b.created_at
   };
+}
+
+function userInitial(user){
+  const email = user?.email || '';
+  return (email[0] || 'A').toUpperCase();
+}
+
+function setUserUi(user){
+  document.querySelectorAll('.avatar').forEach(el=>el.textContent=userInitial(user));
+  const title=document.getElementById('dash-title');
+  if(title) title.textContent = user?.email ? `שלום, ${user.email} 👋` : 'שלום 👋';
+}
+
+function showLogin(){
+  currentUser = null;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-login').classList.add('active');
+}
+
+function showApp(user){
+  currentUser = user || null;
+  document.getElementById('screen-login').classList.remove('active');
+  buildNavs();
+  setUserUi(user);
+  go('main');
+}
+
+async function initAuth(){
+  const { data, error } = await supabaseClient.auth.getSession();
+  if(error){ showLogin(); return; }
+  const session = data?.session;
+  if(session?.user) showApp(session.user);
+  else showLogin();
+  supabaseClient.auth.onAuthStateChange((_event, session)=>{
+    if(session?.user && !currentUser) showApp(session.user);
+    if(!session?.user) showLogin();
+  });
 }
 
 // Main app records are now loaded from Supabase.
@@ -1018,6 +1086,57 @@ async function delItemById(store,id,renderFn){
   d.splice(idx,1); sd(store,d); renderFn();
 }
 
+async function tableCount(table){
+  const { count, error } = await supabaseClient
+    .from(table)
+    .select('id', { count: 'exact', head: true });
+  if(error) throw error;
+  return count || 0;
+}
+
+async function renderDashboard(){
+  const statsEl=document.getElementById('dash-stats');
+  const alertsEl=document.getElementById('dash-alerts');
+  if(!statsEl) return;
+  statsEl.innerHTML='<div class="stat-card"><div class="stat-number">...</div><div class="stat-label">טוען נתונים</div></div>';
+  if(alertsEl) alertsEl.innerHTML='';
+
+  try{
+    const month = new Date().toISOString().slice(0,7);
+    const [employees, products, clients, suppliers, vehicles, billingRows, vehicleRows] = await Promise.all([
+      tableCount('employees'),
+      tableCount('products'),
+      tableCount('clients'),
+      tableCount('suppliers'),
+      tableCount('vehicles'),
+      supabaseClient.from('billing').select('total, month').eq('month', month),
+      supabaseClient.from('vehicles').select('plate, owner, ins_exp, test_exp')
+    ]);
+
+    if(billingRows.error) throw billingRows.error;
+    if(vehicleRows.error) throw vehicleRows.error;
+
+    const monthlyTotal = (billingRows.data || []).reduce((sum,b)=>sum+Number(b.total||0),0);
+    const vehicleAlerts = (vehicleRows.data || []).filter(v=>daysDiff(v.ins_exp)<=30 || daysDiff(v.test_exp)<=30);
+
+    statsEl.innerHTML=[
+      ['עובדים', employees],
+      ['מוצרים', products],
+      ['לקוחות', clients],
+      ['ספקים', suppliers],
+      ['רכבים לטיפול', vehicleAlerts.length],
+      ['חיובים החודש', '₪' + monthlyTotal.toLocaleString('he-IL')]
+    ].map(([label,value])=>`<div class="stat-card"><div class="stat-number">${esc(value)}</div><div class="stat-label">${esc(label)}</div></div>`).join('');
+
+    if(alertsEl && vehicleAlerts.length){
+      alertsEl.innerHTML = `<strong>התראות רכבים:</strong><br>${vehicleAlerts.slice(0,5).map(v=>`${esc(v.plate)} — ${esc(v.owner||'ללא בעלים')}`).join('<br>')}`;
+    }
+  } catch(error) {
+    console.error('dashboard', error);
+    statsEl.innerHTML='<div class="stat-card"><div class="stat-number">!</div><div class="stat-label">שגיאה בטעינת דשבורד</div></div>';
+  }
+}
+
 async function renderClients(){
   const tbody = document.getElementById('client-tbody');
   if(!tbody) return;
@@ -1065,6 +1184,7 @@ async function renderSuppliers(){
 async function saveBilling(){
   const month=document.getElementById('bill-month').value;
   const date=document.getElementById('bill-date').value;
+  const project=document.getElementById('bill-project').value;
   const notes=document.getElementById('bill-notes').value;
   const items=[]; let total=0;
   document.querySelectorAll('#bill-items-list .item-row').forEach(r=>{
@@ -1074,13 +1194,31 @@ async function saveBilling(){
   });
   if(!month||!items.length){alert('אנא מלא חודש ולפחות פריט אחד');return;}
 
-  const { error } = await supabaseClient
-    .from('billing')
-    .insert({ month, date: nullableDate(date), notes, items, total });
+  const wasEditing = Boolean(editingBillingId);
+  const payload = { month, date: nullableDate(date), project, notes, items, total };
+  const result = wasEditing
+    ? await supabaseClient.from('billing').update(payload).eq('id', editingBillingId)
+    : await supabaseClient.from('billing').insert(payload);
 
-  if(error){ showDbError('billing save', error); return; }
+  if(result.error){ showDbError('billing save', result.error); return; }
+  resetBillingForm();
   await renderBillingArchive();
-  alert('החיוב נשמר! ✓');
+  await renderDashboard();
+  alert(wasEditing ? 'החיוב עודכן! ✓' : 'החיוב נשמר! ✓');
+}
+
+function resetBillingForm(){
+  editingBillingId = null;
+  const now = new Date();
+  document.getElementById('bill-month').value = now.toISOString().slice(0,7);
+  document.getElementById('bill-date').value = now.toISOString().split('T')[0];
+  document.getElementById('bill-project').value = '';
+  document.getElementById('bill-notes').value = '';
+  document.getElementById('bill-items-list').innerHTML = '';
+  addBillItem();
+  calcTotal();
+  document.getElementById('bill-save-btn').textContent='שמור חיוב';
+  document.getElementById('bill-cancel-edit').style.display='none';
 }
 
 async function renderBillingArchive(){
@@ -1090,7 +1228,7 @@ async function renderBillingArchive(){
 
   const { data, error } = await supabaseClient
     .from('billing')
-    .select('id, month, date, notes, items, total, created_at')
+    .select('id, month, date, project, notes, items, total, created_at')
     .order('created_at', { ascending: false });
 
   if(error){
@@ -1101,7 +1239,32 @@ async function renderBillingArchive(){
 
   billingCache = (data || []).map(billingFromDb);
   if(!billingCache.length){el.innerHTML='<div style="color:var(--text3);text-align:center;padding:30px;font-size:14px">אין חיובים בארכיון</div>';return;}
-  el.innerHTML=billingCache.map(b=>`<div class="archive-item"><div><div class="archive-month">📅 ${esc(b.month)}</div><div class="archive-date">${esc(b.date)}</div></div><div class="archive-sum">₪${(b.total||0).toLocaleString('he-IL')}</div></div>`).join('');
+  el.innerHTML=billingCache.map(b=>`<div class="archive-item"><div><div class="archive-month">📅 ${esc(b.month)} ${b.project?'- '+esc(b.project):''}</div><div class="archive-date">${esc(b.date)} ${b.notes?'| '+esc(b.notes):''}</div><div style="margin-top:8px"><button class="action-btn" onclick="editBilling('${b.id}')">✏️</button><button class="action-btn danger" onclick="deleteBilling('${b.id}')">🗑️</button></div></div><div class="archive-sum">₪${(b.total||0).toLocaleString('he-IL')}</div></div>`).join('');
+}
+
+function editBilling(id){
+  const b = billingCache.find(x=>x.id===id);
+  if(!b){alert('החיוב לא נמצא');return;}
+  editingBillingId = id;
+  document.getElementById('bill-month').value = b.month || '';
+  document.getElementById('bill-date').value = b.date || '';
+  document.getElementById('bill-project').value = b.project || '';
+  document.getElementById('bill-notes').value = b.notes || '';
+  document.getElementById('bill-items-list').innerHTML = '';
+  (b.items || []).forEach(item=>addBillItem(item));
+  if(!b.items?.length) addBillItem();
+  calcTotal();
+  document.getElementById('bill-save-btn').textContent='עדכן חיוב';
+  document.getElementById('bill-cancel-edit').style.display='block';
+}
+
+async function deleteBilling(id){
+  if(!confirm('למחוק חיוב זה?')) return;
+  const { error } = await supabaseClient.from('billing').delete().eq('id', id);
+  if(error){ showDbError('billing delete', error); return; }
+  if(editingBillingId===id) resetBillingForm();
+  await renderBillingArchive();
+  await renderDashboard();
 }
 
 async function saveCert(){
@@ -1114,16 +1277,27 @@ async function saveCert(){
     date: nullableDate(document.getElementById('sig-date').value),
     description: desc,
     hours: nullableNumber(document.getElementById('sig-hours').value),
-    price: nullableNumber(document.getElementById('sig-price').value)
+    price: nullableNumber(document.getElementById('sig-price').value),
+    signature_data: getSignatureData()
   };
 
-  const { error } = await supabaseClient.from('certs').insert(payload);
-  if(error){ showDbError('certs save', error); return; }
+  const wasEditing = Boolean(editingCertId);
+  const result = wasEditing
+    ? await supabaseClient.from('certs').update(payload).eq('id', editingCertId)
+    : await supabaseClient.from('certs').insert(payload);
+  if(result.error){ showDbError('certs save', result.error); return; }
 
+  editingCertId = null;
   clearCanvas();
   ['sig-client','sig-desc','sig-hours','sig-price'].forEach(id=>document.getElementById(id).value='');
   await renderCerts();
-  alert('התעודה נשמרה! ✓');
+  alert(wasEditing ? 'התעודה עודכנה! ✓' : 'התעודה נשמרה! ✓');
+}
+
+function getSignatureData(){
+  const canvas=document.getElementById('sig-canvas');
+  if(!canvas) return '';
+  return canvas.toDataURL('image/png');
 }
 
 async function renderCerts(){
@@ -1133,7 +1307,7 @@ async function renderCerts(){
 
   const { data, error } = await supabaseClient
     .from('certs')
-    .select('id, client, date, description, hours, price, created_at')
+    .select('id, client, date, description, hours, price, signature_data, created_at')
     .order('created_at', { ascending: false });
 
   if(error){
@@ -1146,7 +1320,35 @@ async function renderCerts(){
   certsCache = (data || []).map(certFromDb);
   const thisMon=certsCache.filter(c=>c.date?.startsWith(month));
   if(!thisMon.length){el.innerHTML='<div style="color:var(--text3);text-align:center;padding:30px;font-size:14px">אין תעודות החודש</div>';return;}
-  el.innerHTML=thisMon.map(c=>`<div class="cert-item"><div><div class="cert-name">${esc(c.client)}</div><div class="cert-date">${esc(c.date)}</div></div><span class="badge badge-green">✓ נחתם</span></div>`).join('');
+  el.innerHTML=thisMon.map(c=>`<div class="cert-item"><div><div class="cert-name">${esc(c.client)}</div><div class="cert-date">${esc(c.date)} ${c.price?'| ₪'+esc(c.price):''}</div><div style="margin-top:8px"><button class="action-btn" onclick="editCert('${c.id}')">✏️</button><button class="action-btn danger" onclick="deleteCert('${c.id}')">🗑️</button></div></div><span class="badge badge-green">✓ נחתם</span></div>`).join('');
+}
+
+function editCert(id){
+  const c = certsCache.find(x=>x.id===id);
+  if(!c){alert('התעודה לא נמצאה');return;}
+  editingCertId = id;
+  document.getElementById('sig-client').value = c.client || '';
+  document.getElementById('sig-date').value = c.date || '';
+  document.getElementById('sig-desc').value = c.desc || '';
+  document.getElementById('sig-hours').value = c.hours || '';
+  document.getElementById('sig-price').value = c.price || '';
+  loadSignatureData(c.signature_data);
+}
+
+function loadSignatureData(dataUrl){
+  clearCanvas();
+  if(!dataUrl || !ctx) return;
+  const img = new Image();
+  img.onload = () => ctx.drawImage(img, 0, 0, document.getElementById('sig-canvas').width, document.getElementById('sig-canvas').height);
+  img.src = dataUrl;
+}
+
+async function deleteCert(id){
+  if(!confirm('למחוק תעודה זו?')) return;
+  const { error } = await supabaseClient.from('certs').delete().eq('id', id);
+  if(error){ showDbError('certs delete', error); return; }
+  if(editingCertId===id) editingCertId=null;
+  await renderCerts();
 }
 
 async function exportCerts(){
@@ -1169,7 +1371,7 @@ async function renderLibrary(filter='all'){
 
   const { data, error } = await supabaseClient
     .from('library')
-    .select('id, name, type, url, icon, created_at')
+    .select('id, name, type, url, icon, file_path, file_name, created_at')
     .order('created_at', { ascending: false });
 
   if(error){
@@ -1182,7 +1384,42 @@ async function renderLibrary(filter='all'){
   libraryCache = data || [];
   const rows=libraryCache.filter(l=>currentLibraryFilter==='all'||l.type===currentLibraryFilter);
   if(!rows.length){grid.innerHTML='<div style="color:var(--text3);padding:40px;font-size:14px">לא נמצאו פריטים</div>';return;}
-  grid.innerHTML=rows.map(l=>`<div class="lib-card" data-url="${esc(l.url)}" onclick="openLink(this.dataset.url)"><div class="lib-icon">${esc(l.icon||'📎')}</div><div class="lib-name">${esc(l.name)}</div><div class="lib-type">${esc(typeLabel[l.type]||l.type)}</div></div>`).join('');
+  grid.innerHTML=rows.map(l=>{
+    const preview = l.type === 'image' && l.url
+      ? `<img class="lib-thumb" src="${esc(l.url)}" alt="">`
+      : `<div class="lib-icon">${esc(l.icon||'📎')}</div>`;
+    return `<div class="lib-card" data-url="${esc(l.url)}" onclick="openLink(this.dataset.url)">${preview}<div class="lib-name">${esc(l.name)}</div><div class="lib-type">${esc(typeLabel[l.type]||l.type)}</div><div style="margin-top:12px"><button class="action-btn danger" onclick="event.stopPropagation();delItemById('library','${l.id}',()=>renderLibrary(currentLibraryFilter))">🗑️</button></div></div>`;
+  }).join('');
+}
+
+async function uploadLibraryFile(event){
+  const file = event.target.files?.[0];
+  if(!file) return;
+  try{
+    const safeName = file.name.replace(/[^\w.\-\u0590-\u05FF ]+/g,'_');
+    const path = `${Date.now()}-${safeName}`;
+    const upload = await supabaseClient.storage.from('library-files').upload(path, file, { upsert: false });
+    if(upload.error) throw upload.error;
+
+    const { data: publicUrl } = supabaseClient.storage.from('library-files').getPublicUrl(path);
+    const type = file.type.startsWith('image/') ? 'image' : 'guide';
+    const icon = file.type.startsWith('image/') ? '🖼️' : '📄';
+    const insert = await supabaseClient.from('library').insert({
+      name: file.name,
+      type,
+      url: publicUrl.publicUrl,
+      icon,
+      file_path: path,
+      file_name: file.name
+    });
+    if(insert.error) throw insert.error;
+    await renderLibrary(currentLibraryFilter);
+    alert('הקובץ עלה לספרייה ✓');
+  } catch(error) {
+    showDbError('library upload', error);
+  } finally {
+    event.target.value = '';
+  }
 }
 
 async function renderVehicles(){
@@ -1334,6 +1571,13 @@ async function delItemById(store,id,renderFn){
 
   if(deleteMap[store]){
     const cfg = deleteMap[store];
+    if(store === 'library'){
+      const item = libraryCache.find(x=>x.id===id);
+      if(item?.file_path){
+        const storageResult = await supabaseClient.storage.from('library-files').remove([item.file_path]);
+        if(storageResult.error) console.warn('library file delete', storageResult.error);
+      }
+    }
     const { error } = await supabaseClient.from(cfg.table).delete().eq('id', id);
     if(error){ showDbError(cfg.table + ' delete', error); return; }
     await cfg.render(); return;
@@ -1368,10 +1612,10 @@ async function exportBackup(){
       loadDbTable('products','id, name, description, sku, buy_price, multiplier, sell_price, supplier, created_at'),
       loadDbTable('clients','id, name, company, phone, email, city, status, created_at'),
       loadDbTable('suppliers','id, name, company, phone, email, product, terms, created_at'),
-      loadDbTable('billing','id, month, date, notes, items, total, created_at'),
-      loadDbTable('certs','id, client, date, description, hours, price, created_at'),
+      loadDbTable('billing','id, month, date, project, notes, items, total, created_at'),
+      loadDbTable('certs','id, client, date, description, hours, price, signature_data, created_at'),
       loadDbTable('vehicles','id, plate, owner, ins_type, ins_exp, test_exp, notes, created_at'),
-      loadDbTable('library','id, name, type, url, icon, created_at')
+      loadDbTable('library','id, name, type, url, icon, file_path, file_name, created_at')
     ]);
 
     const data = {
@@ -1425,16 +1669,16 @@ async function importBackup(event){
       name: s.name || '', company: s.company || '', phone: s.phone || '', email: s.email || '', product: s.product || '', terms: s.terms || ''
     })));
     await replaceDbTable('billing', (data.billing || []).map(b => ({
-      month: b.month || '', date: nullableDate(b.date), notes: b.notes || '', items: Array.isArray(b.items) ? b.items : [], total: nullableNumber(b.total) || 0
+      month: b.month || '', date: nullableDate(b.date), project: b.project || '', notes: b.notes || '', items: Array.isArray(b.items) ? b.items : [], total: nullableNumber(b.total) || 0
     })));
     await replaceDbTable('certs', (data.certs || []).map(c => ({
-      client: c.client || '', date: nullableDate(c.date), description: c.desc || c.description || '', hours: nullableNumber(c.hours), price: nullableNumber(c.price)
+      client: c.client || '', date: nullableDate(c.date), description: c.desc || c.description || '', hours: nullableNumber(c.hours), price: nullableNumber(c.price), signature_data: c.signature_data || ''
     })));
     await replaceDbTable('vehicles', (data.vehicles || []).map(v => ({
       plate: v.plate || '', owner: v.owner || '', ins_type: v.insType || v.ins_type || '', ins_exp: nullableDate(v.insExp || v.ins_exp), test_exp: nullableDate(v.testExp || v.test_exp), notes: v.notes || ''
     })));
     await replaceDbTable('library', (data.library || []).map(l => ({
-      name: l.name || '', type: l.type || '', url: l.url || '', icon: l.icon || ''
+      name: l.name || '', type: l.type || '', url: l.url || '', icon: l.icon || '', file_path: l.file_path || '', file_name: l.file_name || ''
     })));
 
     alert('הגיבוי נטען למסד הנתונים בהצלחה ✓');
@@ -1451,7 +1695,7 @@ async function testConnection() {
   console.log('Supabase connection:', error ? error : 'OK', data);
 }
 
-testConnection();
+initAuth();
 </script>
 </body>
 </html>
