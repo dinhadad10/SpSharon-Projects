@@ -788,6 +788,13 @@ const supabaseClient = window.supabase.createClient(
 
 let employeesCache = [];
 let pricesCache = [];
+let clientsCache = [];
+let suppliersCache = [];
+let billingCache = [];
+let certsCache = [];
+let vehiclesCache = [];
+let libraryCache = [];
+let currentLibraryFilter = 'all';
 
 function showDbError(area, error){
   console.error(area, error);
@@ -819,8 +826,57 @@ function productToDb(p){
   };
 }
 
-// IMPORTANT: employees and products are now loaded from Supabase.
-// Other screens still use localStorage until you create matching Supabase tables for them.
+function esc(v){
+  return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function nullableDate(v){
+  return v ? v : null;
+}
+
+function nullableNumber(v){
+  return v !== undefined && v !== null && v !== '' ? Number(v) : null;
+}
+
+function certFromDb(c){
+  return {
+    id: c.id,
+    client: c.client || '',
+    date: c.date || '',
+    desc: c.description || '',
+    hours: c.hours ?? '',
+    price: c.price ?? '',
+    created_at: c.created_at
+  };
+}
+
+function vehicleFromDb(v){
+  return {
+    id: v.id,
+    plate: v.plate || '',
+    owner: v.owner || '',
+    insType: v.ins_type || '',
+    insExp: v.ins_exp || '',
+    testExp: v.test_exp || '',
+    notes: v.notes || '',
+    created_at: v.created_at
+  };
+}
+
+function billingFromDb(b){
+  return {
+    id: b.id,
+    month: b.month || '',
+    date: b.date || '',
+    notes: b.notes || '',
+    items: Array.isArray(b.items) ? b.items : [],
+    total: Number(b.total || 0),
+    created_at: b.created_at
+  };
+}
+
+// Main app records are now loaded from Supabase.
+// localStorage remains only as a fallback for older code paths.
 async function renderEmployees(){
   const tbody = document.getElementById('emp-tbody');
   if(!tbody) return;
@@ -950,6 +1006,434 @@ async function delItemById(store,id,renderFn){
   const idx=d.findIndex(x=>x.id===id);
   if(idx<0){alert('הפריט לא נמצא');return;}
   d.splice(idx,1); sd(store,d); renderFn();
+}
+
+async function renderClients(){
+  const tbody = document.getElementById('client-tbody');
+  if(!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">טוען לקוחות...</td></tr>';
+
+  const { data, error } = await supabaseClient
+    .from('clients')
+    .select('id, name, company, phone, email, city, status, created_at')
+    .order('created_at', { ascending: false });
+
+  if(error){
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--red);padding:36px">שגיאה בטעינת לקוחות</td></tr>';
+    showDbError('clients select', error);
+    return;
+  }
+
+  const q=(document.getElementById('client-search')?.value||'').toLowerCase();
+  clientsCache = data || [];
+  const rows = clientsCache.filter(c=>!q||(c.name||'').toLowerCase().includes(q)||(c.company||'').toLowerCase().includes(q));
+  tbody.innerHTML = rows.length ? rows.map(c=>`<tr><td><b>${esc(c.name)}</b></td><td>${esc(c.company)}</td><td>${esc(c.phone)}</td><td>${esc(c.email)}</td><td>${esc(c.city)}</td><td><span class="badge ${c.status==='פעיל'?'badge-green':'badge-red'}">${esc(c.status)}</span></td><td><button class="action-btn" onclick="editItemById('client','${c.id}')">✏️</button><button class="action-btn danger" onclick="delItemById('clients','${c.id}',renderClients)">🗑️</button></td></tr>`).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו לקוחות</td></tr>';
+}
+
+async function renderSuppliers(){
+  const tbody = document.getElementById('supplier-tbody');
+  if(!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">טוען ספקים...</td></tr>';
+
+  const { data, error } = await supabaseClient
+    .from('suppliers')
+    .select('id, name, company, phone, email, product, terms, created_at')
+    .order('created_at', { ascending: false });
+
+  if(error){
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--red);padding:36px">שגיאה בטעינת ספקים</td></tr>';
+    showDbError('suppliers select', error);
+    return;
+  }
+
+  const q=(document.getElementById('supplier-search')?.value||'').toLowerCase();
+  suppliersCache = data || [];
+  const rows = suppliersCache.filter(s=>!q||(s.name||'').toLowerCase().includes(q)||(s.company||'').toLowerCase().includes(q));
+  tbody.innerHTML = rows.length ? rows.map(s=>`<tr><td><b>${esc(s.name)}</b></td><td>${esc(s.company)}</td><td>${esc(s.phone)}</td><td>${esc(s.email)}</td><td>${esc(s.product)}</td><td><span class="badge badge-blue">${esc(s.terms)}</span></td><td><button class="action-btn" onclick="editItemById('supplier','${s.id}')">✏️</button><button class="action-btn danger" onclick="delItemById('suppliers','${s.id}',renderSuppliers)">🗑️</button></td></tr>`).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו ספקים</td></tr>';
+}
+
+async function saveBilling(){
+  const month=document.getElementById('bill-month').value;
+  const date=document.getElementById('bill-date').value;
+  const notes=document.getElementById('bill-notes').value;
+  const items=[]; let total=0;
+  document.querySelectorAll('#bill-items-list .item-row').forEach(r=>{
+    const inp=r.querySelectorAll('input');
+    const desc=inp[0]?.value; const qty=parseFloat(inp[1]?.value)||0; const price=parseFloat(inp[2]?.value)||0;
+    if(desc){items.push({desc,qty,price});total+=qty*price;}
+  });
+  if(!month||!items.length){alert('אנא מלא חודש ולפחות פריט אחד');return;}
+
+  const { error } = await supabaseClient
+    .from('billing')
+    .insert({ month, date: nullableDate(date), notes, items, total });
+
+  if(error){ showDbError('billing save', error); return; }
+  await renderBillingArchive();
+  alert('החיוב נשמר! ✓');
+}
+
+async function renderBillingArchive(){
+  const el=document.getElementById('billing-archive-list');
+  if(!el) return;
+  el.innerHTML='<div style="color:var(--text3);text-align:center;padding:30px;font-size:14px">טוען ארכיון...</div>';
+
+  const { data, error } = await supabaseClient
+    .from('billing')
+    .select('id, month, date, notes, items, total, created_at')
+    .order('created_at', { ascending: false });
+
+  if(error){
+    el.innerHTML='<div style="color:var(--red);text-align:center;padding:30px;font-size:14px">שגיאה בטעינת ארכיון</div>';
+    showDbError('billing select', error);
+    return;
+  }
+
+  billingCache = (data || []).map(billingFromDb);
+  if(!billingCache.length){el.innerHTML='<div style="color:var(--text3);text-align:center;padding:30px;font-size:14px">אין חיובים בארכיון</div>';return;}
+  el.innerHTML=billingCache.map(b=>`<div class="archive-item"><div><div class="archive-month">📅 ${esc(b.month)}</div><div class="archive-date">${esc(b.date)}</div></div><div class="archive-sum">₪${(b.total||0).toLocaleString('he-IL')}</div></div>`).join('');
+}
+
+async function saveCert(){
+  const client=document.getElementById('sig-client').value;
+  const desc=document.getElementById('sig-desc').value;
+  if(!client||!desc){alert('אנא מלא שם לקוח ותיאור עבודה');return;}
+
+  const payload = {
+    client,
+    date: nullableDate(document.getElementById('sig-date').value),
+    description: desc,
+    hours: nullableNumber(document.getElementById('sig-hours').value),
+    price: nullableNumber(document.getElementById('sig-price').value)
+  };
+
+  const { error } = await supabaseClient.from('certs').insert(payload);
+  if(error){ showDbError('certs save', error); return; }
+
+  clearCanvas();
+  ['sig-client','sig-desc','sig-hours','sig-price'].forEach(id=>document.getElementById(id).value='');
+  await renderCerts();
+  alert('התעודה נשמרה! ✓');
+}
+
+async function renderCerts(){
+  const el=document.getElementById('cert-list-el');
+  if(!el) return;
+  el.innerHTML='<div style="color:var(--text3);text-align:center;padding:30px;font-size:14px">טוען תעודות...</div>';
+
+  const { data, error } = await supabaseClient
+    .from('certs')
+    .select('id, client, date, description, hours, price, created_at')
+    .order('created_at', { ascending: false });
+
+  if(error){
+    el.innerHTML='<div style="color:var(--red);text-align:center;padding:30px;font-size:14px">שגיאה בטעינת תעודות</div>';
+    showDbError('certs select', error);
+    return;
+  }
+
+  const month=new Date().toISOString().slice(0,7);
+  certsCache = (data || []).map(certFromDb);
+  const thisMon=certsCache.filter(c=>c.date?.startsWith(month));
+  if(!thisMon.length){el.innerHTML='<div style="color:var(--text3);text-align:center;padding:30px;font-size:14px">אין תעודות החודש</div>';return;}
+  el.innerHTML=thisMon.map(c=>`<div class="cert-item"><div><div class="cert-name">${esc(c.client)}</div><div class="cert-date">${esc(c.date)}</div></div><span class="badge badge-green">✓ נחתם</span></div>`).join('');
+}
+
+async function exportCerts(){
+  const month=new Date().toISOString().slice(0,7);
+  if(!certsCache.length) await renderCerts();
+  const list=certsCache.filter(c=>c.date?.startsWith(month));
+  if(!list.length){alert('אין תעודות לחודש זה');return;}
+  let txt=`תעודות חודש ${month}\n${'='.repeat(40)}\n\n`;
+  list.forEach((c,i)=>{txt+=`תעודה ${i+1}\nלקוח: ${c.client}\nתאריך: ${c.date}\nתיאור: ${c.desc}\nכמות: ${c.hours||'-'} | מחיר: ₪${c.price||'-'}\n${'-'.repeat(30)}\n\n`;});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain;charset=utf-8'}));
+  a.download=`תעודות_${month}.txt`; a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+async function renderLibrary(filter='all'){
+  currentLibraryFilter = filter || 'all';
+  const grid=document.getElementById('lib-grid');
+  if(!grid) return;
+  grid.innerHTML='<div style="color:var(--text3);padding:40px;font-size:14px">טוען ספרייה...</div>';
+
+  const { data, error } = await supabaseClient
+    .from('library')
+    .select('id, name, type, url, icon, created_at')
+    .order('created_at', { ascending: false });
+
+  if(error){
+    grid.innerHTML='<div style="color:var(--red);padding:40px;font-size:14px">שגיאה בטעינת ספרייה</div>';
+    showDbError('library select', error);
+    return;
+  }
+
+  const typeLabel={link:'קישור',guide:'מדריך',image:'תמונה'};
+  libraryCache = data || [];
+  const rows=libraryCache.filter(l=>currentLibraryFilter==='all'||l.type===currentLibraryFilter);
+  if(!rows.length){grid.innerHTML='<div style="color:var(--text3);padding:40px;font-size:14px">לא נמצאו פריטים</div>';return;}
+  grid.innerHTML=rows.map(l=>`<div class="lib-card" data-url="${esc(l.url)}" onclick="openLink(this.dataset.url)"><div class="lib-icon">${esc(l.icon||'📎')}</div><div class="lib-name">${esc(l.name)}</div><div class="lib-type">${esc(typeLabel[l.type]||l.type)}</div></div>`).join('');
+}
+
+async function renderVehicles(){
+  const tbody=document.getElementById('vehicle-tbody');
+  if(!tbody) return;
+  tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">טוען רכבים...</td></tr>';
+
+  const { data, error } = await supabaseClient
+    .from('vehicles')
+    .select('id, plate, owner, ins_type, ins_exp, test_exp, notes, created_at')
+    .order('created_at', { ascending: false });
+
+  if(error){
+    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--red);padding:36px">שגיאה בטעינת רכבים</td></tr>';
+    showDbError('vehicles select', error);
+    return;
+  }
+
+  const q=(document.getElementById('vehicle-search')?.value||'').toLowerCase();
+  vehiclesCache=(data || []).map(vehicleFromDb);
+  const rowsData=vehiclesCache.filter(v=>!q||(v.plate||'').toLowerCase().includes(q)||(v.owner||'').toLowerCase().includes(q));
+  const alerts=[];
+  const rows=rowsData.map(v=>{
+    const insDays=daysDiff(v.insExp);
+    const testDays=daysDiff(v.testExp);
+    const insInfo=statusInfo(insDays);
+    const testInfo=statusInfo(testDays);
+    if(insDays<=30) alerts.push(`⚠️ ביטוח רכב ${esc(v.plate)} (${esc(v.owner)}) — ${insDays<0?'פג תוקף':'נגמר בעוד '+insDays+' יום'}`);
+    if(testDays<=30) alerts.push(`⚠️ טסט רכב ${esc(v.plate)} (${esc(v.owner)}) — ${testDays<0?'פג תוקף':'נגמר בעוד '+testDays+' יום'}`);
+    return `<tr class="${insInfo.cls||testInfo.cls}">
+      <td><b>${esc(v.plate)}</b></td>
+      <td>${esc(v.owner)}</td>
+      <td><span class="badge badge-blue">${esc(v.insType)}</span></td>
+      <td><span class="badge ${insInfo.badge}">${esc(v.insExp||'-')} (${insInfo.label})</span></td>
+      <td><span class="badge ${testInfo.badge}">${esc(v.testExp||'-')} (${testInfo.label})</span></td>
+      <td>${esc(v.notes)}</td>
+      <td><button class="action-btn" onclick="editItemById('vehicle','${v.id}')">✏️</button><button class="action-btn danger" onclick="delItemById('vehicles','${v.id}',renderVehicles)">🗑️</button></td>
+    </tr>`;
+  }).join('');
+  tbody.innerHTML=rows||'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו רכבים</td></tr>';
+  const alertEl=document.getElementById('vehicles-alerts');
+  if(alertEl) alertEl.innerHTML=alerts.length?`<div style="background:rgba(244,110,110,0.1);border:1px solid rgba(244,110,110,0.3);border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:13px;line-height:2">${alerts.join('<br>')}</div>`:'';
+}
+
+function editItemById(type,id){
+  const def=modalDefs[type];
+  let item=null;
+  if(type==='emp') item = employeesCache.find(x=>x.id===id);
+  if(type==='price') item = pricesCache.find(x=>x.id===id);
+  if(type==='client') item = clientsCache.find(x=>x.id===id);
+  if(type==='supplier') item = suppliersCache.find(x=>x.id===id);
+  if(type==='lib') item = libraryCache.find(x=>x.id===id);
+  if(type==='vehicle') item = vehiclesCache.find(x=>x.id===id);
+  if(!item){
+    const data=ld(def.store);
+    item=data.find(x=>x.id===id);
+  }
+  if(!item){alert('הפריט לא נמצא');return;}
+  editIndex=-1; editId=id;
+  openModal(type, item);
+}
+
+async function saveModal(){
+  const def=modalDefs[currentModal];
+  const obj={};
+  def.fields.forEach(([k])=>{obj[k]=document.getElementById('mf-'+k)?.value||'';});
+
+  if(currentModal === 'emp'){
+    const payload = {
+      name: obj.name || '',
+      role: obj.role || '',
+      email: obj.email || '',
+      phone: obj.phone || '',
+      car: obj.car || '',
+      code: obj.code || ''
+    };
+    const result = editId
+      ? await supabaseClient.from('employees').update(payload).eq('id', editId)
+      : await supabaseClient.from('employees').insert(payload);
+    if(result.error){ showDbError('employees save', result.error); return; }
+    closeModal(); await renderEmployees(); return;
+  }
+
+  if(currentModal === 'price'){
+    const payload = productToDb(obj);
+    const result = editId
+      ? await supabaseClient.from('products').update(payload).eq('id', editId)
+      : await supabaseClient.from('products').insert(payload);
+    if(result.error){ showDbError('products save', result.error); return; }
+    closeModal(); await renderPrices(); return;
+  }
+
+  const dbModal = {
+    client: {
+      table: 'clients',
+      payload: { name: obj.name || '', company: obj.company || '', phone: obj.phone || '', email: obj.email || '', city: obj.city || '', status: obj.status || '' },
+      render: renderClients
+    },
+    supplier: {
+      table: 'suppliers',
+      payload: { name: obj.name || '', company: obj.company || '', phone: obj.phone || '', email: obj.email || '', product: obj.product || '', terms: obj.terms || '' },
+      render: renderSuppliers
+    },
+    lib: {
+      table: 'library',
+      payload: { name: obj.name || '', type: obj.type || '', url: obj.url || '', icon: obj.icon || '' },
+      render: () => renderLibrary(currentLibraryFilter)
+    },
+    vehicle: {
+      table: 'vehicles',
+      payload: { plate: obj.plate || '', owner: obj.owner || '', ins_type: obj.insType || '', ins_exp: nullableDate(obj.insExp), test_exp: nullableDate(obj.testExp), notes: obj.notes || '' },
+      render: renderVehicles
+    }
+  };
+
+  if(dbModal[currentModal]){
+    const cfg = dbModal[currentModal];
+    const result = editId
+      ? await supabaseClient.from(cfg.table).update(cfg.payload).eq('id', editId)
+      : await supabaseClient.from(cfg.table).insert(cfg.payload);
+    if(result.error){ showDbError(cfg.table + ' save', result.error); return; }
+    closeModal(); await cfg.render(); return;
+  }
+
+  const data=ld(def.store);
+  if(editId){
+    const idx=data.findIndex(x=>x.id===editId);
+    if(idx>=0) data[idx]={...data[idx],...obj,id:editId};
+  } else if(editIndex>=0){
+    data[editIndex]={...data[editIndex],...obj,id:data[editIndex]?.id || makeId()};
+  } else {
+    obj.id=makeId();
+    data.push(obj);
+  }
+  sd(def.store,data); closeModal(); def.render();
+}
+
+async function delItemById(store,id,renderFn){
+  if(!confirm('למחוק פריט זה?'))return;
+
+  const deleteMap = {
+    employees: { table: 'employees', render: renderEmployees },
+    prices: { table: 'products', render: renderPrices },
+    clients: { table: 'clients', render: renderClients },
+    suppliers: { table: 'suppliers', render: renderSuppliers },
+    library: { table: 'library', render: () => renderLibrary(currentLibraryFilter) },
+    vehicles: { table: 'vehicles', render: renderVehicles }
+  };
+
+  if(deleteMap[store]){
+    const cfg = deleteMap[store];
+    const { error } = await supabaseClient.from(cfg.table).delete().eq('id', id);
+    if(error){ showDbError(cfg.table + ' delete', error); return; }
+    await cfg.render(); return;
+  }
+
+  const d=ld(store);
+  const idx=d.findIndex(x=>x.id===id);
+  if(idx<0){alert('הפריט לא נמצא');return;}
+  d.splice(idx,1); sd(store,d); renderFn();
+}
+
+modalDefs.emp.render = renderEmployees;
+modalDefs.price.render = renderPrices;
+modalDefs.client.render = renderClients;
+modalDefs.supplier.render = renderSuppliers;
+modalDefs.lib.render = () => renderLibrary(currentLibraryFilter);
+modalDefs.vehicle.render = renderVehicles;
+
+async function loadDbTable(table, columns){
+  const { data, error } = await supabaseClient
+    .from(table)
+    .select(columns)
+    .order('created_at', { ascending: false });
+  if(error) throw error;
+  return data || [];
+}
+
+async function exportBackup(){
+  try{
+    const [employees, products, clients, suppliers, billing, certs, vehicles, library] = await Promise.all([
+      loadDbTable('employees','id, name, role, email, phone, car, code, created_at'),
+      loadDbTable('products','id, name, description, sku, buy_price, multiplier, sell_price, supplier, created_at'),
+      loadDbTable('clients','id, name, company, phone, email, city, status, created_at'),
+      loadDbTable('suppliers','id, name, company, phone, email, product, terms, created_at'),
+      loadDbTable('billing','id, month, date, notes, items, total, created_at'),
+      loadDbTable('certs','id, client, date, description, hours, price, created_at'),
+      loadDbTable('vehicles','id, plate, owner, ins_type, ins_exp, test_exp, notes, created_at'),
+      loadDbTable('library','id, name, type, url, icon, created_at')
+    ]);
+
+    const data = {
+      employees,
+      prices: products.map(productFromDb),
+      clients,
+      suppliers,
+      billing: billing.map(billingFromDb),
+      certs: certs.map(certFromDb),
+      vehicles: vehicles.map(vehicleFromDb),
+      library
+    };
+
+    const stamp = new Date().toISOString().slice(0,10);
+    const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json;charset=utf-8'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `business-manager-backup-${stamp}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  } catch(error) {
+    showDbError('backup export', error);
+  }
+}
+
+async function replaceDbTable(table, rows){
+  const del = await supabaseClient.from(table).delete().not('id','is',null);
+  if(del.error) throw del.error;
+  if(rows.length){
+    const ins = await supabaseClient.from(table).insert(rows);
+    if(ins.error) throw ins.error;
+  }
+}
+
+async function importBackup(event){
+  const file = event.target.files?.[0];
+  if(!file) return;
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if(!confirm('ייבוא הגיבוי יחליף את הנתונים הקיימים במסד הנתונים. להמשיך?')) return;
+
+    await replaceDbTable('employees', (data.employees || []).map(e => ({
+      name: e.name || '', role: e.role || '', email: e.email || '', phone: e.phone || '', car: e.car || '', code: e.code || ''
+    })));
+    await replaceDbTable('products', (data.prices || data.products || []).map(productToDb));
+    await replaceDbTable('clients', (data.clients || []).map(c => ({
+      name: c.name || '', company: c.company || '', phone: c.phone || '', email: c.email || '', city: c.city || '', status: c.status || ''
+    })));
+    await replaceDbTable('suppliers', (data.suppliers || []).map(s => ({
+      name: s.name || '', company: s.company || '', phone: s.phone || '', email: s.email || '', product: s.product || '', terms: s.terms || ''
+    })));
+    await replaceDbTable('billing', (data.billing || []).map(b => ({
+      month: b.month || '', date: nullableDate(b.date), notes: b.notes || '', items: Array.isArray(b.items) ? b.items : [], total: nullableNumber(b.total) || 0
+    })));
+    await replaceDbTable('certs', (data.certs || []).map(c => ({
+      client: c.client || '', date: nullableDate(c.date), description: c.desc || c.description || '', hours: nullableNumber(c.hours), price: nullableNumber(c.price)
+    })));
+    await replaceDbTable('vehicles', (data.vehicles || []).map(v => ({
+      plate: v.plate || '', owner: v.owner || '', ins_type: v.insType || v.ins_type || '', ins_exp: nullableDate(v.insExp || v.ins_exp), test_exp: nullableDate(v.testExp || v.test_exp), notes: v.notes || ''
+    })));
+    await replaceDbTable('library', (data.library || []).map(l => ({
+      name: l.name || '', type: l.type || '', url: l.url || '', icon: l.icon || ''
+    })));
+
+    alert('הגיבוי נטען למסד הנתונים בהצלחה ✓');
+    go('main');
+  } catch(error) {
+    showDbError('backup import', error);
+  } finally {
+    event.target.value = '';
+  }
 }
 
 async function testConnection() {
