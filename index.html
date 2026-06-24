@@ -703,7 +703,7 @@ function openModal(type,data=null){
   currentModal=type;
   const def=modalDefs[type];
   document.getElementById('modal-title').textContent=(data?'ערוך ':'הוסף ')+def.title;
-  document.getElementById('modal-body').innerHTML=`<div class="mform-grid">${def.fields.map(([k,label])=>`<div class="mform-field"><label>${label}</label><input id="mf-${k}" value="${data?data[k]||'':''}" /></div>`).join('')}</div>`;
+  document.getElementById('modal-body').innerHTML=`<div class="mform-grid">${def.fields.map(([k,label])=>`<div class="mform-field"><label>${label}</label><input id="mf-${k}" type="${['insExp','testExp'].includes(k)?'date':'text'}" value="${data?data[k]||'':''}" /></div>`).join('')}</div>`;
   document.getElementById('modal-overlay').classList.add('open');
 }
 function editItem(type,i){
@@ -831,7 +831,17 @@ function esc(v){
 }
 
 function nullableDate(v){
-  return v ? v : null;
+  const value = String(v ?? '').trim();
+  if(!value) return null;
+
+  let m = value.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if(m) return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+
+  m = value.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/);
+  if(m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+
+  alert('תאריך לא תקין. יש להזין למשל 2027-06-30 או 30-6-2027');
+  throw new Error('Invalid date: ' + value);
 }
 
 function nullableNumber(v){
