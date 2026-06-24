@@ -778,18 +778,183 @@ function importBackup(event){
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+// ==========================
+// SUPABASE CONNECTION
+// ==========================
 const supabase = window.supabase.createClient(
   "https://pinqjymurkspwwqyycyc.supabase.co",
   "sb_publishable_9bPOiX5alqUylUGTQJ7WGg_NjJuNR-R"
 );
 
-async function testConnection() {
+let employeesCache = [];
+let pricesCache = [];
+
+function showDbError(area, error){
+  console.error(area, error);
+  alert('שגיאת חיבור למסד הנתונים: ' + (error?.message || 'לא ידוע'));
+}
+
+function productFromDb(p){
+  return {
+    id: p.id,
+    name: p.name || '',
+    cat: p.sku || '',
+    price: p.sell_price ?? '',
+    unit: '',
+    notes: [p.description, p.supplier ? 'ספק: ' + p.supplier : ''].filter(Boolean).join(' | '),
+    description: p.description || '',
+    supplier: p.supplier || '',
+    sku: p.sku || '',
+    sell_price: p.sell_price ?? ''
+  };
+}
+
+function productToDb(p){
+  return {
+    name: p.name || '',
+    description: p.description ?? p.notes ?? '',
+    sku: p.sku ?? p.cat ?? '',
+    sell_price: p.sell_price !== undefined && p.sell_price !== '' ? Number(p.sell_price) : (p.price !== '' ? Number(p.price) : null),
+    supplier: p.supplier || ''
+  };
+}
+
+// IMPORTANT: employees and products are now loaded from Supabase.
+// Other screens still use localStorage until you create matching Supabase tables for them.
+async function renderEmployees(){
+  const tbody = document.getElementById('emp-tbody');
+  if(!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">טוען עובדים...</td></tr>';
+
   const { data, error } = await supabase
     .from('employees')
-    .select('*');
+    .select('id, name, role, email, phone, car, code, created_at')
+    .order('created_at', { ascending: false });
 
-  console.log("DATA:", data);
-  console.log("ERROR:", error);
+  if(error){
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--red);padding:36px">שגיאה בטעינת עובדים</td></tr>';
+    showDbError('employees select', error);
+    return;
+  }
+
+  const q=(document.getElementById('emp-search')?.value||'').toLowerCase();
+  employeesCache = data || [];
+  const rows = employeesCache.filter(e=>!q||(e.name||'').toLowerCase().includes(q)||(e.role||'').toLowerCase().includes(q));
+  tbody.innerHTML = rows.length ? rows.map(e=>`<tr><td><b>${e.name||''}</b></td><td><span class="badge badge-blue">${e.role||''}</span></td><td>${e.email||''}</td><td>${e.phone||''}</td><td>${e.car||''}</td><td><span class="badge badge-gold">${e.code||''}</span></td><td><button class="action-btn" onclick="editItemById('emp','${e.id}')">✏️</button><button class="action-btn danger" onclick="delItemById('employees','${e.id}',renderEmployees)">🗑️</button></td></tr>`).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו עובדים</td></tr>';
+}
+
+async function renderPrices(){
+  const tbody = document.getElementById('price-tbody');
+  if(!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:36px">טוען מוצרים...</td></tr>';
+
+  const { data, error } = await supabase
+    .from('products')
+    .select('id, name, description, sku, buy_price, multiplier, sell_price, supplier, created_at')
+    .order('created_at', { ascending: false });
+
+  if(error){
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--red);padding:36px">שגיאה בטעינת מוצרים</td></tr>';
+    showDbError('products select', error);
+    return;
+  }
+
+  const q=(document.getElementById('price-search')?.value||'').toLowerCase();
+  pricesCache = (data || []).map(productFromDb);
+  const rows = pricesCache.filter(p=>!q||(p.name||'').toLowerCase().includes(q)||(p.cat||'').toLowerCase().includes(q)||(p.notes||'').toLowerCase().includes(q));
+  tbody.innerHTML = rows.length ? rows.map(p=>`<tr><td><b>${p.name}</b></td><td><span class="badge badge-green">${p.cat||'-'}</span></td><td style="color:var(--gold);font-weight:700">₪${p.price||0}</td><td>${p.unit||'-'}</td><td style="color:var(--text2)">${p.notes||''}</td><td><button class="action-btn" onclick="editItemById('price','${p.id}')">✏️</button><button class="action-btn danger" onclick="delItemById('prices','${p.id}',renderPrices)">🗑️</button></td></tr>`).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו מוצרים</td></tr>';
+}
+
+// Better labels for Supabase products table.
+modalDefs.price.fields = [
+  ['name','שם מוצר'],
+  ['sku','מק״ט / קטגוריה'],
+  ['sell_price','מחיר מכירה'],
+  ['supplier','ספק'],
+  ['description','תיאור / הערות']
+];
+
+function editItemById(type,id){
+  const def=modalDefs[type];
+  let item=null;
+  if(type==='emp') item = employeesCache.find(x=>x.id===id);
+  if(type==='price') item = pricesCache.find(x=>x.id===id);
+  if(!item){
+    const data=ld(def.store);
+    item=data.find(x=>x.id===id);
+  }
+  if(!item){alert('הפריט לא נמצא');return;}
+  editIndex=-1; editId=id;
+  openModal(type, item);
+}
+
+async function saveModal(){
+  const def=modalDefs[currentModal];
+  const obj={};
+  def.fields.forEach(([k])=>{obj[k]=document.getElementById('mf-'+k)?.value||'';});
+
+  if(currentModal === 'emp'){
+    const payload = {
+      name: obj.name || '',
+      role: obj.role || '',
+      email: obj.email || '',
+      phone: obj.phone || '',
+      car: obj.car || '',
+      code: obj.code || ''
+    };
+    const result = editId
+      ? await supabase.from('employees').update(payload).eq('id', editId)
+      : await supabase.from('employees').insert(payload);
+    if(result.error){ showDbError('employees save', result.error); return; }
+    closeModal(); await renderEmployees(); return;
+  }
+
+  if(currentModal === 'price'){
+    const payload = productToDb(obj);
+    const result = editId
+      ? await supabase.from('products').update(payload).eq('id', editId)
+      : await supabase.from('products').insert(payload);
+    if(result.error){ showDbError('products save', result.error); return; }
+    closeModal(); await renderPrices(); return;
+  }
+
+  const data=ld(def.store);
+  if(editId){
+    const idx=data.findIndex(x=>x.id===editId);
+    if(idx>=0) data[idx]={...data[idx],...obj,id:editId};
+  } else if(editIndex>=0){
+    data[editIndex]={...data[editIndex],...obj,id:data[editIndex]?.id || makeId()};
+  } else {
+    obj.id=makeId();
+    data.push(obj);
+  }
+  sd(def.store,data); closeModal(); def.render();
+}
+
+async function delItemById(store,id,renderFn){
+  if(!confirm('למחוק פריט זה?'))return;
+
+  if(store === 'employees'){
+    const { error } = await supabase.from('employees').delete().eq('id', id);
+    if(error){ showDbError('employees delete', error); return; }
+    await renderEmployees(); return;
+  }
+
+  if(store === 'prices'){
+    const { error } = await supabase.from('products').delete().eq('id', id);
+    if(error){ showDbError('products delete', error); return; }
+    await renderPrices(); return;
+  }
+
+  const d=ld(store);
+  const idx=d.findIndex(x=>x.id===id);
+  if(idx<0){alert('הפריט לא נמצא');return;}
+  d.splice(idx,1); sd(store,d); renderFn();
+}
+
+async function testConnection() {
+  const { data, error } = await supabase.from('employees').select('id').limit(1);
+  console.log('Supabase connection:', error ? error : 'OK', data);
 }
 
 testConnection();
