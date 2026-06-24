@@ -781,7 +781,7 @@ function importBackup(event){
 // ==========================
 // SUPABASE CONNECTION
 // ==========================
-const supabase = window.supabase.createClient(
+const supabaseClient = window.supabase.createClient(
   "https://pinqjymurkspwwqyycyc.supabase.co",
   "sb_publishable_9bPOiX5alqUylUGTQJ7WGg_NjJuNR-R"
 );
@@ -826,7 +826,7 @@ async function renderEmployees(){
   if(!tbody) return;
   tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">טוען עובדים...</td></tr>';
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from('employees')
     .select('id, name, role, email, phone, car, code, created_at')
     .order('created_at', { ascending: false });
@@ -848,7 +848,7 @@ async function renderPrices(){
   if(!tbody) return;
   tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:36px">טוען מוצרים...</td></tr>';
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from('products')
     .select('id, name, description, sku, buy_price, multiplier, sell_price, supplier, created_at')
     .order('created_at', { ascending: false });
@@ -903,8 +903,8 @@ async function saveModal(){
       code: obj.code || ''
     };
     const result = editId
-      ? await supabase.from('employees').update(payload).eq('id', editId)
-      : await supabase.from('employees').insert(payload);
+      ? await supabaseClient.from('employees').update(payload).eq('id', editId)
+      : await supabaseClient.from('employees').insert(payload);
     if(result.error){ showDbError('employees save', result.error); return; }
     closeModal(); await renderEmployees(); return;
   }
@@ -912,8 +912,8 @@ async function saveModal(){
   if(currentModal === 'price'){
     const payload = productToDb(obj);
     const result = editId
-      ? await supabase.from('products').update(payload).eq('id', editId)
-      : await supabase.from('products').insert(payload);
+      ? await supabaseClient.from('products').update(payload).eq('id', editId)
+      : await supabaseClient.from('products').insert(payload);
     if(result.error){ showDbError('products save', result.error); return; }
     closeModal(); await renderPrices(); return;
   }
@@ -935,13 +935,13 @@ async function delItemById(store,id,renderFn){
   if(!confirm('למחוק פריט זה?'))return;
 
   if(store === 'employees'){
-    const { error } = await supabase.from('employees').delete().eq('id', id);
+    const { error } = await supabaseClient.from('employees').delete().eq('id', id);
     if(error){ showDbError('employees delete', error); return; }
     await renderEmployees(); return;
   }
 
   if(store === 'prices'){
-    const { error } = await supabase.from('products').delete().eq('id', id);
+    const { error } = await supabaseClient.from('products').delete().eq('id', id);
     if(error){ showDbError('products delete', error); return; }
     await renderPrices(); return;
   }
@@ -953,7 +953,7 @@ async function delItemById(store,id,renderFn){
 }
 
 async function testConnection() {
-  const { data, error } = await supabase.from('employees').select('id').limit(1);
+  const { data, error } = await supabaseClient.from('employees').select('id').limit(1);
   console.log('Supabase connection:', error ? error : 'OK', data);
 }
 
