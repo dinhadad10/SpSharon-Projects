@@ -47,7 +47,7 @@
   .err-msg { color: var(--red); font-size: 13px; margin-top: 10px; text-align: center; min-height: 18px; }
 
   /* LAYOUT */
-  #screen-main, #screen-employees, #screen-prices, #screen-clients, #screen-billing, #screen-signature, #screen-library, #screen-vehicles { flex-direction: column; }
+  #screen-main, #screen-employees, #screen-prices, #screen-projects, #screen-clients, #screen-billing, #screen-signature, #screen-library, #screen-vehicles { flex-direction: column; }
   .alert-row { background: rgba(244,110,110,0.08); }
   .warn-row { background: rgba(245,200,66,0.06); }
   .topbar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
@@ -77,6 +77,12 @@
   .stat-label { color: var(--text2); font-size: 12px; margin-top: 6px; }
   .dash-alerts { max-width: 900px; margin-bottom: 18px; color: var(--text2); font-size: 13px; line-height: 1.7; }
   .dash-alerts strong { color: var(--text); }
+  .stat-list { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; color: var(--text2); font-size: 12px; }
+  .mini-row { display: flex; align-items: center; gap: 8px; min-height: 28px; }
+  .mini-avatar, .employee-photo { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: inline-flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; flex-shrink: 0; }
+  .employee-cell { display: flex; align-items: center; gap: 10px; }
+  .employee-photo { width: 40px; height: 40px; }
+  .brand-text { letter-spacing: 0; }
 
   /* TABLES */
   .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
@@ -112,6 +118,7 @@
   .form-field input:focus, .form-field select:focus, .form-field textarea:focus { outline: none; border-color: var(--accent); }
   .item-row { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 8px; align-items: center; margin-bottom: 10px; }
   .item-row input { padding: 9px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; font-family: 'Heebo', sans-serif; width: 100%; }
+  .item-row select { padding: 9px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; font-family: 'Heebo', sans-serif; width: 100%; }
   .remove-item { background: none; border: none; color: var(--red); cursor: pointer; font-size: 18px; padding: 4px; }
   .billing-total { background: var(--bg3); border-radius: 10px; padding: 16px; margin: 14px 0; display: flex; justify-content: space-between; align-items: center; }
   .total-label { color: var(--text2); font-size: 14px; }
@@ -120,6 +127,34 @@
   .archive-month { font-size: 14px; font-weight: 600; }
   .archive-sum { color: var(--gold); font-weight: 700; font-size: 15px; }
   .archive-date { color: var(--text3); font-size: 12px; margin-top: 2px; }
+  .settings-panel { background: rgba(79,142,247,0.06); border: 1px solid rgba(79,142,247,0.22); border-radius: 10px; padding: 14px; margin-bottom: 16px; }
+  .settings-actions { display: flex; justify-content: flex-start; margin-top: 10px; }
+  .helper-text { color: var(--text3); font-size: 12px; line-height: 1.6; margin-top: 8px; }
+  .cert-section-title { font-size: 13px; color: var(--text2); margin: 14px 0 10px; font-weight: 700; }
+  .cert-total { color: var(--gold); font-size: 18px; font-weight: 800; }
+
+  /* PROJECTS */
+  .projects-layout { display: grid; grid-template-columns: minmax(280px, 420px) 1fr; gap: 18px; align-items: start; }
+  .project-grid { display: grid; gap: 12px; }
+  .project-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.18s; }
+  .project-card:hover, .project-card.active { border-color: var(--accent); background: rgba(79,142,247,0.06); }
+  .project-card-title { font-weight: 800; font-size: 15px; margin-bottom: 6px; }
+  .project-card-meta { color: var(--text2); font-size: 12px; line-height: 1.7; }
+  .project-detail { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 18px; min-height: 460px; }
+  .project-empty { color: var(--text3); text-align: center; padding: 70px 20px; font-size: 14px; }
+  .project-detail-head { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; margin-bottom: 16px; }
+  .project-detail-title { font-size: 20px; font-weight: 900; }
+  .project-meta-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .project-section { border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px; }
+  .project-section-title { color: var(--text2); font-size: 13px; font-weight: 800; margin-bottom: 10px; }
+  .task-row, .activity-row, .file-row { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .task-main { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .task-main input { width: 18px; height: 18px; accent-color: var(--accent); }
+  .task-title.done { color: var(--text3); text-decoration: line-through; }
+  .task-assignee { display: flex; align-items: center; gap: 8px; color: var(--text2); font-size: 12px; }
+  .project-inline-form { display: grid; grid-template-columns: 1fr 160px 140px auto; gap: 8px; margin-bottom: 12px; }
+  .project-inline-form input, .project-inline-form select, .project-inline-form textarea { width: 100%; padding: 9px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; font-family: 'Heebo', sans-serif; }
+  .project-file-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
 
   /* SIGNATURE */
   .sig-layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
@@ -192,10 +227,13 @@
     font-weight: 600;
   }
   .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .inline-file { display: none; }
 
   /* RESPONSIVE */
   @media (max-width: 900px) {
     .dash-grid, .dash-stats, .billing-grid, .sig-layout { grid-template-columns: 1fr; max-width: none; }
+    .projects-layout { grid-template-columns: 1fr; }
+    .project-inline-form { grid-template-columns: 1fr; }
     .topbar { height: auto; min-height: 60px; padding: 12px 16px; flex-direction: column; align-items: stretch; gap: 10px; }
     .topbar-logo, .topbar-user { justify-content: center; text-align: center; }
     .topbar-nav { justify-content: center; }
@@ -226,7 +264,7 @@
 <!-- SCREEN 1: LOGIN -->
 <div id="screen-login" class="screen active">
   <div class="login-box">
-    <div class="login-logo">⚡ ניהול עסקי</div>
+    <div class="login-logo">S.P Sharon-projects LTD</div>
     <div class="login-sub">כניסה למערכת הניהול</div>
     <div class="field"><label>אימייל</label><input type="email" id="login-user" placeholder="name@example.com" autocomplete="email" /></div>
     <div class="field"><label>סיסמה</label><input type="password" id="login-pass" placeholder="הכנס סיסמה" /></div>
@@ -238,7 +276,7 @@
 <!-- SCREEN 2: MAIN -->
 <div id="screen-main" class="screen">
   <div class="topbar">
-    <div class="topbar-logo">⚡ ניהול עסקי</div>
+    <div class="topbar-logo">S.P Sharon-projects LTD</div>
     <div class="topbar-nav" id="nav-main"></div>
     <div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div>
   </div>
@@ -251,8 +289,8 @@
     <div class="dash-alerts" id="dash-alerts"></div>
     <div class="backup-panel">
       <div>
-        <div class="backup-title">💾 גיבוי ושחזור נתונים</div>
-        <div class="backup-desc">הנתונים נשמרים ב־Supabase. אפשר לייצא או לייבא גיבוי JSON כשצריך.</div>
+        <div class="backup-title">💾 כלי גיבוי למנהל</div>
+        <div class="backup-desc">ייצוא או ייבוא ידני של נתוני המערכת במקרה שרוצים לשמור עותק חיצוני.</div>
       </div>
       <div class="backup-actions">
         <button class="btn-secondary" onclick="exportBackup()">ייצוא גיבוי</button>
@@ -261,11 +299,12 @@
       </div>
     </div>
     <div class="dash-grid">
-      <div class="dash-card" onclick="go('employees')"><div class="dash-card-icon">👥</div><div class="dash-card-title">עובדים</div><div class="dash-card-desc">פרטי עובדים, מספרי רכב, מיילים וקודים</div><div class="dash-card-arrow">← כניסה</div></div>
-      <div class="dash-card" onclick="go('prices')"><div class="dash-card-icon">💰</div><div class="dash-card-title">מחירונים</div><div class="dash-card-desc">כל מוצרי החברה עם מחירים וחיפוש מהיר</div><div class="dash-card-arrow">← כניסה</div></div>
+      <div class="dash-card" onclick="go('employees')"><div class="dash-card-icon">👥</div><div class="dash-card-title">עובדים</div><div class="dash-card-desc">פרטי עובדים, מיילים, טלפונים ותמונות</div><div class="dash-card-arrow">← כניסה</div></div>
+      <div class="dash-card" onclick="go('prices')"><div class="dash-card-icon">💰</div><div class="dash-card-title">מוצרים</div><div class="dash-card-desc">מוצרים, ספקים, מחיר עלות ומחיר לקוח</div><div class="dash-card-arrow">← כניסה</div></div>
+      <div class="dash-card" onclick="go('projects')"><div class="dash-card-icon">🗂️</div><div class="dash-card-title">פרויקטים</div><div class="dash-card-desc">כרטיסי פרויקט, משימות, קבצים והערות</div><div class="dash-card-arrow">← כניסה</div></div>
       <div class="dash-card" onclick="go('clients')"><div class="dash-card-icon">🏢</div><div class="dash-card-title">לקוחות וספקים</div><div class="dash-card-desc">טבלאות לקוחות וספקים עם כל הפרטים</div><div class="dash-card-arrow">← כניסה</div></div>
-      <div class="dash-card" onclick="go('billing')"><div class="dash-card-icon">📋</div><div class="dash-card-title">חיוב אורון</div><div class="dash-card-desc">תיעוד חיובים חודשיים וארכיון</div><div class="dash-card-arrow">← כניסה</div></div>
-      <div class="dash-card" onclick="go('signature')"><div class="dash-card-icon">✍️</div><div class="dash-card-title">חתימה דיגיטלית</div><div class="dash-card-desc">כתיבת תעודות וחתימת לקוחות</div><div class="dash-card-arrow">← כניסה</div></div>
+      <div class="dash-card" onclick="go('billing')"><div class="dash-card-icon">📋</div><div class="dash-card-title">חיוב אורן</div><div class="dash-card-desc">תיעוד חיובים חודשיים וארכיון</div><div class="dash-card-arrow">← כניסה</div></div>
+      <div class="dash-card" onclick="go('signature')"><div class="dash-card-icon">✍️</div><div class="dash-card-title">תעודות שירות</div><div class="dash-card-desc">כתיבת תעודות, מוצרים וחתימת לקוחות</div><div class="dash-card-arrow">← כניסה</div></div>
       <div class="dash-card" onclick="go('library')"><div class="dash-card-icon">📚</div><div class="dash-card-title">ספריות ומדריכים</div><div class="dash-card-desc">קישורים, מדריכים ותמונות חשובות</div><div class="dash-card-arrow">← כניסה</div></div>
       <div class="dash-card" onclick="go('vehicles')"><div class="dash-card-icon">🚗</div><div class="dash-card-title">רכבים וביטוחים</div><div class="dash-card-desc">ניהול רכבים, ביטוחים ותאריכי טסט</div><div class="dash-card-arrow">← כניסה</div></div>
     </div>
@@ -274,7 +313,7 @@
 
 <!-- SCREEN VEHICLES -->
 <div id="screen-vehicles" class="screen" style="flex-direction:column">
-  <div class="topbar"><div class="topbar-logo">⚡ ניהול עסקי</div><div class="topbar-nav" id="nav-vehicles"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="topbar"><div class="topbar-logo">S.P Sharon-projects LTD</div><div class="topbar-nav" id="nav-vehicles"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
   <div class="content">
     <div class="section-header"><div class="section-title">🚗 רכבים וביטוחים</div><button class="btn-add" onclick="openModal('vehicle')">+ הוסף רכב</button></div>
     <div id="vehicles-alerts"></div>
@@ -295,27 +334,28 @@
 
 <!-- SCREEN 3: EMPLOYEES -->
 <div id="screen-employees" class="screen" style="flex-direction:column">
-  <div class="topbar"><div class="topbar-logo">⚡ ניהול עסקי</div><div class="topbar-nav" id="nav-employees"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="topbar"><div class="topbar-logo">S.P Sharon-projects LTD</div><div class="topbar-nav" id="nav-employees"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
   <div class="content">
     <div class="section-header"><div class="section-title">👥 עובדים</div><button class="btn-add" onclick="openModal('emp')">+ הוסף עובד</button></div>
     <div class="search-bar"><input class="search-input" id="emp-search" placeholder="חיפוש עובד..." oninput="renderEmployees()" /></div>
-    <div class="table-wrap"><table><thead><tr><th>שם</th><th>תפקיד</th><th>מייל</th><th>טלפון</th><th>מספר רכב</th><th>קוד</th><th>פעולות</th></tr></thead><tbody id="emp-tbody"></tbody></table></div>
+    <input class="inline-file" type="file" id="emp-photo-upload" accept="image/*" onchange="uploadEmployeePhoto(event)">
+    <div class="table-wrap"><table><thead><tr><th>עובד</th><th>תפקיד</th><th>מייל</th><th>סטטוס מייל</th><th>טלפון</th><th>פעולות</th></tr></thead><tbody id="emp-tbody"></tbody></table></div>
   </div>
 </div>
 
 <!-- SCREEN 4: PRICES -->
 <div id="screen-prices" class="screen" style="flex-direction:column">
-  <div class="topbar"><div class="topbar-logo">⚡ ניהול עסקי</div><div class="topbar-nav" id="nav-prices"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="topbar"><div class="topbar-logo">S.P Sharon-projects LTD</div><div class="topbar-nav" id="nav-prices"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
   <div class="content">
-    <div class="section-header"><div class="section-title">💰 מחירונים</div><button class="btn-add" onclick="openModal('price')">+ הוסף מוצר</button></div>
+    <div class="section-header"><div class="section-title">💰 מוצרים</div><button class="btn-add" onclick="openModal('price')">+ הוסף מוצר</button></div>
     <div class="search-bar"><input class="search-input" id="price-search" placeholder="חיפוש מוצר..." oninput="renderPrices()" /></div>
-    <div class="table-wrap"><table><thead><tr><th>שם מוצר</th><th>קטגוריה</th><th>מחיר</th><th>יחידה</th><th>הערות</th><th>פעולות</th></tr></thead><tbody id="price-tbody"></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>קטגוריה</th><th>שם מוצר</th><th>מק״ט</th><th>מחיר</th><th>מכפיל</th><th>מחיר לקוח</th><th>ספק</th><th>עודכן</th><th>הערות</th><th>פעולות</th></tr></thead><tbody id="price-tbody"></tbody></table></div>
   </div>
 </div>
 
 <!-- SCREEN 5: CLIENTS & SUPPLIERS -->
 <div id="screen-clients" class="screen" style="flex-direction:column">
-  <div class="topbar"><div class="topbar-logo">⚡ ניהול עסקי</div><div class="topbar-nav" id="nav-clients"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="topbar"><div class="topbar-logo">S.P Sharon-projects LTD</div><div class="topbar-nav" id="nav-clients"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
   <div class="content">
     <div class="tabs">
       <button class="tab active" id="tab-clients" onclick="switchTab('clients')">🧑‍💼 לקוחות</button>
@@ -324,26 +364,59 @@
     <div id="clients-panel">
       <div class="section-header"><div class="section-title">לקוחות</div><button class="btn-add" onclick="openModal('client')">+ הוסף לקוח</button></div>
       <div class="search-bar"><input class="search-input" id="client-search" placeholder="חיפוש לקוח..." oninput="renderClients()" /></div>
-      <div class="table-wrap"><table><thead><tr><th>שם</th><th>חברה</th><th>טלפון</th><th>מייל</th><th>עיר</th><th>סטטוס</th><th>פעולות</th></tr></thead><tbody id="client-tbody"></tbody></table></div>
+      <div class="table-wrap"><table><thead><tr><th>שם</th><th>חברה</th><th>טלפון</th><th>מייל</th><th>מיקום חברה</th><th>תנאי תשלום</th><th>הערות</th><th>פעולות</th></tr></thead><tbody id="client-tbody"></tbody></table></div>
     </div>
     <div id="suppliers-panel" style="display:none">
       <div class="section-header"><div class="section-title">ספקים</div><button class="btn-add" onclick="openModal('supplier')">+ הוסף ספק</button></div>
       <div class="search-bar"><input class="search-input" id="supplier-search" placeholder="חיפוש ספק..." oninput="renderSuppliers()" /></div>
-      <div class="table-wrap"><table><thead><tr><th>שם</th><th>חברה</th><th>טלפון</th><th>מייל</th><th>מוצר עיקרי</th><th>תנאי תשלום</th><th>פעולות</th></tr></thead><tbody id="supplier-tbody"></tbody></table></div>
+      <div class="table-wrap"><table><thead><tr><th>שם</th><th>חברה</th><th>כתובת</th><th>אתר</th><th>טלפון</th><th>מייל</th><th>מוצרים עיקריים</th><th>תנאי תשלום</th><th>פעולות</th></tr></thead><tbody id="supplier-tbody"></tbody></table></div>
     </div>
   </div>
 </div>
 
-<!-- SCREEN 6: BILLING -->
-<div id="screen-billing" class="screen" style="flex-direction:column">
-  <div class="topbar"><div class="topbar-logo">⚡ ניהול עסקי</div><div class="topbar-nav" id="nav-billing"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+<!-- SCREEN 6: PROJECTS -->
+<div id="screen-projects" class="screen" style="flex-direction:column">
+  <div class="topbar"><div class="topbar-logo">S.P Sharon-projects LTD</div><div class="topbar-nav" id="nav-projects"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
   <div class="content">
-    <div class="section-title" style="margin-bottom:24px">📋 חיוב אורון</div>
+    <div class="section-header"><div class="section-title">🗂️ פרויקטים</div><button class="btn-add" onclick="openModal('project')">+ הוסף פרויקט</button></div>
+    <div class="search-bar"><input class="search-input" id="project-search" placeholder="חיפוש פרויקט, לקוח או אתר..." oninput="renderProjects()" /></div>
+    <input class="inline-file" type="file" id="project-file-upload" onchange="uploadProjectFile(event)">
+    <div class="projects-layout">
+      <div class="project-grid" id="projects-grid"></div>
+      <div class="project-detail" id="project-detail"><div class="project-empty">בחר פרויקט כדי לראות משימות, הערות וקבצים</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 7: BILLING -->
+<div id="screen-billing" class="screen" style="flex-direction:column">
+  <div class="topbar"><div class="topbar-logo">S.P Sharon-projects LTD</div><div class="topbar-nav" id="nav-billing"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="content">
+    <div class="section-title" style="margin-bottom:24px">📋 חיוב אורן</div>
     <div class="billing-grid">
       <div class="billing-form">
-        <div class="form-title">חיוב חודשי — <span style="color:var(--accent)">אורון</span></div>
+        <div class="form-title">חיוב חודשי — <span style="color:var(--accent)">אורן</span></div>
+        <div class="settings-panel">
+          <div class="form-row">
+            <div class="form-field"><label>מחיר שעת עבודה</label><input type="number" step="0.01" id="oran-hourly-rate" placeholder="0" oninput="syncOranSettingsFromInputs();calcCertTotal()" /></div>
+            <div class="form-field"><label>מכפיל מוצרים לאורן</label><input type="number" step="0.01" id="oran-product-multiplier" placeholder="1.25" oninput="syncOranSettingsFromInputs();repriceCertItems();calcCertTotal()" /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label>הערת נסיעות</label><input type="text" id="oran-travel-text" oninput="syncOranSettingsFromInputs()" /></div>
+            <div class="form-field"><label>הערת מע״מ</label><input type="text" id="oran-vat-text" oninput="syncOranSettingsFromInputs()" /></div>
+          </div>
+          <div class="settings-actions"><button class="btn-secondary" onclick="saveOranSettings()">שמור הגדרות אורן</button></div>
+        </div>
+        <div class="settings-panel">
+          <div class="form-title" style="margin-bottom:10px">דוחות מתעודות שירות</div>
+          <div class="helper-text" id="oran-cert-summary">בחר חודש כדי לראות סיכום תעודות.</div>
+          <div class="settings-actions" style="gap:8px;flex-wrap:wrap">
+            <button class="btn-secondary" onclick="fillBillingFromCertificates()">מלא חיוב מתעודות החודש</button>
+            <button class="btn-secondary" onclick="exportOranCertificatesCsv()">ייצוא CSV לאורן</button>
+          </div>
+        </div>
         <div class="form-row">
-          <div class="form-field"><label>חודש</label><input type="month" id="bill-month" /></div>
+          <div class="form-field"><label>חודש</label><input type="month" id="bill-month" onchange="renderOranCertificateSummary()" /></div>
           <div class="form-field"><label>תאריך</label><input type="date" id="bill-date" /></div>
         </div>
         <div class="form-field" style="margin-bottom:14px"><label>פרויקט</label><input type="text" id="bill-project" placeholder="שם הפרויקט / אתר / לקוח" /></div>
@@ -356,7 +429,7 @@
         <button class="btn-secondary" id="bill-cancel-edit" onclick="resetBillingForm()" style="display:none;width:100%;margin-top:10px">בטל עריכה</button>
       </div>
       <div class="billing-archive">
-        <div class="form-title">📂 ארכיון חיובים — אורון</div>
+        <div class="form-title">📂 ארכיון חיובים — אורן</div>
         <div id="billing-archive-list"></div>
       </div>
     </div>
@@ -365,9 +438,9 @@
 
 <!-- SCREEN 7: SIGNATURE -->
 <div id="screen-signature" class="screen" style="flex-direction:column">
-  <div class="topbar"><div class="topbar-logo">⚡ ניהול עסקי</div><div class="topbar-nav" id="nav-signature"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="topbar"><div class="topbar-logo">S.P Sharon-projects LTD</div><div class="topbar-nav" id="nav-signature"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
   <div class="content">
-    <div class="section-title" style="margin-bottom:24px">✍️ חתימה דיגיטלית</div>
+    <div class="section-title" style="margin-bottom:24px">✍️ תעודות שירות</div>
     <div class="sig-layout">
       <div class="sig-form">
         <div class="form-title">כתיבת תעודה</div>
@@ -375,11 +448,17 @@
           <div class="form-field"><label>שם לקוח</label><input type="text" id="sig-client" placeholder="שם הלקוח" /></div>
           <div class="form-field"><label>תאריך</label><input type="date" id="sig-date" /></div>
         </div>
+        <div class="form-field" style="margin-bottom:14px"><label>פרויקט</label><input type="text" id="sig-project" placeholder="שם פרויקט / אתר עבודה" /></div>
         <div class="form-field" style="margin-bottom:14px"><label>תיאור העבודה שבוצעה</label><textarea id="sig-desc" placeholder="תאר את העבודה..." style="min-height:110px"></textarea></div>
-        <div class="form-row">
-          <div class="form-field"><label>שעות / כמות</label><input type="number" id="sig-hours" placeholder="0" /></div>
-          <div class="form-field"><label>מחיר (₪)</label><input type="number" id="sig-price" placeholder="0" /></div>
-        </div>
+        <div class="cert-section-title">עובדים ושעות</div>
+        <div id="sig-employees-list"></div>
+        <button onclick="addCertEmployeeRow()" style="background:none;border:1px dashed var(--border);border-radius:8px;color:var(--accent);width:100%;padding:9px;cursor:pointer;font-family:'Heebo',sans-serif;font-size:13px;margin-bottom:12px;">+ הוסף עובד ושעות</button>
+        <div class="cert-section-title">מוצרים / פריטים</div>
+        <div id="sig-items-list"></div>
+        <button onclick="addCertItemRow()" style="background:none;border:1px dashed var(--border);border-radius:8px;color:var(--accent);width:100%;padding:9px;cursor:pointer;font-family:'Heebo',sans-serif;font-size:13px;margin-bottom:14px;">+ הוסף מוצר או פריט</button>
+        <div class="billing-total"><span class="total-label">סה״כ תעודה</span><span class="cert-total" id="sig-total">₪0</span></div>
+        <div class="helper-text" id="sig-clauses"></div>
+        <div class="form-field" style="margin-bottom:14px"><label>הערות ליד חתימה</label><textarea id="sig-notes" placeholder="הערות נוספות ללקוח..." style="min-height:70px"></textarea></div>
         <div style="font-size:13px;color:var(--text2);font-weight:600;margin-bottom:8px">חתימת לקוח</div>
         <div class="canvas-wrap"><canvas id="sig-canvas" width="480" height="150"></canvas></div>
         <div class="sig-btns">
@@ -398,7 +477,7 @@
 
 <!-- SCREEN 8: LIBRARY -->
 <div id="screen-library" class="screen" style="flex-direction:column">
-  <div class="topbar"><div class="topbar-logo">⚡ ניהול עסקי</div><div class="topbar-nav" id="nav-library"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="topbar"><div class="topbar-logo">S.P Sharon-projects LTD</div><div class="topbar-nav" id="nav-library"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
   <div class="content">
     <div class="section-header">
       <div class="section-title">📚 ספריות ומדריכים</div>
@@ -445,7 +524,7 @@ const defaultData = {
     {name:'חלק חילוף A',cat:'חלקים',price:'120',unit:"יח'",notes:'מלאי מוגבל'},
   ],
   clients: [
-    {name:'אורון ברקת',company:'ברקת בע"מ',phone:'050-9999999',email:'oron@barkat.co.il',city:'תל אביב',status:'פעיל'},
+    {name:'אורן ברקת',company:'ברקת בע"מ',phone:'050-9999999',email:'oren@barkat.co.il',city:'תל אביב',status:'פעיל'},
     {name:'יוסי מזרחי',company:'מזרחי תעשיות',phone:'052-8888888',email:'yosi@miz.co.il',city:'חיפה',status:'פעיל'},
     {name:'רונית שמיר',company:'שמיר בניה',phone:'053-7777777',email:'ronit@shamir.co.il',city:'ירושלים',status:'לא פעיל'},
   ],
@@ -495,8 +574,8 @@ function ld(k){
 }
 
 // NAV
-const screens = ['main','employees','prices','clients','billing','signature','library','vehicles'];
-const navLabels = {main:'ראשי',employees:'עובדים',prices:'מחירונים',clients:'לקוחות וספקים',billing:'חיוב אורון',signature:'חתימה דיגיטלית',library:'ספריות',vehicles:'🚗 רכבים'};
+const screens = ['main','employees','prices','projects','clients','billing','signature','library','vehicles'];
+const navLabels = {main:'ראשי',employees:'עובדים',prices:'מוצרים',projects:'פרויקטים',clients:'לקוחות וספקים',billing:'חיוב אורן',signature:'תעודות שירות',library:'ספריות',vehicles:'🚗 רכבים'};
 
 function buildNavs() {
   screens.forEach(s => {
@@ -512,9 +591,10 @@ function go(screen) {
   if(screen==='main') renderDashboard();
   if(screen==='employees') renderEmployees();
   if(screen==='prices') renderPrices();
+  if(screen==='projects') renderProjects();
   if(screen==='clients'){renderClients();renderSuppliers();}
   if(screen==='billing'){initBilling();renderBillingArchive();}
-  if(screen==='signature'){renderCerts();initCanvas();}
+  if(screen==='signature'){renderCerts();initCanvas();initCertForm();}
   if(screen==='library') renderLibrary('all');
   if(screen==='vehicles') renderVehicles();
 }
@@ -573,6 +653,9 @@ function initBilling(){
   if(!document.getElementById('bill-date').value) document.getElementById('bill-date').value=t.toISOString().split('T')[0];
   if(!document.getElementById('bill-month').value) document.getElementById('bill-month').value=t.toISOString().slice(0,7);
   if(!document.getElementById('bill-items-list').children.length) addBillItem();
+  loadOranSettings();
+  loadProjectChoices().then(()=>setupProjectInputs());
+  renderOranCertificateSummary();
 }
 function addBillItem(item={}){
   const d=document.createElement('div'); d.className='item-row';
@@ -717,10 +800,11 @@ function renderVehicles(){
 // MODAL
 let currentModal=null, editIndex=-1, editId=null;
 const modalDefs={
-  emp:{title:'עובד',fields:[['name','שם מלא'],['role','תפקיד'],['email','מייל'],['phone','טלפון'],['car','מספר רכב'],['code','קוד']],store:'employees',render:renderEmployees},
-  price:{title:'מוצר',fields:[['name','שם מוצר'],['cat','קטגוריה'],['price','מחיר'],['unit','יחידה'],['notes','הערות']],store:'prices',render:renderPrices},
-  client:{title:'לקוח',fields:[['name','שם'],['company','חברה'],['phone','טלפון'],['email','מייל'],['city','עיר'],['status','סטטוס']],store:'clients',render:renderClients},
-  supplier:{title:'ספק',fields:[['name','שם'],['company','חברה'],['phone','טלפון'],['email','מייל'],['product','מוצר עיקרי'],['terms','תנאי תשלום']],store:'suppliers',render:renderSuppliers},
+  emp:{title:'עובד',fields:[['name','שם מלא'],['role','תפקיד'],['email','מייל'],['email_status','סטטוס מייל'],['phone','טלפון']],store:'employees',render:renderEmployees},
+  price:{title:'מוצר',fields:[['category','קטגוריה'],['name','שם מוצר'],['sku','מק״ט'],['buy_price','מחיר עלות'],['multiplier','מכפיל'],['supplier','ספק'],['price_updated_at','תאריך עדכון מחיר'],['notes','הערות']],store:'prices',render:renderPrices},
+  project:{title:'פרויקט',fields:[['name','שם פרויקט'],['client_name','לקוח'],['location','מיקום / אתר'],['status','סטטוס'],['priority','עדיפות'],['due_date','תאריך יעד'],['description','תיאור'],['notes','הערות']],store:'projects',render:renderProjects},
+  client:{title:'לקוח',fields:[['name','שם'],['company','חברה'],['phone','טלפון'],['email','מייל'],['city','מיקום חברה'],['payment_terms','תנאי תשלום'],['notes','הערות']],store:'clients',render:renderClients},
+  supplier:{title:'ספק',fields:[['name','שם'],['company','חברה'],['address','כתובת'],['website','אתר'],['phone','טלפון'],['email','מייל'],['product','מוצרים עיקריים'],['terms','תנאי תשלום']],store:'suppliers',render:renderSuppliers},
   lib:{title:'פריט ספרייה',fields:[['name','שם'],['type','סוג (link/guide/image)'],['url','קישור URL'],['icon','אייקון (emoji)']],store:'library',render:()=>renderLibrary('all')},
   vehicle:{title:'רכב',fields:[['plate','מספר רכב'],['owner','בעלים / עובד'],['insType','סוג ביטוח'],['insExp','תוקף ביטוח (YYYY-MM-DD)'],['testExp','טסט הבא (YYYY-MM-DD)'],['notes','הערות']],store:'vehicles',render:renderVehicles},
 };
@@ -729,8 +813,16 @@ function openModal(type,data=null){
   currentModal=type;
   const def=modalDefs[type];
   document.getElementById('modal-title').textContent=(data?'ערוך ':'הוסף ')+def.title;
-  document.getElementById('modal-body').innerHTML=`<div class="mform-grid">${def.fields.map(([k,label])=>`<div class="mform-field"><label>${label}</label><input id="mf-${k}" type="${['insExp','testExp'].includes(k)?'date':'text'}" value="${data?data[k]||'':''}" /></div>`).join('')}</div>`;
+  const dateFields = ['insExp','testExp','price_updated_at','due_date'];
+  const numberFields = ['buy_price','multiplier','sell_price','price'];
+  document.getElementById('modal-body').innerHTML=`<div class="mform-grid">${def.fields.map(([k,label])=>{
+    const typeAttr = dateFields.includes(k) ? 'date' : (numberFields.includes(k) ? 'number' : 'text');
+    const stepAttr = typeAttr === 'number' ? ' step="0.01"' : '';
+    const value = data ? (data[k] ?? '') : '';
+    return `<div class="mform-field"><label>${label}</label><input id="mf-${k}" type="${typeAttr}"${stepAttr} value="${esc(value)}" /></div>`;
+  }).join('')}</div>`;
   document.getElementById('modal-overlay').classList.add('open');
+  if(type === 'project') setupProjectClientDatalist();
 }
 function editItem(type,i){
   const def=modalDefs[type]; editIndex=i; editId=null;
@@ -820,10 +912,29 @@ let billingCache = [];
 let certsCache = [];
 let vehiclesCache = [];
 let libraryCache = [];
+let projectsCache = [];
+let projectTasksCache = [];
+let projectActivityCache = [];
+let projectFilesCache = [];
+let projectClientsCache = [];
+let projectEmployeesCache = [];
 let currentLibraryFilter = 'all';
 let currentUser = null;
 let editingBillingId = null;
 let editingCertId = null;
+let photoEmployeeId = null;
+let currentProjectId = null;
+let projectFileKind = 'file';
+let oranSettings = {
+  hourly_rate: 0,
+  product_multiplier: 1.25,
+  travel_text: 'שעות עבודה אינן כוללות זמן נסיעה',
+  vat_text: 'כל המחירים אינם כוללים מע״מ'
+};
+let certProductsCache = [];
+let certEmployeesCache = [];
+let certClientsCache = [];
+let certProjectsCache = [];
 
 function showDbError(area, error){
   console.error(area, error);
@@ -831,27 +942,41 @@ function showDbError(area, error){
 }
 
 function productFromDb(p){
+  const buyPrice = p.buy_price ?? p.sell_price ?? '';
+  const multiplier = p.multiplier ?? 1;
+  const customerPrice = buyPrice !== '' && buyPrice !== null ? Number(buyPrice) * Number(multiplier || 1) : '';
   return {
     id: p.id,
     name: p.name || '',
-    cat: p.sku || '',
-    price: p.sell_price ?? '',
-    unit: '',
-    notes: [p.description, p.supplier ? 'ספק: ' + p.supplier : ''].filter(Boolean).join(' | '),
+    cat: p.category || '',
+    price: buyPrice,
+    unit: p.sku || '',
+    notes: p.notes || p.description || '',
     description: p.description || '',
     supplier: p.supplier || '',
+    category: p.category || '',
     sku: p.sku || '',
-    sell_price: p.sell_price ?? ''
+    buy_price: buyPrice,
+    multiplier,
+    sell_price: customerPrice === '' ? '' : Number(customerPrice.toFixed(2)),
+    price_updated_at: p.price_updated_at || ''
   };
 }
 
 function productToDb(p){
+  const buyPrice = nullableNumber(p.buy_price ?? p.price ?? p.sell_price);
+  const multiplier = nullableNumber(p.multiplier) ?? 1;
   return {
     name: p.name || '',
     description: p.description ?? p.notes ?? '',
     sku: p.sku ?? p.cat ?? '',
-    sell_price: p.sell_price !== undefined && p.sell_price !== '' ? Number(p.sell_price) : (p.price !== '' ? Number(p.price) : null),
-    supplier: p.supplier || ''
+    category: p.category ?? p.cat ?? '',
+    buy_price: buyPrice,
+    multiplier,
+    sell_price: buyPrice !== null ? Number((buyPrice * multiplier).toFixed(2)) : null,
+    supplier: p.supplier || '',
+    price_updated_at: nullableDate(p.price_updated_at),
+    notes: p.notes ?? ''
   };
 }
 
@@ -874,7 +999,146 @@ function nullableDate(v){
 }
 
 function nullableNumber(v){
-  return v !== undefined && v !== null && v !== '' ? Number(v) : null;
+  if(v === undefined || v === null || v === '') return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+
+function money(v){
+  const n = Number(v);
+  return Number.isFinite(n) ? n.toLocaleString('he-IL') : '-';
+}
+
+function downloadTextFile(filename, text, type='text/plain;charset=utf-8'){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([text],{type}));
+  a.download=filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function csvCell(value){
+  const text = String(value ?? '').replace(/"/g,'""');
+  return `"${text}"`;
+}
+
+function csvLine(values){
+  return values.map(csvCell).join(',');
+}
+
+function monthRange(month){
+  const value = String(month || '').trim();
+  const m = value.match(/^(\d{4})-(\d{2})$/);
+  if(!m) {
+    const now = new Date();
+    const fallback = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    return monthRange(fallback);
+  }
+  const y = Number(m[1]);
+  const monthIndex = Number(m[2]) - 1;
+  const first = new Date(Date.UTC(y, monthIndex, 1));
+  const last = new Date(Date.UTC(y, monthIndex + 1, 0));
+  return {
+    from: first.toISOString().slice(0,10),
+    to: last.toISOString().slice(0,10)
+  };
+}
+
+function normalizeUrl(url){
+  const value = String(url || '').trim();
+  if(!value) return '';
+  return /^https?:\/\//i.test(value) ? value : 'https://' + value;
+}
+
+function employeeInitial(name){
+  const value = String(name || '').trim();
+  return (value[0] || 'ע').toUpperCase();
+}
+
+function employeePhotoHtml(employee, cls='employee-photo'){
+  if(employee?.photo_url){
+    return `<img class="${cls}" src="${esc(employee.photo_url)}" alt="${esc(employee.name || '')}">`;
+  }
+  return `<span class="${cls}">${esc(employeeInitial(employee?.name))}</span>`;
+}
+
+async function withEmployeePhotoUrls(rows){
+  return Promise.all((rows || []).map(async employee => {
+    if(!employee.photo_path) return { ...employee, photo_url: '' };
+    const signed = await supabaseClient.storage.from('employee-photos').createSignedUrl(employee.photo_path, 60 * 60);
+    return { ...employee, photo_url: signed.data?.signedUrl || '' };
+  }));
+}
+
+function billingHours(rows){
+  return (rows || []).reduce((sum, bill) => {
+    const items = Array.isArray(bill.items) ? bill.items : [];
+    return sum + items.reduce((itemSum, item) => {
+      const desc = String(item.desc || '').toLowerCase();
+      const looksLikeHours = desc.includes('שעה') || desc.includes('שעות') || desc.includes('עבודה') || desc.includes('hour');
+      return itemSum + (looksLikeHours ? Number(item.qty || 0) : 0);
+    }, 0);
+  }, 0);
+}
+
+function applyOranSettingsToInputs(){
+  const hourly = document.getElementById('oran-hourly-rate');
+  const multiplier = document.getElementById('oran-product-multiplier');
+  const travel = document.getElementById('oran-travel-text');
+  const vat = document.getElementById('oran-vat-text');
+  if(hourly) hourly.value = oranSettings.hourly_rate ?? 0;
+  if(multiplier) multiplier.value = oranSettings.product_multiplier ?? 1.25;
+  if(travel) travel.value = oranSettings.travel_text || '';
+  if(vat) vat.value = oranSettings.vat_text || '';
+  renderCertClauses();
+}
+
+function syncOranSettingsFromInputs(){
+  const hourly = document.getElementById('oran-hourly-rate');
+  const multiplier = document.getElementById('oran-product-multiplier');
+  const travel = document.getElementById('oran-travel-text');
+  const vat = document.getElementById('oran-vat-text');
+  oranSettings = {
+    hourly_rate: nullableNumber(hourly?.value) || 0,
+    product_multiplier: nullableNumber(multiplier?.value) || 1,
+    travel_text: travel?.value || '',
+    vat_text: vat?.value || ''
+  };
+  renderCertClauses();
+}
+
+async function loadOranSettings(){
+  try{
+    const { data, error } = await supabaseClient
+      .from('app_settings')
+      .select('value')
+      .eq('key', 'oran_billing')
+      .maybeSingle();
+    if(error) throw error;
+    if(data?.value) oranSettings = { ...oranSettings, ...data.value };
+  } catch(error) {
+    console.warn('oran settings fallback', error);
+  }
+  applyOranSettingsToInputs();
+  calcCertTotal();
+}
+
+async function saveOranSettings(){
+  syncOranSettingsFromInputs();
+  const { error } = await supabaseClient
+    .from('app_settings')
+    .upsert({ key: 'oran_billing', value: oranSettings, updated_at: new Date().toISOString() });
+  if(error){ showDbError('oran settings save', error); return; }
+  repriceCertItems();
+  calcCertTotal();
+  alert('הגדרות אורן נשמרו ✓');
+}
+
+function renderCertClauses(){
+  const el = document.getElementById('sig-clauses');
+  if(!el) return;
+  const parts = [oranSettings.travel_text, oranSettings.vat_text].filter(Boolean);
+  el.innerHTML = parts.length ? parts.map(esc).join('<br>') : '';
 }
 
 function certFromDb(c){
@@ -882,9 +1146,14 @@ function certFromDb(c){
     id: c.id,
     client: c.client || '',
     date: c.date || '',
+    project: c.project || '',
     desc: c.description || '',
     hours: c.hours ?? '',
     price: c.price ?? '',
+    employees: Array.isArray(c.employees) ? c.employees : [],
+    items: Array.isArray(c.items) ? c.items : [],
+    notes: c.notes || '',
+    total: c.total ?? c.price ?? '',
     signature_data: c.signature_data || '',
     created_at: c.created_at
   };
@@ -916,15 +1185,20 @@ function billingFromDb(b){
   };
 }
 
+function userDisplayName(user){
+  const meta = user?.user_metadata || {};
+  const value = meta.full_name || meta.name || meta.display_name || (user?.email || '').split('@')[0];
+  return String(value || 'משתמש').trim();
+}
+
 function userInitial(user){
-  const email = user?.email || '';
-  return (email[0] || 'A').toUpperCase();
+  return (userDisplayName(user)[0] || 'A').toUpperCase();
 }
 
 function setUserUi(user){
   document.querySelectorAll('.avatar').forEach(el=>el.textContent=userInitial(user));
   const title=document.getElementById('dash-title');
-  if(title) title.textContent = user?.email ? `שלום, ${user.email} 👋` : 'שלום 👋';
+  if(title) title.textContent = `שלום, ${userDisplayName(user)} 👋`;
 }
 
 function showLogin(){
@@ -958,55 +1232,120 @@ async function initAuth(){
 async function renderEmployees(){
   const tbody = document.getElementById('emp-tbody');
   if(!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">טוען עובדים...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:36px">טוען עובדים...</td></tr>';
 
   const { data, error } = await supabaseClient
     .from('employees')
-    .select('id, name, role, email, phone, car, code, created_at')
+    .select('id, name, role, email, phone, email_status, photo_path, photo_name, created_at')
     .order('created_at', { ascending: false });
 
   if(error){
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--red);padding:36px">שגיאה בטעינת עובדים</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--red);padding:36px">שגיאה בטעינת עובדים</td></tr>';
     showDbError('employees select', error);
     return;
   }
 
   const q=(document.getElementById('emp-search')?.value||'').toLowerCase();
-  employeesCache = data || [];
-  const rows = employeesCache.filter(e=>!q||(e.name||'').toLowerCase().includes(q)||(e.role||'').toLowerCase().includes(q));
-  tbody.innerHTML = rows.length ? rows.map(e=>`<tr><td><b>${e.name||''}</b></td><td><span class="badge badge-blue">${e.role||''}</span></td><td>${e.email||''}</td><td>${e.phone||''}</td><td>${e.car||''}</td><td><span class="badge badge-gold">${e.code||''}</span></td><td><button class="action-btn" onclick="editItemById('emp','${e.id}')">✏️</button><button class="action-btn danger" onclick="delItemById('employees','${e.id}',renderEmployees)">🗑️</button></td></tr>`).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו עובדים</td></tr>';
+  employeesCache = await withEmployeePhotoUrls(data || []);
+  const rows = employeesCache.filter(e=>!q||(e.name||'').toLowerCase().includes(q)||(e.role||'').toLowerCase().includes(q)||(e.email||'').toLowerCase().includes(q));
+  tbody.innerHTML = rows.length ? rows.map(e=>`<tr>
+    <td><div class="employee-cell">${employeePhotoHtml(e)}<div><b>${esc(e.name)}</b><div style="color:var(--text3);font-size:12px">${esc(e.photo_name || 'ללא תמונה')}</div></div></div></td>
+    <td><span class="badge badge-blue">${esc(e.role)}</span></td>
+    <td>${esc(e.email)}</td>
+    <td><span class="badge badge-gold">${esc(e.email_status || 'לא הוגדר')}</span></td>
+    <td>${esc(e.phone)}</td>
+    <td><button class="action-btn" onclick="setEmployeePhotoTarget('${e.id}')">📷</button><button class="action-btn" onclick="editItemById('emp','${e.id}')">✏️</button><button class="action-btn danger" onclick="delItemById('employees','${e.id}',renderEmployees)">🗑️</button></td>
+  </tr>`).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו עובדים</td></tr>';
+}
+
+function setEmployeePhotoTarget(id){
+  photoEmployeeId = id;
+  const input = document.getElementById('emp-photo-upload');
+  if(input) input.click();
+}
+
+async function uploadEmployeePhoto(event){
+  const file = event.target.files?.[0];
+  if(!file || !photoEmployeeId) return;
+  if(!file.type.startsWith('image/')){
+    alert('אפשר להעלות רק קובץ תמונה');
+    event.target.value = '';
+    return;
+  }
+
+  const employee = employeesCache.find(x=>x.id===photoEmployeeId);
+  const safeName = file.name.replace(/[^\w.\-\u0590-\u05FF ]+/g,'_');
+  const path = `${photoEmployeeId}/${Date.now()}-${safeName}`;
+
+  try{
+    const upload = await supabaseClient.storage.from('employee-photos').upload(path, file, {
+      upsert: false,
+      contentType: file.type || 'image/jpeg'
+    });
+    if(upload.error) throw upload.error;
+
+    const update = await supabaseClient
+      .from('employees')
+      .update({ photo_path: path, photo_name: file.name })
+      .eq('id', photoEmployeeId);
+    if(update.error){
+      await supabaseClient.storage.from('employee-photos').remove([path]);
+      throw update.error;
+    }
+
+    if(employee?.photo_path && employee.photo_path !== path){
+      await supabaseClient.storage.from('employee-photos').remove([employee.photo_path]);
+    }
+
+    await renderEmployees();
+    await renderDashboard();
+    alert('התמונה נשמרה ✓');
+  } catch(error) {
+    showDbError('employee photo upload', error);
+  } finally {
+    photoEmployeeId = null;
+    event.target.value = '';
+  }
 }
 
 async function renderPrices(){
   const tbody = document.getElementById('price-tbody');
   if(!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:36px">טוען מוצרים...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--text3);padding:36px">טוען מוצרים...</td></tr>';
 
   const { data, error } = await supabaseClient
     .from('products')
-    .select('id, name, description, sku, buy_price, multiplier, sell_price, supplier, created_at')
+    .select('id, name, description, sku, category, buy_price, multiplier, sell_price, supplier, price_updated_at, notes, created_at')
     .order('created_at', { ascending: false });
 
   if(error){
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--red);padding:36px">שגיאה בטעינת מוצרים</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--red);padding:36px">שגיאה בטעינת מוצרים</td></tr>';
     showDbError('products select', error);
     return;
   }
 
   const q=(document.getElementById('price-search')?.value||'').toLowerCase();
   pricesCache = (data || []).map(productFromDb);
-  const rows = pricesCache.filter(p=>!q||(p.name||'').toLowerCase().includes(q)||(p.cat||'').toLowerCase().includes(q)||(p.notes||'').toLowerCase().includes(q));
-  tbody.innerHTML = rows.length ? rows.map(p=>`<tr><td><b>${p.name}</b></td><td><span class="badge badge-green">${p.cat||'-'}</span></td><td style="color:var(--gold);font-weight:700">₪${p.price||0}</td><td>${p.unit||'-'}</td><td style="color:var(--text2)">${p.notes||''}</td><td><button class="action-btn" onclick="editItemById('price','${p.id}')">✏️</button><button class="action-btn danger" onclick="delItemById('prices','${p.id}',renderPrices)">🗑️</button></td></tr>`).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו מוצרים</td></tr>';
+  const rows = pricesCache.filter(p=>!q||(p.name||'').toLowerCase().includes(q)||(p.category||'').toLowerCase().includes(q)||(p.sku||'').toLowerCase().includes(q)||(p.supplier||'').toLowerCase().includes(q)||(p.notes||'').toLowerCase().includes(q));
+  tbody.innerHTML = rows.length ? rows.map(p=>`<tr>
+    <td><span class="badge badge-green">${esc(p.category || '-')}</span></td>
+    <td><b>${esc(p.name)}</b></td>
+    <td>${esc(p.sku || '-')}</td>
+    <td style="color:var(--gold);font-weight:700">₪${money(p.buy_price)}</td>
+    <td>${esc(p.multiplier || 1)}</td>
+    <td style="color:var(--gold);font-weight:700">₪${money(p.sell_price)}</td>
+    <td>${esc(p.supplier || '-')}</td>
+    <td>${esc(p.price_updated_at || '-')}</td>
+    <td style="color:var(--text2)">${esc(p.notes || p.description || '')}</td>
+    <td><button class="action-btn" onclick="editItemById('price','${p.id}')">✏️</button><button class="action-btn danger" onclick="delItemById('prices','${p.id}',renderPrices)">🗑️</button></td>
+  </tr>`).join('') : '<tr><td colspan="10" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו מוצרים</td></tr>';
 }
 
-// Better labels for Supabase products table.
-modalDefs.price.fields = [
-  ['name','שם מוצר'],
-  ['sku','מק״ט / קטגוריה'],
-  ['sell_price','מחיר מכירה'],
-  ['supplier','ספק'],
-  ['description','תיאור / הערות']
-];
+modalDefs.emp.fields = [['name','שם מלא'],['role','תפקיד'],['email','מייל'],['email_status','סטטוס מייל'],['phone','טלפון']];
+modalDefs.price.fields = [['category','קטגוריה'],['name','שם מוצר'],['sku','מק״ט'],['buy_price','מחיר עלות'],['multiplier','מכפיל'],['supplier','ספק'],['price_updated_at','תאריך עדכון מחיר'],['notes','הערות']];
+modalDefs.project.fields = [['name','שם פרויקט'],['client_name','לקוח'],['location','מיקום / אתר'],['status','סטטוס'],['priority','עדיפות'],['due_date','תאריך יעד'],['description','תיאור'],['notes','הערות']];
+modalDefs.client.fields = [['name','שם'],['company','חברה'],['phone','טלפון'],['email','מייל'],['city','מיקום חברה'],['payment_terms','תנאי תשלום'],['notes','הערות']];
+modalDefs.supplier.fields = [['name','שם'],['company','חברה'],['address','כתובת'],['website','אתר'],['phone','טלפון'],['email','מייל'],['product','מוצרים עיקריים'],['terms','תנאי תשלום']];
 
 function editItemById(type,id){
   const def=modalDefs[type];
@@ -1032,9 +1371,8 @@ async function saveModal(){
       name: obj.name || '',
       role: obj.role || '',
       email: obj.email || '',
-      phone: obj.phone || '',
-      car: obj.car || '',
-      code: obj.code || ''
+      email_status: obj.email_status || '',
+      phone: obj.phone || ''
     };
     const result = editId
       ? await supabaseClient.from('employees').update(payload).eq('id', editId)
@@ -1103,33 +1441,42 @@ async function renderDashboard(){
 
   try{
     const month = new Date().toISOString().slice(0,7);
-    const [employees, products, clients, suppliers, vehicles, billingRows, vehicleRows] = await Promise.all([
-      tableCount('employees'),
-      tableCount('products'),
-      tableCount('clients'),
-      tableCount('suppliers'),
-      tableCount('vehicles'),
-      supabaseClient.from('billing').select('total, month').eq('month', month),
-      supabaseClient.from('vehicles').select('plate, owner, ins_exp, test_exp')
+    const [employeeRows, billingRows, vehicleRows, projectRows] = await Promise.all([
+      supabaseClient.from('employees').select('id, name, role, photo_path').order('created_at', { ascending: false }),
+      supabaseClient.from('billing').select('total, month, items').eq('month', month),
+      supabaseClient.from('vehicles').select('plate, owner, ins_type, ins_exp, test_exp'),
+      supabaseClient.from('projects').select('id, name, client_name, status, created_at').in('status', ['open','active','פתוח']).order('created_at', { ascending: false })
     ]);
 
+    if(employeeRows.error) throw employeeRows.error;
     if(billingRows.error) throw billingRows.error;
     if(vehicleRows.error) throw vehicleRows.error;
+    if(projectRows.error) throw projectRows.error;
 
+    const employees = await withEmployeePhotoUrls(employeeRows.data || []);
     const monthlyTotal = (billingRows.data || []).reduce((sum,b)=>sum+Number(b.total||0),0);
+    const monthlyHours = billingHours(billingRows.data || []);
     const vehicleAlerts = (vehicleRows.data || []).filter(v=>daysDiff(v.ins_exp)<=30 || daysDiff(v.test_exp)<=30);
+    const projects = projectRows.data || [];
+    const employeeList = employees.length
+      ? employees.slice(0,5).map(e=>`<div class="mini-row">${employeePhotoHtml(e,'mini-avatar')}<span>${esc(e.name || '')}</span></div>`).join('')
+      : '<div class="mini-row">אין עובדים להצגה</div>';
+    const vehicleList = vehicleAlerts.length
+      ? vehicleAlerts.slice(0,4).map(v=>`<div class="mini-row"><span class="badge badge-red">${esc(v.plate)}</span><span>${esc(v.owner || v.ins_type || '')}</span></div>`).join('')
+      : '<div class="mini-row">אין רכבים דחופים</div>';
+    const projectList = projects.length
+      ? projects.slice(0,4).map(p=>`<div class="mini-row"><span>${esc(p.name || 'פרויקט ללא שם')}</span></div>`).join('')
+      : '<div class="mini-row">אין פרויקטים פתוחים</div>';
 
     statsEl.innerHTML=[
-      ['עובדים', employees],
-      ['מוצרים', products],
-      ['לקוחות', clients],
-      ['ספקים', suppliers],
-      ['רכבים לטיפול', vehicleAlerts.length],
-      ['חיובים החודש', '₪' + monthlyTotal.toLocaleString('he-IL')]
-    ].map(([label,value])=>`<div class="stat-card"><div class="stat-number">${esc(value)}</div><div class="stat-label">${esc(label)}</div></div>`).join('');
+      `<div class="stat-card"><div class="stat-number">${employees.length}</div><div class="stat-label">עובדים</div><div class="stat-list">${employeeList}</div></div>`,
+      `<div class="stat-card"><div class="stat-number">₪${monthlyTotal.toLocaleString('he-IL')}</div><div class="stat-label">חיובי אורן החודש</div><div class="stat-list"><div class="mini-row">שעות עבודה: ${money(monthlyHours)}</div></div></div>`,
+      `<div class="stat-card"><div class="stat-number">${vehicleAlerts.length}</div><div class="stat-label">רכבים לטיפול</div><div class="stat-list">${vehicleList}</div></div>`,
+      `<div class="stat-card"><div class="stat-number">${projects.length}</div><div class="stat-label">פרויקטים פתוחים</div><div class="stat-list">${projectList}</div></div>`
+    ].join('');
 
     if(alertsEl && vehicleAlerts.length){
-      alertsEl.innerHTML = `<strong>התראות רכבים:</strong><br>${vehicleAlerts.slice(0,5).map(v=>`${esc(v.plate)} — ${esc(v.owner||'ללא בעלים')}`).join('<br>')}`;
+      alertsEl.innerHTML = `<strong>התראות רכבים:</strong><br>${vehicleAlerts.slice(0,5).map(v=>`${esc(v.plate)} - ${esc(v.owner||'ללא בעלים')}`).join('<br>')}`;
     }
   } catch(error) {
     console.error('dashboard', error);
@@ -1140,45 +1487,67 @@ async function renderDashboard(){
 async function renderClients(){
   const tbody = document.getElementById('client-tbody');
   if(!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">טוען לקוחות...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:36px">טוען לקוחות...</td></tr>';
 
   const { data, error } = await supabaseClient
     .from('clients')
-    .select('id, name, company, phone, email, city, status, created_at')
+    .select('id, name, company, phone, email, city, payment_terms, notes, created_at')
     .order('created_at', { ascending: false });
 
   if(error){
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--red);padding:36px">שגיאה בטעינת לקוחות</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--red);padding:36px">שגיאה בטעינת לקוחות</td></tr>';
     showDbError('clients select', error);
     return;
   }
 
   const q=(document.getElementById('client-search')?.value||'').toLowerCase();
   clientsCache = data || [];
-  const rows = clientsCache.filter(c=>!q||(c.name||'').toLowerCase().includes(q)||(c.company||'').toLowerCase().includes(q));
-  tbody.innerHTML = rows.length ? rows.map(c=>`<tr><td><b>${esc(c.name)}</b></td><td>${esc(c.company)}</td><td>${esc(c.phone)}</td><td>${esc(c.email)}</td><td>${esc(c.city)}</td><td><span class="badge ${c.status==='פעיל'?'badge-green':'badge-red'}">${esc(c.status)}</span></td><td><button class="action-btn" onclick="editItemById('client','${c.id}')">✏️</button><button class="action-btn danger" onclick="delItemById('clients','${c.id}',renderClients)">🗑️</button></td></tr>`).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו לקוחות</td></tr>';
+  const rows = clientsCache.filter(c=>!q||(c.name||'').toLowerCase().includes(q)||(c.company||'').toLowerCase().includes(q)||(c.city||'').toLowerCase().includes(q)||(c.payment_terms||'').toLowerCase().includes(q));
+  tbody.innerHTML = rows.length ? rows.map(c=>`<tr>
+    <td><b>${esc(c.name)}</b></td>
+    <td>${esc(c.company)}</td>
+    <td>${esc(c.phone)}</td>
+    <td>${esc(c.email)}</td>
+    <td>${esc(c.city)}</td>
+    <td><span class="badge badge-blue">${esc(c.payment_terms || '-')}</span></td>
+    <td style="color:var(--text2)">${esc(c.notes || '')}</td>
+    <td><button class="action-btn" onclick="editItemById('client','${c.id}')">✏️</button><button class="action-btn danger" onclick="delItemById('clients','${c.id}',renderClients)">🗑️</button></td>
+  </tr>`).join('') : '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו לקוחות</td></tr>';
 }
 
 async function renderSuppliers(){
   const tbody = document.getElementById('supplier-tbody');
   if(!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">טוען ספקים...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:36px">טוען ספקים...</td></tr>';
 
   const { data, error } = await supabaseClient
     .from('suppliers')
-    .select('id, name, company, phone, email, product, terms, created_at')
+    .select('id, name, company, address, website, phone, email, product, terms, created_at')
     .order('created_at', { ascending: false });
 
   if(error){
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--red);padding:36px">שגיאה בטעינת ספקים</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--red);padding:36px">שגיאה בטעינת ספקים</td></tr>';
     showDbError('suppliers select', error);
     return;
   }
 
   const q=(document.getElementById('supplier-search')?.value||'').toLowerCase();
   suppliersCache = data || [];
-  const rows = suppliersCache.filter(s=>!q||(s.name||'').toLowerCase().includes(q)||(s.company||'').toLowerCase().includes(q));
-  tbody.innerHTML = rows.length ? rows.map(s=>`<tr><td><b>${esc(s.name)}</b></td><td>${esc(s.company)}</td><td>${esc(s.phone)}</td><td>${esc(s.email)}</td><td>${esc(s.product)}</td><td><span class="badge badge-blue">${esc(s.terms)}</span></td><td><button class="action-btn" onclick="editItemById('supplier','${s.id}')">✏️</button><button class="action-btn danger" onclick="delItemById('suppliers','${s.id}',renderSuppliers)">🗑️</button></td></tr>`).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו ספקים</td></tr>';
+  const rows = suppliersCache.filter(s=>!q||(s.name||'').toLowerCase().includes(q)||(s.company||'').toLowerCase().includes(q)||(s.product||'').toLowerCase().includes(q)||(s.address||'').toLowerCase().includes(q));
+  tbody.innerHTML = rows.length ? rows.map(s=>{
+    const site = normalizeUrl(s.website);
+    return `<tr>
+      <td><b>${esc(s.name)}</b></td>
+      <td>${esc(s.company)}</td>
+      <td>${esc(s.address)}</td>
+      <td>${site ? `<a href="${esc(site)}" target="_blank" rel="noopener">פתח אתר</a>` : '-'}</td>
+      <td>${esc(s.phone)}</td>
+      <td>${esc(s.email)}</td>
+      <td>${esc(s.product)}</td>
+      <td><span class="badge badge-blue">${esc(s.terms)}</span></td>
+      <td><button class="action-btn" onclick="editItemById('supplier','${s.id}')">✏️</button><button class="action-btn danger" onclick="delItemById('suppliers','${s.id}',renderSuppliers)">🗑️</button></td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו ספקים</td></tr>';
 }
 
 async function saveBilling(){
@@ -1219,6 +1588,101 @@ function resetBillingForm(){
   calcTotal();
   document.getElementById('bill-save-btn').textContent='שמור חיוב';
   document.getElementById('bill-cancel-edit').style.display='none';
+}
+
+async function loadCertificatesForBilling(month=null){
+  const selectedMonth = month || document.getElementById('bill-month')?.value || new Date().toISOString().slice(0,7);
+  const { from, to } = monthRange(selectedMonth);
+  const { data, error } = await supabaseClient
+    .from('certs')
+    .select('id, client, date, project, description, hours, price, employees, items, notes, total, created_at')
+    .gte('date', from)
+    .lte('date', to)
+    .order('date', { ascending: true });
+  if(error) throw error;
+  return (data || []).map(certFromDb);
+}
+
+function certificateTotal(cert){
+  return Number(cert.total ?? cert.price ?? 0) || 0;
+}
+
+function certificateHours(cert){
+  if(Array.isArray(cert.employees) && cert.employees.length){
+    return cert.employees.reduce((sum,e)=>sum+Number(e.hours||0),0);
+  }
+  return Number(cert.hours || 0);
+}
+
+async function renderOranCertificateSummary(){
+  const el = document.getElementById('oran-cert-summary');
+  if(!el) return;
+  el.textContent = 'טוען סיכום תעודות...';
+  try{
+    const list = await loadCertificatesForBilling();
+    const total = list.reduce((sum,c)=>sum+certificateTotal(c),0);
+    const hours = list.reduce((sum,c)=>sum+certificateHours(c),0);
+    el.textContent = `נמצאו ${list.length} תעודות לחודש. שעות: ${money(hours)} | סה״כ: ₪${money(total)}`;
+  } catch(error) {
+    console.warn('oran cert summary', error);
+    el.textContent = 'לא ניתן לטעון סיכום תעודות כרגע';
+  }
+}
+
+async function fillBillingFromCertificates(){
+  try{
+    const month = document.getElementById('bill-month')?.value || new Date().toISOString().slice(0,7);
+    const list = await loadCertificatesForBilling(month);
+    if(!list.length){ alert('אין תעודות שירות לחודש הזה'); return; }
+    const itemsEl = document.getElementById('bill-items-list');
+    itemsEl.innerHTML = '';
+    list.forEach(cert=>{
+      const project = cert.project ? ` - ${cert.project}` : '';
+      addBillItem({
+        desc: `תעודת שירות ${cert.date}${project} - ${cert.client}`,
+        qty: 1,
+        price: certificateTotal(cert)
+      });
+    });
+    document.getElementById('bill-project').value = `חיוב אורן ${month}`;
+    document.getElementById('bill-notes').value = [oranSettings.travel_text, oranSettings.vat_text].filter(Boolean).join('\n');
+    calcTotal();
+    alert('החיוב מולא מתעודות השירות של החודש ✓');
+  } catch(error) {
+    showDbError('fill billing from certificates', error);
+  }
+}
+
+async function exportOranCertificatesCsv(){
+  try{
+    const month = document.getElementById('bill-month')?.value || new Date().toISOString().slice(0,7);
+    const list = await loadCertificatesForBilling(month);
+    if(!list.length){ alert('אין תעודות שירות לחודש הזה'); return; }
+    const lines = [
+      csvLine(['תאריך','לקוח','פרויקט','תיאור','סוג שורה','שם','כמות/שעות','מחיר יחידה','סה״כ שורה','סה״כ תעודה','הערות'])
+    ];
+    list.forEach(cert=>{
+      const certTotal = certificateTotal(cert);
+      const employees = Array.isArray(cert.employees) ? cert.employees : [];
+      const items = Array.isArray(cert.items) ? cert.items : [];
+      if(!employees.length && !items.length){
+        lines.push(csvLine([cert.date, cert.client, cert.project, cert.desc, 'תעודה', '', cert.hours || '', cert.price || '', certTotal, certTotal, cert.notes || '']));
+      }
+      employees.forEach(e=>{
+        const lineTotal = Number(e.hours||0) * Number(e.rate||0);
+        lines.push(csvLine([cert.date, cert.client, cert.project, cert.desc, 'עובד', e.name || '', e.hours || 0, e.rate || 0, lineTotal, certTotal, cert.notes || '']));
+      });
+      items.forEach(item=>{
+        const lineTotal = Number(item.qty||0) * Number(item.price||0);
+        lines.push(csvLine([cert.date, cert.client, cert.project, cert.desc, 'מוצר/פריט', item.name || '', item.qty || 0, item.price || 0, lineTotal, certTotal, cert.notes || '']));
+      });
+    });
+    lines.push(csvLine(['','','','','','','','','','',oranSettings.travel_text || '']));
+    lines.push(csvLine(['','','','','','','','','','',oranSettings.vat_text || '']));
+    downloadTextFile(`oran-certificates-${month}.csv`, '\ufeff' + lines.join('\n'), 'text/csv;charset=utf-8');
+  } catch(error) {
+    showDbError('oran csv export', error);
+  }
 }
 
 async function renderBillingArchive(){
@@ -1267,17 +1731,192 @@ async function deleteBilling(id){
   await renderDashboard();
 }
 
+async function loadCertLookups(){
+  try{
+    const [products, employees, clients, projects] = await Promise.all([
+      supabaseClient.from('products').select('id, name, sku, category, buy_price, multiplier, sell_price, supplier, notes, created_at').order('created_at', { ascending: false }),
+      supabaseClient.from('employees').select('id, name, role, created_at').order('created_at', { ascending: false }),
+      supabaseClient.from('clients').select('id, name, company, created_at').order('created_at', { ascending: false }),
+      supabaseClient.from('projects').select('id, name, client_name, location, status, created_at').order('created_at', { ascending: false })
+    ]);
+    if(products.error) throw products.error;
+    if(employees.error) throw employees.error;
+    if(clients.error) throw clients.error;
+    if(projects.error) throw projects.error;
+    certProductsCache = (products.data || []).map(productFromDb);
+    certEmployeesCache = employees.data || [];
+    certClientsCache = clients.data || [];
+    certProjectsCache = projects.data || [];
+  } catch(error) {
+    console.warn('cert lookups fallback', error);
+  }
+}
+
+async function loadProjectChoices(){
+  try{
+    const { data, error } = await supabaseClient
+      .from('projects')
+      .select('id, name, client_name, location, status, created_at')
+      .order('created_at', { ascending: false });
+    if(error) throw error;
+    certProjectsCache = data || [];
+  } catch(error) {
+    console.warn('project choices fallback', error);
+  }
+}
+
+function setupDatalist(id, values){
+  let dl = document.getElementById(id);
+  if(!dl){
+    dl = document.createElement('datalist');
+    dl.id = id;
+    document.body.appendChild(dl);
+  }
+  dl.innerHTML = values.filter(Boolean).map(v=>`<option value="${esc(v)}"></option>`).join('');
+  return dl;
+}
+
+function setupProjectInputs(){
+  const values = certProjectsCache.map(p=>p.name || '').filter(Boolean);
+  setupDatalist('project-name-list', values);
+  const billProject = document.getElementById('bill-project');
+  const sigProject = document.getElementById('sig-project');
+  if(billProject) billProject.setAttribute('list','project-name-list');
+  if(sigProject) sigProject.setAttribute('list','project-name-list');
+}
+
+function employeeOptions(selected=''){
+  const options = certEmployeesCache.map(e=>`<option value="${esc(e.name || '')}" ${String(selected)===String(e.name)?'selected':''}>${esc(e.name || '')}</option>`).join('');
+  return `<option value="">בחר עובד</option>${options}`;
+}
+
+function productOptions(selected=''){
+  const options = certProductsCache.map(p=>{
+    const label = `${p.name || ''}${p.sku ? ' - ' + p.sku : ''}`;
+    const value = p.id || p.name || '';
+    return `<option value="${esc(value)}" ${String(selected)===String(value)||String(selected)===String(p.name)?'selected':''}>${esc(label)}</option>`;
+  }).join('');
+  return `<option value="">מוצר ידני / בחר מוצר</option>${options}`;
+}
+
+async function initCertForm(){
+  await loadOranSettings();
+  await loadCertLookups();
+  const clientInput = document.getElementById('sig-client');
+  if(clientInput && !document.getElementById('cert-client-list')){
+    const dl = document.createElement('datalist');
+    dl.id = 'cert-client-list';
+    dl.innerHTML = certClientsCache.map(c=>`<option value="${esc(c.name || c.company || '')}"></option>`).join('');
+    document.body.appendChild(dl);
+    clientInput.setAttribute('list','cert-client-list');
+  }
+  if(!document.getElementById('sig-employees-list')?.children.length) addCertEmployeeRow();
+  if(!document.getElementById('sig-items-list')?.children.length) addCertItemRow();
+  setupProjectInputs();
+  renderCertClauses();
+  calcCertTotal();
+}
+
+function addCertEmployeeRow(item={}){
+  const list = document.getElementById('sig-employees-list');
+  if(!list) return;
+  const d=document.createElement('div');
+  d.className='item-row cert-employee-row';
+  d.innerHTML=`<select onchange="calcCertTotal()">${employeeOptions(item.name || item.employee || '')}</select><input type="number" step="0.01" placeholder="שעות" value="${item.hours ?? ''}" oninput="calcCertTotal()"/><input type="number" step="0.01" placeholder="מחיר שעה" value="${item.rate ?? oranSettings.hourly_rate ?? 0}" oninput="calcCertTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcCertTotal()">×</button>`;
+  list.appendChild(d);
+}
+
+function addCertItemRow(item={}){
+  const list = document.getElementById('sig-items-list');
+  if(!list) return;
+  const d=document.createElement('div');
+  d.className='item-row cert-item-row';
+  d.innerHTML=`<select onchange="fillCertProductRow(this);calcCertTotal()">${productOptions(item.product_id || item.name || '')}</select><input type="number" step="0.01" placeholder="כמות" value="${item.qty ?? 1}" oninput="calcCertTotal()"/><input type="number" step="0.01" placeholder="מחיר" value="${item.price ?? ''}" oninput="calcCertTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcCertTotal()">×</button><input type="text" placeholder="שם מוצר / פריט ידני" value="${esc(item.name || item.desc || '')}" oninput="calcCertTotal()" style="grid-column:1 / 4"/>`;
+  list.appendChild(d);
+  const select = d.querySelector('select');
+  if(item.product_id && !item.price) fillCertProductRow(select);
+}
+
+function fillCertProductRow(select){
+  const row = select.closest('.cert-item-row');
+  const product = certProductsCache.find(p=>String(p.id)===String(select.value));
+  if(!row || !product) return;
+  const inputs = row.querySelectorAll('input');
+  const price = Number(product.buy_price || product.price || 0) * Number(oranSettings.product_multiplier || 1);
+  if(inputs[1]) inputs[1].value = Number(price.toFixed(2));
+  if(inputs[2]) inputs[2].value = product.name || '';
+}
+
+function repriceCertItems(){
+  document.querySelectorAll('.cert-item-row select').forEach(select => fillCertProductRow(select));
+}
+
+function collectCertEmployees(){
+  return Array.from(document.querySelectorAll('.cert-employee-row')).map(row=>{
+    const select = row.querySelector('select');
+    const inputs = row.querySelectorAll('input');
+    return { name: select?.value || '', hours: nullableNumber(inputs[0]?.value) || 0, rate: nullableNumber(inputs[1]?.value) || 0 };
+  }).filter(e=>e.name || e.hours);
+}
+
+function collectCertItems(){
+  return Array.from(document.querySelectorAll('.cert-item-row')).map(row=>{
+    const select = row.querySelector('select');
+    const inputs = row.querySelectorAll('input');
+    const product = certProductsCache.find(p=>String(p.id)===String(select?.value));
+    return {
+      product_id: product?.id || '',
+      name: inputs[2]?.value || product?.name || select?.value || '',
+      qty: nullableNumber(inputs[0]?.value) || 0,
+      price: nullableNumber(inputs[1]?.value) || 0
+    };
+  }).filter(item=>item.name || item.qty || item.price);
+}
+
+function calcCertTotal(){
+  const employeeTotal = collectCertEmployees().reduce((sum,e)=>sum + (Number(e.hours||0) * Number(e.rate||0)),0);
+  const itemTotal = collectCertItems().reduce((sum,item)=>sum + (Number(item.qty||0) * Number(item.price||0)),0);
+  const total = employeeTotal + itemTotal;
+  const el = document.getElementById('sig-total');
+  if(el) el.textContent = '₪' + total.toLocaleString('he-IL');
+  return total;
+}
+
+function resetCertForm(){
+  editingCertId = null;
+  ['sig-client','sig-project','sig-desc','sig-notes'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
+  const dateEl = document.getElementById('sig-date');
+  if(dateEl) dateEl.value = new Date().toISOString().split('T')[0];
+  const employees = document.getElementById('sig-employees-list');
+  const items = document.getElementById('sig-items-list');
+  if(employees) employees.innerHTML = '';
+  if(items) items.innerHTML = '';
+  addCertEmployeeRow();
+  addCertItemRow();
+  clearCanvas();
+  calcCertTotal();
+}
+
 async function saveCert(){
   const client=document.getElementById('sig-client').value;
   const desc=document.getElementById('sig-desc').value;
   if(!client||!desc){alert('אנא מלא שם לקוח ותיאור עבודה');return;}
 
+  const employees = collectCertEmployees();
+  const items = collectCertItems();
+  const total = calcCertTotal();
+  const totalHours = employees.reduce((sum,e)=>sum+Number(e.hours||0),0);
   const payload = {
     client,
     date: nullableDate(document.getElementById('sig-date').value),
+    project: document.getElementById('sig-project').value || '',
     description: desc,
-    hours: nullableNumber(document.getElementById('sig-hours').value),
-    price: nullableNumber(document.getElementById('sig-price').value),
+    hours: totalHours,
+    price: total,
+    employees,
+    items,
+    notes: document.getElementById('sig-notes').value || '',
+    total,
     signature_data: getSignatureData()
   };
 
@@ -1288,8 +1927,7 @@ async function saveCert(){
   if(result.error){ showDbError('certs save', result.error); return; }
 
   editingCertId = null;
-  clearCanvas();
-  ['sig-client','sig-desc','sig-hours','sig-price'].forEach(id=>document.getElementById(id).value='');
+  resetCertForm();
   await renderCerts();
   alert(wasEditing ? 'התעודה עודכנה! ✓' : 'התעודה נשמרה! ✓');
 }
@@ -1307,7 +1945,7 @@ async function renderCerts(){
 
   const { data, error } = await supabaseClient
     .from('certs')
-    .select('id, client, date, description, hours, price, signature_data, created_at')
+    .select('id, client, date, project, description, hours, price, employees, items, notes, total, signature_data, created_at')
     .order('created_at', { ascending: false });
 
   if(error){
@@ -1320,7 +1958,7 @@ async function renderCerts(){
   certsCache = (data || []).map(certFromDb);
   const thisMon=certsCache.filter(c=>c.date?.startsWith(month));
   if(!thisMon.length){el.innerHTML='<div style="color:var(--text3);text-align:center;padding:30px;font-size:14px">אין תעודות החודש</div>';return;}
-  el.innerHTML=thisMon.map(c=>`<div class="cert-item"><div><div class="cert-name">${esc(c.client)}</div><div class="cert-date">${esc(c.date)} ${c.price?'| ₪'+esc(c.price):''}</div><div style="margin-top:8px"><button class="action-btn" onclick="editCert('${c.id}')">✏️</button><button class="action-btn danger" onclick="deleteCert('${c.id}')">🗑️</button></div></div><span class="badge badge-green">✓ נחתם</span></div>`).join('');
+  el.innerHTML=thisMon.map(c=>`<div class="cert-item"><div><div class="cert-name">${esc(c.client)}${c.project?' - '+esc(c.project):''}</div><div class="cert-date">${esc(c.date)} ${c.total||c.price?'| ₪'+money(c.total||c.price):''}</div><div style="margin-top:8px"><button class="action-btn" onclick="editCert('${c.id}')">✏️</button><button class="action-btn danger" onclick="deleteCert('${c.id}')">🗑️</button></div></div><span class="badge badge-green">✓ נחתם</span></div>`).join('');
 }
 
 function editCert(id){
@@ -1329,9 +1967,15 @@ function editCert(id){
   editingCertId = id;
   document.getElementById('sig-client').value = c.client || '';
   document.getElementById('sig-date').value = c.date || '';
+  document.getElementById('sig-project').value = c.project || '';
   document.getElementById('sig-desc').value = c.desc || '';
-  document.getElementById('sig-hours').value = c.hours || '';
-  document.getElementById('sig-price').value = c.price || '';
+  document.getElementById('sig-notes').value = c.notes || '';
+  document.getElementById('sig-employees-list').innerHTML = '';
+  document.getElementById('sig-items-list').innerHTML = '';
+  (c.employees?.length ? c.employees : [{ name: '', hours: c.hours || '', rate: oranSettings.hourly_rate || 0 }]).forEach(item=>addCertEmployeeRow(item));
+  (c.items?.length ? c.items : []).forEach(item=>addCertItemRow(item));
+  if(!c.items?.length) addCertItemRow();
+  calcCertTotal();
   loadSignatureData(c.signature_data);
 }
 
@@ -1357,10 +2001,12 @@ async function exportCerts(){
   const list=certsCache.filter(c=>c.date?.startsWith(month));
   if(!list.length){alert('אין תעודות לחודש זה');return;}
   let txt=`תעודות חודש ${month}\n${'='.repeat(40)}\n\n`;
-  list.forEach((c,i)=>{txt+=`תעודה ${i+1}\nלקוח: ${c.client}\nתאריך: ${c.date}\nתיאור: ${c.desc}\nכמות: ${c.hours||'-'} | מחיר: ₪${c.price||'-'}\n${'-'.repeat(30)}\n\n`;});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain;charset=utf-8'}));
-  a.download=`תעודות_${month}.txt`; a.click();
-  URL.revokeObjectURL(a.href);
+  list.forEach((c,i)=>{
+    const employees=(c.employees||[]).map(e=>`  - ${e.name || 'עובד'}: ${e.hours || 0} שעות × ₪${e.rate || 0}`).join('\n');
+    const items=(c.items||[]).map(item=>`  - ${item.name || 'פריט'}: ${item.qty || 0} × ₪${item.price || 0}`).join('\n');
+    txt+=`תעודה ${i+1}\nלקוח: ${c.client}\nפרויקט: ${c.project || '-'}\nתאריך: ${c.date}\nתיאור: ${c.desc}\nעובדים:\n${employees || '  - אין'}\nפריטים:\n${items || '  - אין'}\nהערות: ${c.notes || '-'}\nסה״כ: ₪${c.total || c.price || 0}\n${oranSettings.travel_text}\n${oranSettings.vat_text}\n${'-'.repeat(30)}\n\n`;
+  });
+  downloadTextFile(`תעודות_${month}.txt`, txt);
 }
 
 async function renderLibrary(filter='all'){
@@ -1428,6 +2074,314 @@ async function uploadLibraryFile(event){
   }
 }
 
+function projectFromDb(p){
+  return {
+    id: p.id,
+    client_id: p.client_id || null,
+    client_name: p.client_name || '',
+    name: p.name || '',
+    description: p.description || '',
+    location: p.location || '',
+    status: p.status || 'open',
+    priority: p.priority || 'רגיל',
+    due_date: p.due_date || '',
+    notes: p.notes || '',
+    created_at: p.created_at,
+    updated_at: p.updated_at
+  };
+}
+
+function setupProjectClientDatalist(){
+  const input = document.getElementById('mf-client_name');
+  if(!input) return;
+  let dl = document.getElementById('project-client-list');
+  if(!dl){
+    dl = document.createElement('datalist');
+    dl.id = 'project-client-list';
+    document.body.appendChild(dl);
+  }
+  dl.innerHTML = projectClientsCache.map(c=>`<option value="${esc(c.name || c.company || '')}"></option>`).join('');
+  input.setAttribute('list','project-client-list');
+}
+
+async function loadProjectLookups(){
+  const [clients, employees] = await Promise.all([
+    supabaseClient.from('clients').select('id, name, company, created_at').order('created_at', { ascending: false }),
+    supabaseClient.from('employees').select('id, name, role, photo_path, created_at').order('created_at', { ascending: false })
+  ]);
+  if(clients.error) throw clients.error;
+  if(employees.error) throw employees.error;
+  projectClientsCache = clients.data || [];
+  projectEmployeesCache = await withEmployeePhotoUrls(employees.data || []);
+}
+
+function projectStatusLabel(status){
+  const labels = { open:'פתוח', active:'פעיל', done:'הסתיים', paused:'מושהה', 'פתוח':'פתוח' };
+  return labels[status] || status || 'פתוח';
+}
+
+function projectStatusBadge(status){
+  if(['done','הסתיים','סגור'].includes(status)) return 'badge-green';
+  if(['paused','מושהה'].includes(status)) return 'badge-gold';
+  return 'badge-blue';
+}
+
+function projectProgress(projectId){
+  const tasks = projectTasksCache.filter(t=>t.project_id===projectId);
+  if(!tasks.length) return '0/0';
+  return `${tasks.filter(t=>t.done).length}/${tasks.length}`;
+}
+
+async function renderProjects(){
+  const grid = document.getElementById('projects-grid');
+  const detail = document.getElementById('project-detail');
+  if(!grid) return;
+  grid.innerHTML = '<div class="project-card"><div class="project-card-meta">טוען פרויקטים...</div></div>';
+  if(detail && !currentProjectId) detail.innerHTML = '<div class="project-empty">בחר פרויקט כדי לראות משימות, הערות וקבצים</div>';
+
+  try{
+    await loadProjectLookups();
+    const [projects, tasks] = await Promise.all([
+      supabaseClient.from('projects').select('id, client_id, client_name, name, description, location, status, priority, due_date, notes, created_at, updated_at').order('created_at', { ascending: false }),
+      supabaseClient.from('project_tasks').select('id, project_id, title, assigned_employee_id, assigned_employee_name, due_date, done, created_at, updated_at')
+    ]);
+    if(projects.error) throw projects.error;
+    if(tasks.error) throw tasks.error;
+    projectsCache = (projects.data || []).map(projectFromDb);
+    projectTasksCache = tasks.data || [];
+
+    const q=(document.getElementById('project-search')?.value||'').toLowerCase();
+    const rows = projectsCache.filter(p=>!q||(p.name||'').toLowerCase().includes(q)||(p.client_name||'').toLowerCase().includes(q)||(p.location||'').toLowerCase().includes(q));
+    grid.innerHTML = rows.length ? rows.map(p=>`<div class="project-card ${p.id===currentProjectId?'active':''}" data-project-id="${esc(p.id)}" onclick="openProject('${p.id}')">
+      <div class="project-card-title">${esc(p.name || 'פרויקט ללא שם')}</div>
+      <div class="project-card-meta">
+        לקוח: ${esc(p.client_name || '-')}<br>
+        מיקום: ${esc(p.location || '-')}<br>
+        משימות: ${esc(projectProgress(p.id))}
+      </div>
+      <div class="project-meta-row">
+        <span class="badge ${projectStatusBadge(p.status)}">${esc(projectStatusLabel(p.status))}</span>
+        <span class="badge badge-gold">${esc(p.priority || 'רגיל')}</span>
+      </div>
+    </div>`).join('') : '<div class="project-card"><div class="project-card-meta">לא נמצאו פרויקטים</div></div>';
+
+    if(currentProjectId && projectsCache.some(p=>p.id===currentProjectId)) await openProject(currentProjectId, false);
+  } catch(error) {
+    grid.innerHTML = '<div class="project-card"><div class="project-card-meta" style="color:var(--red)">שגיאה בטעינת פרויקטים</div></div>';
+    showDbError('projects select', error);
+  }
+}
+
+function projectEmployeeOptions(selected=''){
+  return `<option value="">ללא שיוך</option>` + projectEmployeesCache.map(e=>`<option value="${esc(e.id)}" ${String(selected)===String(e.id)?'selected':''}>${esc(e.name || '')}</option>`).join('');
+}
+
+function projectEmployeeById(id){
+  return projectEmployeesCache.find(e=>String(e.id)===String(id)) || null;
+}
+
+async function openProject(id, refreshList=true){
+  currentProjectId = id;
+  const project = projectsCache.find(p=>p.id===id);
+  const detail = document.getElementById('project-detail');
+  if(!project || !detail) return;
+  if(refreshList){
+    document.querySelectorAll('#projects-grid .project-card').forEach(card=>card.classList.toggle('active', card.dataset.projectId===id));
+  }
+  detail.innerHTML = '<div class="project-empty">טוען פרויקט...</div>';
+  try{
+    const [tasks, activity, files] = await Promise.all([
+      supabaseClient.from('project_tasks').select('id, project_id, title, assigned_employee_id, assigned_employee_name, due_date, done, created_at, updated_at').eq('project_id', id).order('created_at', { ascending: true }),
+      supabaseClient.from('project_activity').select('id, project_id, type, message, created_by, created_at').eq('project_id', id).order('created_at', { ascending: false }),
+      supabaseClient.from('project_files').select('id, project_id, file_path, file_name, file_type, kind, created_at').eq('project_id', id).order('created_at', { ascending: false })
+    ]);
+    if(tasks.error) throw tasks.error;
+    if(activity.error) throw activity.error;
+    if(files.error) throw files.error;
+    projectTasksCache = [...projectTasksCache.filter(t=>t.project_id!==id), ...(tasks.data || [])];
+    projectActivityCache = activity.data || [];
+    projectFilesCache = await Promise.all((files.data || []).map(async file=>{
+      const signed = await supabaseClient.storage.from('project-files').createSignedUrl(file.file_path, 60 * 60);
+      return { ...file, signed_url: signed.data?.signedUrl || '' };
+    }));
+    renderProjectDetail(project);
+  } catch(error) {
+    detail.innerHTML = '<div class="project-empty" style="color:var(--red)">שגיאה בטעינת הפרויקט</div>';
+    showDbError('project detail', error);
+  }
+}
+
+function renderProjectDetail(project){
+  const detail = document.getElementById('project-detail');
+  if(!detail) return;
+  const tasks = projectTasksCache.filter(t=>t.project_id===project.id);
+  const done = tasks.filter(t=>t.done).length;
+  detail.innerHTML = `
+    <div class="project-detail-head">
+      <div>
+        <div class="project-detail-title">${esc(project.name || 'פרויקט ללא שם')}</div>
+        <div class="project-card-meta">לקוח: ${esc(project.client_name || '-')} | מיקום: ${esc(project.location || '-')} | יעד: ${esc(project.due_date || '-')}</div>
+        <div class="project-meta-row">
+          <span class="badge ${projectStatusBadge(project.status)}">${esc(projectStatusLabel(project.status))}</span>
+          <span class="badge badge-gold">${esc(project.priority || 'רגיל')}</span>
+          <span class="badge badge-blue">משימות ${done}/${tasks.length}</span>
+        </div>
+      </div>
+      <div>
+        <button class="action-btn" onclick="editItemById('project','${project.id}')">✏️</button>
+        <button class="action-btn danger" onclick="delItemById('projects','${project.id}',renderProjects)">🗑️</button>
+      </div>
+    </div>
+    <div class="project-card-meta">${esc(project.description || '')}</div>
+    <div class="project-section">
+      <div class="project-section-title">משימות</div>
+      <div class="project-inline-form">
+        <input id="project-task-title" placeholder="משימה חדשה">
+        <select id="project-task-employee">${projectEmployeeOptions()}</select>
+        <input id="project-task-date" type="date">
+        <button class="btn-secondary" onclick="addProjectTask()">הוסף</button>
+      </div>
+      <div id="project-tasks-list">${renderProjectTasks(tasks)}</div>
+    </div>
+    <div class="project-section">
+      <div class="project-section-title">פעילות והערות</div>
+      <div class="project-inline-form" style="grid-template-columns:1fr auto">
+        <input id="project-activity-message" placeholder="כתוב הערה / עדכון">
+        <button class="btn-secondary" onclick="addProjectActivity()">הוסף</button>
+      </div>
+      <div id="project-activity-list">${renderProjectActivity()}</div>
+    </div>
+    <div class="project-section">
+      <div class="project-section-title">קבצים, תמונות ותוכניות</div>
+      <div class="project-file-actions">
+        <button class="btn-secondary" onclick="chooseProjectFile('file')">העלה קובץ</button>
+        <button class="btn-secondary" onclick="chooseProjectFile('photo')">העלה תמונה</button>
+        <button class="btn-secondary" onclick="chooseProjectFile('plan')">העלה תוכנית</button>
+      </div>
+      <div id="project-files-list">${renderProjectFiles()}</div>
+    </div>
+  `;
+}
+
+function renderProjectTasks(tasks){
+  if(!tasks.length) return '<div class="project-card-meta">אין משימות בפרויקט</div>';
+  return tasks.map(t=>{
+    const employee = projectEmployeeById(t.assigned_employee_id);
+    return `<div class="task-row">
+      <div class="task-main">
+        <input type="checkbox" ${t.done?'checked':''} onchange="toggleProjectTask('${t.id}', this.checked)">
+        <div>
+          <div class="task-title ${t.done?'done':''}">${esc(t.title)}</div>
+          <div class="task-assignee">${employee ? employeePhotoHtml(employee,'mini-avatar') : ''}<span>${esc(t.assigned_employee_name || employee?.name || 'לא משויך')}</span>${t.due_date?`<span>| ${esc(t.due_date)}</span>`:''}</div>
+        </div>
+      </div>
+      <button class="action-btn danger" onclick="deleteProjectTask('${t.id}')">🗑️</button>
+    </div>`;
+  }).join('');
+}
+
+function renderProjectActivity(){
+  if(!projectActivityCache.length) return '<div class="project-card-meta">אין הערות עדיין</div>';
+  return projectActivityCache.map(a=>`<div class="activity-row"><div><div>${esc(a.message)}</div><div class="project-card-meta">${esc(a.created_by || '')} ${a.created_at ? '| ' + new Date(a.created_at).toLocaleDateString('he-IL') : ''}</div></div></div>`).join('');
+}
+
+function renderProjectFiles(){
+  if(!projectFilesCache.length) return '<div class="project-card-meta">אין קבצים בפרויקט</div>';
+  const kindLabel = { file:'קובץ', photo:'תמונה', plan:'תוכנית' };
+  return projectFilesCache.map(f=>`<div class="file-row"><div><div>${esc(f.file_name)}</div><div class="project-card-meta">${esc(kindLabel[f.kind] || f.kind || 'קובץ')}</div></div><div><button class="action-btn" data-url="${esc(f.signed_url)}" onclick="openLink(this.dataset.url)">פתח</button><button class="action-btn danger" onclick="deleteProjectFile('${f.id}')">🗑️</button></div></div>`).join('');
+}
+
+async function addProjectTask(){
+  const title = document.getElementById('project-task-title')?.value.trim();
+  const employeeId = document.getElementById('project-task-employee')?.value || null;
+  const dueDate = nullableDate(document.getElementById('project-task-date')?.value);
+  if(!currentProjectId || !title){alert('יש למלא שם משימה');return;}
+  const employee = projectEmployeeById(employeeId);
+  const { error } = await supabaseClient.from('project_tasks').insert({
+    project_id: currentProjectId,
+    title,
+    assigned_employee_id: employeeId || null,
+    assigned_employee_name: employee?.name || '',
+    due_date: dueDate
+  });
+  if(error){ showDbError('project task save', error); return; }
+  await addProjectActivity(`נוספה משימה: ${title}`, false);
+  await openProject(currentProjectId);
+}
+
+async function toggleProjectTask(id, done){
+  const { error } = await supabaseClient.from('project_tasks').update({ done }).eq('id', id);
+  if(error){ showDbError('project task update', error); return; }
+  await openProject(currentProjectId);
+}
+
+async function deleteProjectTask(id){
+  if(!confirm('למחוק משימה זו?')) return;
+  const { error } = await supabaseClient.from('project_tasks').delete().eq('id', id);
+  if(error){ showDbError('project task delete', error); return; }
+  await openProject(currentProjectId);
+}
+
+async function addProjectActivity(message=null, refresh=true){
+  const text = message || document.getElementById('project-activity-message')?.value.trim();
+  if(!currentProjectId || !text){ if(!message) alert('יש לכתוב הערה'); return; }
+  const { error } = await supabaseClient.from('project_activity').insert({
+    project_id: currentProjectId,
+    type: message ? 'system' : 'comment',
+    message: text,
+    created_by: userDisplayName(currentUser)
+  });
+  if(error){ showDbError('project activity save', error); return; }
+  if(refresh) await openProject(currentProjectId);
+}
+
+function chooseProjectFile(kind){
+  projectFileKind = kind || 'file';
+  const input = document.getElementById('project-file-upload');
+  if(input) input.click();
+}
+
+async function uploadProjectFile(event){
+  const file = event.target.files?.[0];
+  if(!file || !currentProjectId) return;
+  const safeName = file.name.replace(/[^\w.\-\u0590-\u05FF ]+/g,'_');
+  const path = `${currentProjectId}/${Date.now()}-${safeName}`;
+  try{
+    const upload = await supabaseClient.storage.from('project-files').upload(path, file, { upsert: false, contentType: file.type || 'application/octet-stream' });
+    if(upload.error) throw upload.error;
+    const insert = await supabaseClient.from('project_files').insert({
+      project_id: currentProjectId,
+      file_path: path,
+      file_name: file.name,
+      file_type: file.type || '',
+      kind: projectFileKind
+    });
+    if(insert.error){
+      await supabaseClient.storage.from('project-files').remove([path]);
+      throw insert.error;
+    }
+    await addProjectActivity(`עלה קובץ: ${file.name}`, false);
+    await openProject(currentProjectId);
+  } catch(error) {
+    showDbError('project file upload', error);
+  } finally {
+    event.target.value = '';
+    projectFileKind = 'file';
+  }
+}
+
+async function deleteProjectFile(id){
+  const file = projectFilesCache.find(f=>f.id===id);
+  if(!file || !confirm('למחוק קובץ זה?')) return;
+  if(file.file_path){
+    const storage = await supabaseClient.storage.from('project-files').remove([file.file_path]);
+    if(storage.error) console.warn('project file storage delete', storage.error);
+  }
+  const { error } = await supabaseClient.from('project_files').delete().eq('id', id);
+  if(error){ showDbError('project file delete', error); return; }
+  await openProject(currentProjectId);
+}
+
 async function renderVehicles(){
   const tbody=document.getElementById('vehicle-tbody');
   if(!tbody) return;
@@ -1475,6 +2429,7 @@ function editItemById(type,id){
   let item=null;
   if(type==='emp') item = employeesCache.find(x=>x.id===id);
   if(type==='price') item = pricesCache.find(x=>x.id===id);
+  if(type==='project') item = projectsCache.find(x=>x.id===id);
   if(type==='client') item = clientsCache.find(x=>x.id===id);
   if(type==='supplier') item = suppliersCache.find(x=>x.id===id);
   if(type==='lib') item = libraryCache.find(x=>x.id===id);
@@ -1498,9 +2453,8 @@ async function saveModal(){
       name: obj.name || '',
       role: obj.role || '',
       email: obj.email || '',
-      phone: obj.phone || '',
-      car: obj.car || '',
-      code: obj.code || ''
+      email_status: obj.email_status || '',
+      phone: obj.phone || ''
     };
     const result = editId
       ? await supabaseClient.from('employees').update(payload).eq('id', editId)
@@ -1518,15 +2472,37 @@ async function saveModal(){
     closeModal(); await renderPrices(); return;
   }
 
+  if(currentModal === 'project'){
+    const matchedClient = projectClientsCache.find(c => [c.name, c.company].filter(Boolean).some(v => String(v).trim() === String(obj.client_name || '').trim()));
+    const payload = {
+      name: obj.name || '',
+      client_id: matchedClient?.id || null,
+      client_name: obj.client_name || '',
+      location: obj.location || '',
+      status: obj.status || 'open',
+      priority: obj.priority || 'רגיל',
+      due_date: nullableDate(obj.due_date),
+      description: obj.description || '',
+      notes: obj.notes || '',
+      updated_at: new Date().toISOString()
+    };
+    const result = editId
+      ? await supabaseClient.from('projects').update(payload).eq('id', editId)
+      : await supabaseClient.from('projects').insert(payload).select('id').single();
+    if(result.error){ showDbError('projects save', result.error); return; }
+    if(!editId && result.data?.id) currentProjectId = result.data.id;
+    closeModal(); await renderProjects(); return;
+  }
+
   const dbModal = {
     client: {
       table: 'clients',
-      payload: { name: obj.name || '', company: obj.company || '', phone: obj.phone || '', email: obj.email || '', city: obj.city || '', status: obj.status || '' },
+      payload: { name: obj.name || '', company: obj.company || '', phone: obj.phone || '', email: obj.email || '', city: obj.city || '', payment_terms: obj.payment_terms || '', notes: obj.notes || '' },
       render: renderClients
     },
     supplier: {
       table: 'suppliers',
-      payload: { name: obj.name || '', company: obj.company || '', phone: obj.phone || '', email: obj.email || '', product: obj.product || '', terms: obj.terms || '' },
+      payload: { name: obj.name || '', company: obj.company || '', address: obj.address || '', website: obj.website || '', phone: obj.phone || '', email: obj.email || '', product: obj.product || '', terms: obj.terms || '' },
       render: renderSuppliers
     },
     lib: {
@@ -1569,6 +2545,7 @@ async function delItemById(store,id,renderFn){
   const deleteMap = {
     employees: { table: 'employees', render: renderEmployees },
     prices: { table: 'products', render: renderPrices },
+    projects: { table: 'projects', render: renderProjects },
     clients: { table: 'clients', render: renderClients },
     suppliers: { table: 'suppliers', render: renderSuppliers },
     library: { table: 'library', render: () => renderLibrary(currentLibraryFilter) },
@@ -1577,6 +2554,24 @@ async function delItemById(store,id,renderFn){
 
   if(deleteMap[store]){
     const cfg = deleteMap[store];
+    if(store === 'projects'){
+      const files = await supabaseClient.from('project_files').select('file_path').eq('project_id', id);
+      if(files.data?.length){
+        const paths = files.data.map(f=>f.file_path).filter(Boolean);
+        if(paths.length){
+          const storageResult = await supabaseClient.storage.from('project-files').remove(paths);
+          if(storageResult.error) console.warn('project files delete', storageResult.error);
+        }
+      }
+      if(currentProjectId === id) currentProjectId = null;
+    }
+    if(store === 'employees'){
+      const item = employeesCache.find(x=>x.id===id);
+      if(item?.photo_path){
+        const storageResult = await supabaseClient.storage.from('employee-photos').remove([item.photo_path]);
+        if(storageResult.error) console.warn('employee photo delete', storageResult.error);
+      }
+    }
     if(store === 'library'){
       const item = libraryCache.find(x=>x.id===id);
       if(item?.file_path){
@@ -1597,31 +2592,37 @@ async function delItemById(store,id,renderFn){
 
 modalDefs.emp.render = renderEmployees;
 modalDefs.price.render = renderPrices;
+modalDefs.project.render = renderProjects;
 modalDefs.client.render = renderClients;
 modalDefs.supplier.render = renderSuppliers;
 modalDefs.lib.render = () => renderLibrary(currentLibraryFilter);
 modalDefs.vehicle.render = renderVehicles;
 
 async function loadDbTable(table, columns){
-  const { data, error } = await supabaseClient
-    .from(table)
-    .select(columns)
-    .order('created_at', { ascending: false });
+  let query = supabaseClient.from(table).select(columns);
+  if(columns.includes('created_at')) query = query.order('created_at', { ascending: false });
+  else if(columns.includes('key')) query = query.order('key', { ascending: true });
+  const { data, error } = await query;
   if(error) throw error;
   return data || [];
 }
 
 async function exportBackup(){
   try{
-    const [employees, products, clients, suppliers, billing, certs, vehicles, library] = await Promise.all([
-      loadDbTable('employees','id, name, role, email, phone, car, code, created_at'),
-      loadDbTable('products','id, name, description, sku, buy_price, multiplier, sell_price, supplier, created_at'),
-      loadDbTable('clients','id, name, company, phone, email, city, status, created_at'),
-      loadDbTable('suppliers','id, name, company, phone, email, product, terms, created_at'),
+    const [employees, products, clients, suppliers, projects, projectTasks, projectActivity, projectFiles, billing, certs, vehicles, library, settings] = await Promise.all([
+      loadDbTable('employees','id, name, role, email, phone, email_status, photo_path, photo_name, created_at'),
+      loadDbTable('products','id, name, description, sku, category, buy_price, multiplier, sell_price, supplier, price_updated_at, notes, created_at'),
+      loadDbTable('clients','id, name, company, phone, email, city, payment_terms, notes, created_at'),
+      loadDbTable('suppliers','id, name, company, address, website, phone, email, product, terms, created_at'),
+      loadDbTable('projects','id, client_id, client_name, name, description, location, status, priority, due_date, notes, created_at, updated_at'),
+      loadDbTable('project_tasks','id, project_id, title, assigned_employee_id, assigned_employee_name, due_date, done, created_at, updated_at'),
+      loadDbTable('project_activity','id, project_id, type, message, created_by, created_at'),
+      loadDbTable('project_files','id, project_id, file_path, file_name, file_type, kind, created_at'),
       loadDbTable('billing','id, month, date, project, notes, items, total, created_at'),
-      loadDbTable('certs','id, client, date, description, hours, price, signature_data, created_at'),
+      loadDbTable('certs','id, client, date, project, description, hours, price, employees, items, notes, total, signature_data, created_at'),
       loadDbTable('vehicles','id, plate, owner, ins_type, ins_exp, test_exp, notes, created_at'),
-      loadDbTable('library','id, name, type, url, icon, file_path, file_name, created_at')
+      loadDbTable('library','id, name, type, url, icon, file_path, file_name, created_at'),
+      loadDbTable('app_settings','key, value, updated_at')
     ]);
 
     const data = {
@@ -1629,10 +2630,15 @@ async function exportBackup(){
       prices: products.map(productFromDb),
       clients,
       suppliers,
+      projects,
+      project_tasks: projectTasks,
+      project_activity: projectActivity,
+      project_files: projectFiles,
       billing: billing.map(billingFromDb),
       certs: certs.map(certFromDb),
       vehicles: vehicles.map(vehicleFromDb),
-      library
+      library,
+      settings
     };
 
     const stamp = new Date().toISOString().slice(0,10);
@@ -1665,20 +2671,65 @@ async function importBackup(event){
     if(!confirm('ייבוא הגיבוי יחליף את הנתונים הקיימים במסד הנתונים. להמשיך?')) return;
 
     await replaceDbTable('employees', (data.employees || []).map(e => ({
-      name: e.name || '', role: e.role || '', email: e.email || '', phone: e.phone || '', car: e.car || '', code: e.code || ''
+      name: e.name || '', role: e.role || '', email: e.email || '', phone: e.phone || '', email_status: e.email_status || '', photo_path: e.photo_path || '', photo_name: e.photo_name || ''
     })));
     await replaceDbTable('products', (data.prices || data.products || []).map(productToDb));
     await replaceDbTable('clients', (data.clients || []).map(c => ({
-      name: c.name || '', company: c.company || '', phone: c.phone || '', email: c.email || '', city: c.city || '', status: c.status || ''
+      name: c.name || '', company: c.company || '', phone: c.phone || '', email: c.email || '', city: c.city || '', payment_terms: c.payment_terms || c.status || '', notes: c.notes || ''
     })));
     await replaceDbTable('suppliers', (data.suppliers || []).map(s => ({
-      name: s.name || '', company: s.company || '', phone: s.phone || '', email: s.email || '', product: s.product || '', terms: s.terms || ''
+      name: s.name || '', company: s.company || '', address: s.address || '', website: s.website || '', phone: s.phone || '', email: s.email || '', product: s.product || '', terms: s.terms || ''
+    })));
+    await replaceDbTable('project_files', []);
+    await replaceDbTable('project_activity', []);
+    await replaceDbTable('project_tasks', []);
+    await replaceDbTable('projects', (data.projects || []).map(p => ({
+      id: p.id,
+      client_id: p.client_id || null,
+      client_name: p.client_name || '',
+      name: p.name || '',
+      description: p.description || '',
+      location: p.location || '',
+      status: p.status || 'open',
+      priority: p.priority || 'רגיל',
+      due_date: nullableDate(p.due_date),
+      notes: p.notes || '',
+      created_at: p.created_at || new Date().toISOString(),
+      updated_at: p.updated_at || new Date().toISOString()
+    })));
+    await replaceDbTable('project_tasks', (data.project_tasks || []).map(t => ({
+      id: t.id,
+      project_id: t.project_id,
+      title: t.title || '',
+      assigned_employee_id: t.assigned_employee_id || null,
+      assigned_employee_name: t.assigned_employee_name || '',
+      due_date: nullableDate(t.due_date),
+      done: Boolean(t.done),
+      created_at: t.created_at || new Date().toISOString(),
+      updated_at: t.updated_at || new Date().toISOString()
+    })));
+    await replaceDbTable('project_activity', (data.project_activity || []).map(a => ({
+      id: a.id,
+      project_id: a.project_id,
+      type: a.type || 'comment',
+      message: a.message || '',
+      created_by: a.created_by || '',
+      created_at: a.created_at || new Date().toISOString()
+    })));
+    await replaceDbTable('project_files', (data.project_files || []).map(f => ({
+      id: f.id,
+      project_id: f.project_id,
+      file_path: f.file_path || '',
+      file_name: f.file_name || '',
+      file_type: f.file_type || '',
+      kind: f.kind || 'file',
+      created_at: f.created_at || new Date().toISOString()
     })));
     await replaceDbTable('billing', (data.billing || []).map(b => ({
       month: b.month || '', date: nullableDate(b.date), project: b.project || '', notes: b.notes || '', items: Array.isArray(b.items) ? b.items : [], total: nullableNumber(b.total) || 0
     })));
     await replaceDbTable('certs', (data.certs || []).map(c => ({
-      client: c.client || '', date: nullableDate(c.date), description: c.desc || c.description || '', hours: nullableNumber(c.hours), price: nullableNumber(c.price), signature_data: c.signature_data || ''
+      client: c.client || '', date: nullableDate(c.date), project: c.project || '', description: c.desc || c.description || '', hours: nullableNumber(c.hours), price: nullableNumber(c.price), employees: Array.isArray(c.employees) ? c.employees : [], items: Array.isArray(c.items) ? c.items : [], notes: c.notes || '', total: nullableNumber(c.total), signature_data: c.signature_data || ''
     })));
     await replaceDbTable('vehicles', (data.vehicles || []).map(v => ({
       plate: v.plate || '', owner: v.owner || '', ins_type: v.insType || v.ins_type || '', ins_exp: nullableDate(v.insExp || v.ins_exp), test_exp: nullableDate(v.testExp || v.test_exp), notes: v.notes || ''
@@ -1686,6 +2737,14 @@ async function importBackup(event){
     await replaceDbTable('library', (data.library || []).map(l => ({
       name: l.name || '', type: l.type || '', url: l.url || '', icon: l.icon || '', file_path: l.file_path || '', file_name: l.file_name || ''
     })));
+    if(Array.isArray(data.settings) && data.settings.length){
+      const settings = await supabaseClient.from('app_settings').upsert(data.settings.map(s => ({
+        key: s.key,
+        value: s.value || {},
+        updated_at: s.updated_at || new Date().toISOString()
+      })));
+      if(settings.error) throw settings.error;
+    }
 
     alert('הגיבוי נטען למסד הנתונים בהצלחה ✓');
     go('main');
@@ -1700,3 +2759,4 @@ initAuth();
 </script>
 </body>
 </html>
+
