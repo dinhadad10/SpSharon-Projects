@@ -799,6 +799,7 @@ function renderVehicles(){
 
 // MODAL
 let currentModal=null, editIndex=-1, editId=null;
+function renderProjects(){}
 const modalDefs={
   emp:{title:'עובד',fields:[['name','שם מלא'],['role','תפקיד'],['email','מייל'],['email_status','סטטוס מייל'],['phone','טלפון']],store:'employees',render:renderEmployees},
   price:{title:'מוצר',fields:[['category','קטגוריה'],['name','שם מוצר'],['sku','מק״ט'],['buy_price','מחיר עלות'],['multiplier','מכפיל'],['supplier','ספק'],['price_updated_at','תאריך עדכון מחיר'],['notes','הערות']],store:'prices',render:renderPrices},
@@ -1822,7 +1823,7 @@ function addCertEmployeeRow(item={}){
   if(!list) return;
   const d=document.createElement('div');
   d.className='item-row cert-employee-row';
-  d.innerHTML=`<select onchange="calcCertTotal()">${employeeOptions(item.name || item.employee || '')}</select><input type="number" step="0.01" placeholder="שעות" value="${item.hours ?? ''}" oninput="calcCertTotal()"/><input type="number" step="0.01" placeholder="מחיר שעה" value="${item.rate ?? oranSettings.hourly_rate ?? 0}" oninput="calcCertTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcCertTotal()">×</button>`;
+  d.innerHTML=`<select onchange="calcCertTotal()">${employeeOptions(item.name || item.employee || '')}</select><input type="number" step="1" placeholder="שעות" value="${item.hours ?? ''}" oninput="calcCertTotal()"/><input type="number" step="1" placeholder="מחיר שעה" value="${item.rate ?? oranSettings.hourly_rate ?? 0}" oninput="calcCertTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcCertTotal()">×</button>`;
   list.appendChild(d);
 }
 
@@ -1831,7 +1832,7 @@ function addCertItemRow(item={}){
   if(!list) return;
   const d=document.createElement('div');
   d.className='item-row cert-item-row';
-  d.innerHTML=`<select onchange="fillCertProductRow(this);calcCertTotal()">${productOptions(item.product_id || item.name || '')}</select><input type="number" step="0.01" placeholder="כמות" value="${item.qty ?? 1}" oninput="calcCertTotal()"/><input type="number" step="0.01" placeholder="מחיר" value="${item.price ?? ''}" oninput="calcCertTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcCertTotal()">×</button><input type="text" placeholder="שם מוצר / פריט ידני" value="${esc(item.name || item.desc || '')}" oninput="calcCertTotal()" style="grid-column:1 / 4"/>`;
+  d.innerHTML=`<select onchange="fillCertProductRow(this);calcCertTotal()">${productOptions(item.product_id || item.name || '')}</select><input type="number" step="1" placeholder="כמות" value="${item.qty ?? 1}" oninput="calcCertTotal()"/><input type="number" step="1" placeholder="מחיר" value="${item.price ?? ''}" oninput="calcCertTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcCertTotal()">×</button><input type="text" placeholder="שם מוצר / פריט ידני" value="${esc(item.name || item.desc || '')}" oninput="calcCertTotal()" style="grid-column:1 / 4"/>`;
   list.appendChild(d);
   const select = d.querySelector('select');
   if(item.product_id && !item.price) fillCertProductRow(select);
