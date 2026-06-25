@@ -117,6 +117,7 @@
   .form-field textarea { resize: vertical; min-height: 80px; }
   .form-field input:focus, .form-field select:focus, .form-field textarea:focus { outline: none; border-color: var(--accent); }
   .item-row { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 8px; align-items: center; margin-bottom: 10px; }
+  .cert-employee-row { grid-template-columns: 2fr 1fr auto; }
   .item-row input { padding: 9px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; font-family: 'Heebo', sans-serif; width: 100%; }
   .item-row select { padding: 9px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; font-family: 'Heebo', sans-serif; width: 100%; }
   .remove-item { background: none; border: none; color: var(--red); cursor: pointer; font-size: 18px; padding: 4px; }
@@ -159,8 +160,9 @@
   /* SIGNATURE */
   .sig-layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
   .sig-form, .sig-panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; }
-  .canvas-wrap { border: 2px dashed var(--border); border-radius: 12px; overflow: hidden; margin: 14px 0; background: #fff; cursor: crosshair; }
+  .canvas-wrap { width: 100%; border: 2px dashed var(--border); border-radius: 12px; overflow: hidden; margin: 14px 0; background: #fff; cursor: crosshair; }
   canvas { display: block; }
+  #sig-canvas { width: 100%; height: 180px; touch-action: none; }
   .sig-btns { display: flex; gap: 10px; }
   .btn-clear { padding: 9px 18px; background: var(--bg3); border: 1px solid var(--border); border-radius: 9px; color: var(--text2); font-family: 'Heebo', sans-serif; cursor: pointer; font-size: 13px; font-weight: 600; }
   .btn-save-sig { padding: 9px 18px; background: var(--green); border: none; border-radius: 9px; color: #fff; font-family: 'Heebo', sans-serif; cursor: pointer; font-size: 13px; font-weight: 600; }
@@ -196,8 +198,8 @@
   .btn-save { padding: 10px 20px; background: var(--accent); border: none; border-radius: 9px; color: #fff; font-family: 'Heebo', sans-serif; cursor: pointer; font-size: 14px; font-weight: 700; }
   .mform-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .mform-field label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
-  .mform-field input { width: 100%; padding: 10px 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: 9px; color: var(--text); font-size: 14px; font-family: 'Heebo', sans-serif; }
-  .mform-field input:focus { outline: none; border-color: var(--accent); }
+  .mform-field input, .mform-field select { width: 100%; padding: 10px 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: 9px; color: var(--text); font-size: 14px; font-family: 'Heebo', sans-serif; }
+  .mform-field input:focus, .mform-field select:focus { outline: none; border-color: var(--accent); }
 
   /* BACKUP */
   .backup-panel {
@@ -339,7 +341,7 @@
     <div class="section-header"><div class="section-title">👥 עובדים</div><button class="btn-add" onclick="openModal('emp')">+ הוסף עובד</button></div>
     <div class="search-bar"><input class="search-input" id="emp-search" placeholder="חיפוש עובד..." oninput="renderEmployees()" /></div>
     <input class="inline-file" type="file" id="emp-photo-upload" accept="image/*" onchange="uploadEmployeePhoto(event)">
-    <div class="table-wrap"><table><thead><tr><th>עובד</th><th>תפקיד</th><th>מייל</th><th>סטטוס מייל</th><th>טלפון</th><th>פעולות</th></tr></thead><tbody id="emp-tbody"></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>עובד</th><th>תפקיד</th><th>מייל</th><th>מייל פרטי</th><th>טלפון</th><th>פעולות</th></tr></thead><tbody id="emp-tbody"></tbody></table></div>
   </div>
 </div>
 
@@ -695,8 +697,14 @@ function renderBillingArchive(){
 let isDrawing=false,lastX=0,lastY=0,ctx=null;
 function initCanvas(){
   const canvas=document.getElementById('sig-canvas'); if(!canvas)return;
-  ctx=canvas.getContext('2d'); ctx.strokeStyle='#1a1a2e'; ctx.lineWidth=2.5; ctx.lineCap='round';
-  const pos=(c,e)=>{const r=c.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top];};
+  const rect = canvas.getBoundingClientRect();
+  const ratio = window.devicePixelRatio || 1;
+  if(rect.width && (canvas.width !== Math.round(rect.width * ratio) || canvas.height !== Math.round(rect.height * ratio))){
+    canvas.width = Math.round(rect.width * ratio);
+    canvas.height = Math.round(rect.height * ratio);
+  }
+  ctx=canvas.getContext('2d'); ctx.strokeStyle='#1a1a2e'; ctx.lineWidth=2.5 * ratio; ctx.lineCap='round';
+  const pos=(c,e)=>{const r=c.getBoundingClientRect();return[(e.clientX-r.left)*(c.width/r.width),(e.clientY-r.top)*(c.height/r.height)];};
   canvas.onmousedown=e=>{isDrawing=true;[lastX,lastY]=pos(canvas,e);};
   canvas.onmousemove=e=>{if(!isDrawing)return;const[x,y]=pos(canvas,e);ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(x,y);ctx.stroke();[lastX,lastY]=[x,y];};
   canvas.onmouseup=canvas.onmouseleave=()=>isDrawing=false;
@@ -801,7 +809,7 @@ function renderVehicles(){
 let currentModal=null, editIndex=-1, editId=null;
 function renderProjects(){}
 const modalDefs={
-  emp:{title:'עובד',fields:[['name','שם מלא'],['role','תפקיד'],['email','מייל'],['email_status','סטטוס מייל'],['phone','טלפון']],store:'employees',render:renderEmployees},
+  emp:{title:'עובד',fields:[['name','שם מלא'],['role','תפקיד'],['email','מייל'],['email_status','מייל פרטי'],['phone','טלפון']],store:'employees',render:renderEmployees},
   price:{title:'מוצר',fields:[['category','קטגוריה'],['name','שם מוצר'],['sku','מק״ט'],['buy_price','מחיר עלות'],['multiplier','מכפיל'],['supplier','ספק'],['price_updated_at','תאריך עדכון מחיר'],['notes','הערות']],store:'prices',render:renderPrices},
   project:{title:'פרויקט',fields:[['name','שם פרויקט'],['client_name','לקוח'],['location','מיקום / אתר'],['status','סטטוס'],['priority','עדיפות'],['due_date','תאריך יעד'],['description','תיאור'],['notes','הערות']],store:'projects',render:renderProjects},
   client:{title:'לקוח',fields:[['name','שם'],['company','חברה'],['phone','טלפון'],['email','מייל'],['city','מיקום חברה'],['payment_terms','תנאי תשלום'],['notes','הערות']],store:'clients',render:renderClients},
@@ -817,10 +825,17 @@ function openModal(type,data=null){
   const dateFields = ['insExp','testExp','price_updated_at','due_date'];
   const numberFields = ['buy_price','multiplier','sell_price','price'];
   document.getElementById('modal-body').innerHTML=`<div class="mform-grid">${def.fields.map(([k,label])=>{
-    const typeAttr = dateFields.includes(k) ? 'date' : (numberFields.includes(k) ? 'number' : 'text');
-    const stepAttr = typeAttr === 'number' ? ' step="0.01"' : '';
     const value = data ? (data[k] ?? '') : '';
-    return `<div class="mform-field"><label>${label}</label><input id="mf-${k}" type="${typeAttr}"${stepAttr} value="${esc(value)}" /></div>`;
+    if(k === 'multiplier'){
+      const baseOptions = ['1','1.1','1.15','1.2','1.25','1.3','1.35','1.4','1.5','1.75','2'];
+      const selected = String(value || '1');
+      const options = baseOptions.includes(selected) ? baseOptions : [selected, ...baseOptions];
+      return `<div class="mform-field"><label>${label}</label><select id="mf-${k}">${options.map(opt=>`<option value="${esc(opt)}"${String(opt)===selected?' selected':''}>×${esc(opt)}</option>`).join('')}</select></div>`;
+    }
+    const typeAttr = dateFields.includes(k) ? 'date' : (numberFields.includes(k) && k !== 'buy_price' ? 'number' : 'text');
+    const stepAttr = typeAttr === 'number' ? ' step="1"' : '';
+    const inputMode = k === 'buy_price' ? ' inputmode="decimal"' : '';
+    return `<div class="mform-field"><label>${label}</label><input id="mf-${k}" type="${typeAttr}"${inputMode}${stepAttr} value="${esc(value)}" /></div>`;
   }).join('')}</div>`;
   document.getElementById('modal-overlay').classList.add('open');
   if(type === 'project') setupProjectClientDatalist();
@@ -1001,7 +1016,7 @@ function nullableDate(v){
 
 function nullableNumber(v){
   if(v === undefined || v === null || v === '') return null;
-  const n = Number(v);
+  const n = Number(typeof v === 'string' ? v.trim().replace(',', '.') : v);
   return Number.isFinite(n) ? n : null;
 }
 
@@ -1342,7 +1357,7 @@ async function renderPrices(){
   </tr>`).join('') : '<tr><td colspan="10" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו מוצרים</td></tr>';
 }
 
-modalDefs.emp.fields = [['name','שם מלא'],['role','תפקיד'],['email','מייל'],['email_status','סטטוס מייל'],['phone','טלפון']];
+modalDefs.emp.fields = [['name','שם מלא'],['role','תפקיד'],['email','מייל'],['email_status','מייל פרטי'],['phone','טלפון']];
 modalDefs.price.fields = [['category','קטגוריה'],['name','שם מוצר'],['sku','מק״ט'],['buy_price','מחיר עלות'],['multiplier','מכפיל'],['supplier','ספק'],['price_updated_at','תאריך עדכון מחיר'],['notes','הערות']];
 modalDefs.project.fields = [['name','שם פרויקט'],['client_name','לקוח'],['location','מיקום / אתר'],['status','סטטוס'],['priority','עדיפות'],['due_date','תאריך יעד'],['description','תיאור'],['notes','הערות']];
 modalDefs.client.fields = [['name','שם'],['company','חברה'],['phone','טלפון'],['email','מייל'],['city','מיקום חברה'],['payment_terms','תנאי תשלום'],['notes','הערות']];
@@ -1823,7 +1838,8 @@ function addCertEmployeeRow(item={}){
   if(!list) return;
   const d=document.createElement('div');
   d.className='item-row cert-employee-row';
-  d.innerHTML=`<select onchange="calcCertTotal()">${employeeOptions(item.name || item.employee || '')}</select><input type="number" step="1" placeholder="שעות" value="${item.hours ?? ''}" oninput="calcCertTotal()"/><input type="number" step="1" placeholder="מחיר שעה" value="${item.rate ?? oranSettings.hourly_rate ?? 0}" oninput="calcCertTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcCertTotal()">×</button>`;
+  d.dataset.rate = nullableNumber(item.rate) ?? nullableNumber(oranSettings.hourly_rate) ?? 0;
+  d.innerHTML=`<select onchange="calcCertTotal()">${employeeOptions(item.name || item.employee || '')}</select><input type="number" step="1" placeholder="שעות" value="${item.hours ?? ''}" oninput="calcCertTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcCertTotal()">×</button>`;
   list.appendChild(d);
 }
 
@@ -1856,7 +1872,8 @@ function collectCertEmployees(){
   return Array.from(document.querySelectorAll('.cert-employee-row')).map(row=>{
     const select = row.querySelector('select');
     const inputs = row.querySelectorAll('input');
-    return { name: select?.value || '', hours: nullableNumber(inputs[0]?.value) || 0, rate: nullableNumber(inputs[1]?.value) || 0 };
+    const rate = nullableNumber(row.dataset.rate) ?? nullableNumber(oranSettings.hourly_rate) ?? 0;
+    return { name: select?.value || '', hours: nullableNumber(inputs[0]?.value) || 0, rate };
   }).filter(e=>e.name || e.hours);
 }
 
