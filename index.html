@@ -1381,14 +1381,21 @@ async function renderLibrary(filter='all'){
   }
 
   const typeLabel={link:'קישור',guide:'מדריך',image:'תמונה'};
-  libraryCache = data || [];
+  libraryCache = await Promise.all((data || []).map(async item => {
+    if(item.file_path){
+      const signed = await supabaseClient.storage.from('library-files').createSignedUrl(item.file_path, 60 * 60);
+      return { ...item, signed_url: signed.data?.signedUrl || item.url || '' };
+    }
+    return { ...item, signed_url: item.url || '' };
+  }));
   const rows=libraryCache.filter(l=>currentLibraryFilter==='all'||l.type===currentLibraryFilter);
   if(!rows.length){grid.innerHTML='<div style="color:var(--text3);padding:40px;font-size:14px">לא נמצאו פריטים</div>';return;}
   grid.innerHTML=rows.map(l=>{
-    const preview = l.type === 'image' && l.url
-      ? `<img class="lib-thumb" src="${esc(l.url)}" alt="">`
+    const openUrl = l.signed_url || l.url || '';
+    const preview = l.type === 'image' && openUrl
+      ? `<img class="lib-thumb" src="${esc(openUrl)}" alt="">`
       : `<div class="lib-icon">${esc(l.icon||'📎')}</div>`;
-    return `<div class="lib-card" data-url="${esc(l.url)}" onclick="openLink(this.dataset.url)">${preview}<div class="lib-name">${esc(l.name)}</div><div class="lib-type">${esc(typeLabel[l.type]||l.type)}</div><div style="margin-top:12px"><button class="action-btn danger" onclick="event.stopPropagation();delItemById('library','${l.id}',()=>renderLibrary(currentLibraryFilter))">🗑️</button></div></div>`;
+    return `<div class="lib-card" data-url="${esc(openUrl)}" onclick="openLink(this.dataset.url)">${preview}<div class="lib-name">${esc(l.name)}</div><div class="lib-type">${esc(typeLabel[l.type]||l.type)}</div><div style="margin-top:12px"><button class="action-btn danger" onclick="event.stopPropagation();delItemById('library','${l.id}',()=>renderLibrary(currentLibraryFilter))">🗑️</button></div></div>`;
   }).join('');
 }
 
@@ -1401,13 +1408,12 @@ async function uploadLibraryFile(event){
     const upload = await supabaseClient.storage.from('library-files').upload(path, file, { upsert: false });
     if(upload.error) throw upload.error;
 
-    const { data: publicUrl } = supabaseClient.storage.from('library-files').getPublicUrl(path);
     const type = file.type.startsWith('image/') ? 'image' : 'guide';
     const icon = file.type.startsWith('image/') ? '🖼️' : '📄';
     const insert = await supabaseClient.from('library').insert({
       name: file.name,
       type,
-      url: publicUrl.publicUrl,
+      url: '',
       icon,
       file_path: path,
       file_name: file.name
@@ -1688,11 +1694,6 @@ async function importBackup(event){
   } finally {
     event.target.value = '';
   }
-}
-
-async function testConnection() {
-  const { data, error } = await supabaseClient.from('employees').select('id').limit(1);
-  console.log('Supabase connection:', error ? error : 'OK', data);
 }
 
 initAuth();
