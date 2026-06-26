@@ -262,13 +262,13 @@
     .projects-layout { grid-template-columns: 1fr; }
     .project-inline-form { grid-template-columns: 1fr; }
     .project-equipment-grid { grid-template-columns: 1fr; }
-    .topbar { height: auto; min-height: 60px; padding: 8px 14px; flex-direction: column; align-items: stretch; gap: 8px; }
-    .topbar-logo, .topbar-user { justify-content: center; text-align: center; }
-    .topbar-logo { flex: 0 0 auto; width: 100%; max-width: 100%; }
+    .topbar { height: auto; min-height: 60px; padding: 8px 14px; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "logo logo" "nav user"; align-items: center; gap: 7px 10px; }
+    .topbar-logo { grid-area: logo; justify-content: center; text-align: center; flex: 0 0 auto; width: 100%; max-width: 100%; }
     .topbar-logo .brand-logo-img { width: min(260px, calc(100vw - 32px)); min-width: 0; max-width: 100%; height: 58px; padding: 4px 10px; }
-    .topbar-nav { justify-content: center; width: 100%; position: relative; }
-    .mobile-menu-toggle { display: flex; width: min(210px, 100%); margin: 0 auto; }
-    .topbar-nav-panel { display: none; position: absolute; top: calc(100% + 8px); right: 0; left: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 10px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); z-index: 120; }
+    .topbar-nav { grid-area: nav; justify-self: start; justify-content: flex-start; width: auto; position: static; }
+    .topbar-user { grid-area: user; justify-self: end; justify-content: flex-end; text-align: left; }
+    .mobile-menu-toggle { display: flex; width: auto; min-width: 116px; margin: 0; }
+    .topbar-nav-panel { display: none; position: absolute; top: calc(100% + 6px); right: 14px; left: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 10px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); z-index: 120; }
     .topbar-nav.open .topbar-nav-panel { display: grid; }
     .topbar-nav-panel .nav-btn { min-height: 42px; background: var(--bg3); border-color: var(--border); font-size: 13px; }
     .content { padding: 22px 14px; }
