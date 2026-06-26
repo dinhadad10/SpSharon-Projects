@@ -95,6 +95,7 @@
   .stat-list { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; color: var(--text2); font-size: 12px; }
   .mini-row { display: flex; align-items: center; gap: 8px; min-height: 28px; }
   .mini-avatar, .employee-photo { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: inline-flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; flex-shrink: 0; }
+  .external-assignee-avatar { background: #fff; color: #111; border: 1px solid rgba(245,200,66,0.55); font-size: 18px; }
   .employee-cell { display: flex; align-items: center; gap: 10px; }
   .employee-photo { width: 40px; height: 40px; }
   .brand-text { letter-spacing: 0; }
@@ -2319,8 +2320,20 @@ async function renderProjects(){
   }
 }
 
+const PROJECT_EXTERNAL_ASSIGNEES = [
+  { id: 'external:oren-amir', name: 'אורן אמיר', avatar: '🤡' }
+];
+
 function projectEmployeeOptions(selected=''){
-  return `<option value="">ללא שיוך</option>` + projectEmployeesCache.map(e=>`<option value="${esc(e.id)}" ${String(selected)===String(e.id)?'selected':''}>${esc(e.name || '')}</option>`).join('');
+  const selectedText = String(selected || '');
+  const employeeOptions = projectEmployeesCache.map(e=>`<option value="${esc(e.id)}" ${selectedText===String(e.id)?'selected':''}>${esc(e.name || '')}</option>`).join('');
+  const externalOptions = PROJECT_EXTERNAL_ASSIGNEES.map(a=>`<option value="${esc(a.id)}" ${selectedText===a.id || selectedText===a.name?'selected':''}>${esc(a.avatar + ' ' + a.name)}</option>`).join('');
+  return `<option value="">ללא שיוך</option><optgroup label="עובדים">${employeeOptions}</optgroup><optgroup label="משויכים חיצוניים">${externalOptions}</optgroup>`;
+}
+
+function projectExternalAssigneeByValue(value){
+  const text = String(value || '').trim();
+  return PROJECT_EXTERNAL_ASSIGNEES.find(a=>a.id===text || a.name===text) || null;
 }
 
 function projectEmployeeById(id){
@@ -2424,12 +2437,15 @@ function renderProjectTasks(tasks){
   if(!tasks.length) return '<div class="project-card-meta">אין משימות בפרויקט</div>';
   return tasks.map(t=>{
     const employee = projectEmployeeById(t.assigned_employee_id);
+    const external = !employee ? projectExternalAssigneeByValue(t.assigned_employee_name) : null;
+    const assigneeAvatar = employee ? employeePhotoHtml(employee,'mini-avatar') : (external ? `<span class="mini-avatar external-assignee-avatar">${esc(external.avatar)}</span>` : '');
+    const assigneeName = t.assigned_employee_name || employee?.name || 'לא משויך';
     return `<div class="task-row">
       <div class="task-main">
         <input type="checkbox" ${t.done?'checked':''} onchange="toggleProjectTask('${t.id}', this.checked)">
         <div>
           <div class="task-title ${t.done?'done':''}">${esc(t.title)}</div>
-          <div class="task-assignee">${employee ? employeePhotoHtml(employee,'mini-avatar') : ''}<span>${esc(t.assigned_employee_name || employee?.name || 'לא משויך')}</span>${t.due_date?`<span>| ${esc(t.due_date)}</span>`:''}</div>
+          <div class="task-assignee">${assigneeAvatar}<span>${esc(assigneeName)}</span>${t.due_date?`<span>| ${esc(t.due_date)}</span>`:''}</div>
         </div>
       </div>
       <button class="action-btn danger" onclick="deleteProjectTask('${t.id}')">🗑️</button>
@@ -2457,12 +2473,13 @@ async function addProjectTask(){
   const employeeId = document.getElementById('project-task-employee')?.value || null;
   const dueDate = nullableDate(document.getElementById('project-task-date')?.value);
   if(!currentProjectId || !title){alert('יש למלא שם משימה');return;}
-  const employee = projectEmployeeById(employeeId);
+  const external = projectExternalAssigneeByValue(employeeId);
+  const employee = external ? null : projectEmployeeById(employeeId);
   const { error } = await supabaseClient.from('project_tasks').insert({
     project_id: currentProjectId,
     title,
-    assigned_employee_id: employeeId || null,
-    assigned_employee_name: employee?.name || '',
+    assigned_employee_id: employee?.id || null,
+    assigned_employee_name: external?.name || employee?.name || '',
     due_date: dueDate
   });
   if(error){ showDbError('project task save', error); return; }
