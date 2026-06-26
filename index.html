@@ -135,6 +135,8 @@
   .form-field textarea { resize: vertical; min-height: 80px; }
   .form-field input:focus, .form-field select:focus, .form-field textarea:focus { outline: none; border-color: var(--accent); }
   .item-row { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 8px; align-items: center; margin-bottom: 10px; }
+  .bill-product-row { grid-template-columns: 1.25fr 1.6fr 0.7fr 0.9fr auto; }
+  .bill-employee-row { grid-template-columns: 1.7fr 0.8fr 0.9fr auto; }
   .cert-employee-row { grid-template-columns: 2fr 1fr auto; }
   .item-row input { padding: 9px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; font-family: 'Heebo', sans-serif; width: 100%; }
   .item-row select { padding: 9px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; font-family: 'Heebo', sans-serif; width: 100%; }
@@ -432,8 +434,8 @@
         <div class="form-title">חיוב חודשי — <span style="color:var(--accent)">אורן</span></div>
         <div class="settings-panel">
           <div class="form-row">
-            <div class="form-field"><label>מחיר שעת עבודה</label><input type="number" step="0.01" id="oran-hourly-rate" placeholder="0" oninput="syncOranSettingsFromInputs();calcCertTotal()" /></div>
-            <div class="form-field"><label>מכפיל מוצרים לאורן</label><input type="number" step="0.01" id="oran-product-multiplier" placeholder="1.25" oninput="syncOranSettingsFromInputs();repriceCertItems();calcCertTotal()" /></div>
+            <div class="form-field"><label>מחיר שעת עבודה</label><input type="number" step="0.01" id="oran-hourly-rate" placeholder="0" oninput="syncOranSettingsFromInputs();repriceBillEmployeeRows();calcTotal();calcCertTotal()" /></div>
+            <div class="form-field"><label>מכפיל מוצרים לאורן</label><input type="number" step="0.01" id="oran-product-multiplier" placeholder="1.25" oninput="syncOranSettingsFromInputs();repriceBillProductRows();repriceCertItems();calcTotal();calcCertTotal()" /></div>
           </div>
           <div class="form-row">
             <div class="form-field"><label>הערת נסיעות</label><input type="text" id="oran-travel-text" oninput="syncOranSettingsFromInputs()" /></div>
@@ -442,21 +444,24 @@
           <div class="settings-actions"><button class="btn-secondary" onclick="saveOranSettings()">שמור הגדרות אורן</button></div>
         </div>
         <div class="settings-panel">
-          <div class="form-title" style="margin-bottom:10px">דוחות מתעודות שירות</div>
+          <div class="form-title" style="margin-bottom:10px">כלים לחיוב חודשי</div>
           <div class="helper-text" id="oran-cert-summary">בחר חודש כדי לראות סיכום תעודות.</div>
           <div class="settings-actions" style="gap:8px;flex-wrap:wrap">
             <button class="btn-secondary" onclick="fillBillingFromCertificates()">מלא חיוב מתעודות החודש</button>
-            <button class="btn-secondary" onclick="exportOranCertificatesCsv()">ייצוא CSV לאורן</button>
+            <button class="btn-secondary" onclick="exportCurrentBillingMonthCsv()">ייצוא חיובי החודש CSV</button>
           </div>
         </div>
         <div class="form-row">
-          <div class="form-field"><label>חודש</label><input type="month" id="bill-month" onchange="renderOranCertificateSummary()" /></div>
+          <div class="form-field"><label>חודש</label><input type="month" id="bill-month" onchange="syncBillingExportMonth();renderOranCertificateSummary()" /></div>
           <div class="form-field"><label>תאריך</label><input type="date" id="bill-date" /></div>
         </div>
         <div class="form-field" style="margin-bottom:14px"><label>פרויקט</label><input type="text" id="bill-project" placeholder="שם הפרויקט / אתר / לקוח" /></div>
-        <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:600">פריטים לחיוב</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:600">פריטים, מוצרים ועובדים לחיוב</div>
         <div id="bill-items-list"></div>
-        <button onclick="addBillItem()" style="background:none;border:1px dashed var(--border);border-radius:8px;color:var(--accent);width:100%;padding:9px;cursor:pointer;font-family:'Heebo',sans-serif;font-size:13px;margin-bottom:14px;">+ הוסף פריט</button>
+        <div class="project-file-actions">
+          <button onclick="addBillItem()" class="btn-secondary" style="flex:1">+ הוסף מוצר / פריט</button>
+          <button onclick="addBillEmployee()" class="btn-secondary" style="flex:1">+ הוסף עובד / שעות</button>
+        </div>
         <div class="billing-note-box">
           <div class="form-field"><label>הערת נסיעות לחיוב</label><textarea id="bill-travel-text" placeholder="הערה שתישמר עם החיוב"></textarea></div>
           <div class="form-field"><label>הערת מע״מ לחיוב</label><textarea id="bill-vat-text" placeholder="הערה שתישמר עם החיוב"></textarea></div>
@@ -708,29 +713,122 @@ function renderSuppliers(){
 }
 
 // BILLING
-function initBilling(){
+async function initBilling(){
   const t=new Date();
   if(!document.getElementById('bill-date').value) document.getElementById('bill-date').value=t.toISOString().split('T')[0];
   if(!document.getElementById('bill-month').value) document.getElementById('bill-month').value=t.toISOString().slice(0,7);
-  const exportMonth = document.getElementById('billing-export-month');
-  if(exportMonth && !exportMonth.value) exportMonth.value = t.toISOString().slice(0,7);
+  syncBillingExportMonth();
+  await loadOranSettings();
+  await loadCertLookups();
+  setupProjectInputs();
   if(!document.getElementById('bill-items-list').children.length) addBillItem();
-  loadOranSettings();
-  loadProjectChoices().then(()=>setupProjectInputs());
   renderOranCertificateSummary();
+  calcTotal();
 }
+
+function syncBillingExportMonth(){
+  const billMonth = document.getElementById('bill-month')?.value || '';
+  const exportMonth = document.getElementById('billing-export-month');
+  if(exportMonth && billMonth) exportMonth.value = billMonth;
+}
+
+function billProductOptions(selected=''){
+  const selectedText = String(selected || '');
+  const options = certProductsCache.map(p=>{
+    const label = `${p.name || ''}${p.sku ? ' - ' + p.sku : ''}`;
+    const value = p.id || p.name || '';
+    return `<option value="${esc(value)}" ${selectedText===String(value)||selectedText===String(p.name)?'selected':''}>${esc(label)}</option>`;
+  }).join('');
+  return `<option value="">פריט ידני / בחר מוצר</option>${options}`;
+}
+
+function billProductUnitPrice(product){
+  const base = nullableNumber(product?.buy_price ?? product?.price ?? product?.sell_price) || 0;
+  return Number((base * Number(oranSettings.product_multiplier || 1)).toFixed(2));
+}
+
 function addBillItem(item={}){
-  const d=document.createElement('div'); d.className='item-row';
-  d.innerHTML=`<input placeholder="תיאור פריט" value="${esc(item.desc||'')}" oninput="calcTotal()"/><input type="number" placeholder="כמות" value="${item.qty ?? 1}" oninput="calcTotal()"/><input type="number" placeholder="מחיר" value="${item.price ?? ''}" oninput="calcTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcTotal()">×</button>`;
-  document.getElementById('bill-items-list').appendChild(d);
+  if(item.type === 'employee') { addBillEmployee(item); return; }
+  const list = document.getElementById('bill-items-list');
+  if(!list) return;
+  const d=document.createElement('div');
+  d.className='item-row bill-product-row';
+  d.dataset.type = item.type || 'product';
+  const selectedProduct = item.product_id || '';
+  d.innerHTML=`<select onchange="fillBillProductRow(this);calcTotal()">${billProductOptions(selectedProduct)}</select><input placeholder="תיאור מוצר / פריט" value="${esc(item.desc||item.name||'')}" oninput="calcTotal()"/><input type="number" step="1" placeholder="כמות" value="${item.qty ?? 1}" oninput="calcTotal()"/><input type="number" step="0.01" placeholder="מחיר יחידה" value="${item.price ?? ''}" oninput="calcTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcTotal()">×</button>`;
+  list.appendChild(d);
+  if(selectedProduct && (item.price === undefined || item.price === null || item.price === '')) fillBillProductRow(d.querySelector('select'));
 }
-function calcTotal(){
-  let t=0;
-  document.querySelectorAll('#bill-items-list .item-row').forEach(r=>{
-    const inp=r.querySelectorAll('input');
-    t+=(parseFloat(inp[1]?.value)||0)*(parseFloat(inp[2]?.value)||0);
+
+function addBillEmployee(item={}){
+  const list = document.getElementById('bill-items-list');
+  if(!list) return;
+  const d=document.createElement('div');
+  d.className='item-row bill-employee-row';
+  d.dataset.type = 'employee';
+  const name = item.employee_name || item.name || '';
+  const hours = item.hours ?? item.qty ?? '';
+  const rate = item.rate ?? item.price ?? oranSettings.hourly_rate ?? 0;
+  d.innerHTML=`<select onchange="calcTotal()">${employeeOptions(name)}</select><input type="number" step="0.25" placeholder="שעות" value="${hours}" oninput="calcTotal()"/><input type="number" step="0.01" placeholder="מחיר שעה" value="${rate}" oninput="calcTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcTotal()">×</button>`;
+  list.appendChild(d);
+}
+
+function fillBillProductRow(select){
+  const row = select.closest('.bill-product-row');
+  const product = certProductsCache.find(p=>String(p.id)===String(select.value));
+  if(!row || !product) return;
+  row.dataset.type = 'product';
+  const inputs = row.querySelectorAll('input');
+  if(inputs[0]) inputs[0].value = product.name || '';
+  if(inputs[2]) inputs[2].value = billProductUnitPrice(product);
+}
+
+function repriceBillProductRows(){
+  document.querySelectorAll('.bill-product-row select').forEach(select=>{
+    if(select.value) fillBillProductRow(select);
   });
-  document.getElementById('bill-total').textContent='₪'+t.toLocaleString('he-IL');
+}
+
+function repriceBillEmployeeRows(){
+  document.querySelectorAll('.bill-employee-row').forEach(row=>{
+    const inputs = row.querySelectorAll('input');
+    if(inputs[1]) inputs[1].value = oranSettings.hourly_rate ?? 0;
+  });
+}
+
+function collectBillingItems(){
+  const items=[]; let total=0;
+  document.querySelectorAll('#bill-items-list .item-row').forEach(row=>{
+    if(row.dataset.type === 'employee'){
+      const select = row.querySelector('select');
+      const inputs = row.querySelectorAll('input');
+      const employeeName = select?.value || '';
+      const hours = nullableNumber(inputs[0]?.value) || 0;
+      const rate = nullableNumber(inputs[1]?.value) || 0;
+      if(employeeName || hours){
+        const desc = employeeName ? `עבודת ${employeeName}` : 'עבודת עובד';
+        items.push({ type:'employee', employee_name: employeeName, desc, qty: hours, price: rate, hours, rate });
+        total += hours * rate;
+      }
+      return;
+    }
+    const select = row.querySelector('select');
+    const inputs = row.querySelectorAll('input');
+    const product = certProductsCache.find(p=>String(p.id)===String(select?.value));
+    const desc = inputs[0]?.value || product?.name || '';
+    const qty = nullableNumber(inputs[1]?.value) || 0;
+    const price = nullableNumber(inputs[2]?.value) || 0;
+    if(desc){
+      items.push({ type: select?.value ? 'product' : 'manual', product_id: select?.value || '', desc, name: desc, qty, price });
+      total += qty * price;
+    }
+  });
+  return { items, total };
+}
+
+function calcTotal(){
+  const { total } = collectBillingItems();
+  document.getElementById('bill-total').textContent='₪'+total.toLocaleString('he-IL');
 }
 function saveBilling(){
   const month=document.getElementById('bill-month').value;
@@ -1336,7 +1434,10 @@ async function saveOranSettings(){
     .from('app_settings')
     .upsert({ key: 'oran_billing', value: oranSettings, updated_at: new Date().toISOString() });
   if(error){ showDbError('oran settings save', error); return; }
+  repriceBillEmployeeRows();
+  repriceBillProductRows();
   repriceCertItems();
+  calcTotal();
   calcCertTotal();
   alert('הגדרות אורן נשמרו ✓');
 }
@@ -1769,12 +1870,7 @@ async function saveBilling(){
     document.getElementById('bill-travel-text')?.value,
     document.getElementById('bill-vat-text')?.value
   );
-  const items=[]; let total=0;
-  document.querySelectorAll('#bill-items-list .item-row').forEach(r=>{
-    const inp=r.querySelectorAll('input');
-    const desc=inp[0]?.value; const qty=parseFloat(inp[1]?.value)||0; const price=parseFloat(inp[2]?.value)||0;
-    if(desc){items.push({desc,qty,price});total+=qty*price;}
-  });
+  const { items, total } = collectBillingItems();
   if(!month||!items.length){alert('אנא מלא חודש ולפחות פריט אחד');return;}
 
   const wasEditing = Boolean(editingBillingId);
@@ -1877,36 +1973,13 @@ async function fillBillingFromCertificates(){
   }
 }
 
-async function exportOranCertificatesCsv(){
-  try{
-    const month = document.getElementById('bill-month')?.value || new Date().toISOString().slice(0,7);
-    const list = await loadCertificatesForBilling(month);
-    if(!list.length){ alert('אין תעודות שירות לחודש הזה'); return; }
-    const lines = [
-      csvLine(['תאריך','לקוח','פרויקט','תיאור','סוג שורה','שם','כמות/שעות','מחיר יחידה','סה״כ שורה','סה״כ תעודה','הערות'])
-    ];
-    list.forEach(cert=>{
-      const certTotal = certificateTotal(cert);
-      const employees = Array.isArray(cert.employees) ? cert.employees : [];
-      const items = Array.isArray(cert.items) ? cert.items : [];
-      if(!employees.length && !items.length){
-        lines.push(csvLine([cert.date, cert.client, cert.project, cert.desc, 'תעודה', '', cert.hours || '', cert.price || '', certTotal, certTotal, cert.notes || '']));
-      }
-      employees.forEach(e=>{
-        const lineTotal = Number(e.hours||0) * Number(e.rate||0);
-        lines.push(csvLine([cert.date, cert.client, cert.project, cert.desc, 'עובד', e.name || '', e.hours || 0, e.rate || 0, lineTotal, certTotal, cert.notes || '']));
-      });
-      items.forEach(item=>{
-        const lineTotal = Number(item.qty||0) * Number(item.price||0);
-        lines.push(csvLine([cert.date, cert.client, cert.project, cert.desc, 'מוצר/פריט', item.name || '', item.qty || 0, item.price || 0, lineTotal, certTotal, cert.notes || '']));
-      });
-    });
-    lines.push(csvLine(['','','','','','','','','','',oranSettings.travel_text || '']));
-    lines.push(csvLine(['','','','','','','','','','',oranSettings.vat_text || '']));
-    downloadTextFile(`oran-certificates-${month}.csv`, '\ufeff' + lines.join('\n'), 'text/csv;charset=utf-8');
-  } catch(error) {
-    showDbError('oran csv export', error);
-  }
+function exportCurrentBillingMonthCsv(){
+  syncBillingExportMonth();
+  return exportBillingMonthCsv();
+}
+
+function exportOranCertificatesCsv(){
+  return exportCurrentBillingMonthCsv();
 }
 
 async function renderBillingArchive(){
@@ -1958,17 +2031,19 @@ async function exportBillingMonthCsv(){
     const bills = (data || []).map(billingFromDb);
     if(!bills.length){ alert('אין חיובים בארכיון לחודש הזה'); return; }
     const lines = [
-      csvLine(['חודש','תאריך','פרויקט','תיאור פריט','כמות','מחיר','סה״כ שורה','הערות','הערת נסיעות','הערת מע״מ','סה״כ חיוב'])
+      csvLine(['חודש','תאריך','פרויקט','סוג שורה','שם / תיאור','כמות / שעות','מחיר יחידה / שעה','סה״כ שורה','הערות','הערת נסיעות','הערת מע״מ','סה״כ חיוב'])
     ];
     bills.forEach(bill=>{
       const items = Array.isArray(bill.items) ? bill.items : [];
       if(!items.length){
-        lines.push(csvLine([bill.month, bill.date, bill.project, '', '', '', '', bill.notes, bill.travel_text, bill.vat_text, bill.total]));
+        lines.push(csvLine([bill.month, bill.date, bill.project, '', '', '', '', '', bill.notes, bill.travel_text, bill.vat_text, bill.total]));
         return;
       }
       items.forEach(item=>{
         const lineTotal = Number(item.qty || 0) * Number(item.price || 0);
-        lines.push(csvLine([bill.month, bill.date, bill.project, item.desc || '', item.qty || 0, item.price || 0, lineTotal, bill.notes, bill.travel_text, bill.vat_text, bill.total]));
+        const rowType = item.type === 'employee' ? 'עובד' : (item.type === 'product' ? 'מוצר' : 'פריט');
+        const label = item.employee_name || item.desc || item.name || '';
+        lines.push(csvLine([bill.month, bill.date, bill.project, rowType, label, item.qty || item.hours || 0, item.price || item.rate || 0, lineTotal, bill.notes, bill.travel_text, bill.vat_text, bill.total]));
       });
     });
     downloadTextFile(`oran-billing-archive-${month}.csv`, '\ufeff' + lines.join('\n'), 'text/csv;charset=utf-8');
