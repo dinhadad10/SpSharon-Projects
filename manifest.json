@@ -1,0 +1,23 @@
+{
+  "name": "SP Projects Electronic Repair",
+  "short_name": "SP Projects",
+  "description": "Business management system for SP Projects Electronic Repair",
+  "lang": "he",
+  "dir": "rtl",
+  "id": "/?app=sp-projects",
+  "start_url": "/?source=pwa&v=20260626-1335",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#0b0e17",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/sp-icon.svg?v=20260626-1335",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
