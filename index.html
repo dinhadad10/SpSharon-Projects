@@ -8,19 +8,18 @@
 <meta property="og:title" content="SP Projects - מערכת ניהול עסקית">
 <meta property="og:description" content="ניהול עובדים, מחירונים, לקוחות, ספקים, חיובים, חתימות ורכבים במקום אחד">
 <meta property="og:type" content="website">
-<meta property="og:image" content="/icon-512.png">
+<meta property="og:image" content="/sp-icon.svg">
 <meta name="theme-color" content="#0f172a">
 <meta name="application-name" content="SP Projects">
 <meta name="apple-mobile-web-app-title" content="SP Projects">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="msapplication-TileColor" content="#0b0e17">
-<meta name="msapplication-TileImage" content="/sp-icon-192-20260626-1315.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260626-1315">
-<link rel="icon" type="image/png" sizes="64x64" href="/favicon.png?v=20260626-1315">
-<link rel="shortcut icon" type="image/png" href="/favicon.png?v=20260626-1315">
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=20260626-1315">
-<link rel="manifest" href="/manifest.json?v=20260626-1315">
+<meta name="msapplication-TileImage" content="/sp-icon.svg">
+<link rel="icon" type="image/svg+xml" href="/sp-icon.svg?v=20260626-1345">
+<link rel="shortcut icon" type="image/svg+xml" href="/sp-icon.svg?v=20260626-1345">
+<link rel="apple-touch-icon" sizes="180x180" href="/sp-icon.svg?v=20260626-1345">
+<link rel="manifest" href="/manifest.json?v=20260626-1345">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&family=Frank+Ruhl+Libre:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -214,8 +213,15 @@
   .btn-save { padding: 10px 20px; background: var(--accent); border: none; border-radius: 9px; color: #fff; font-family: 'Heebo', sans-serif; cursor: pointer; font-size: 14px; font-weight: 700; }
   .mform-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .mform-field label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
-  .mform-field input, .mform-field select { width: 100%; padding: 10px 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: 9px; color: var(--text); font-size: 14px; font-family: 'Heebo', sans-serif; }
-  .mform-field input:focus, .mform-field select:focus { outline: none; border-color: var(--accent); }
+  .mform-field input, .mform-field select, .mform-field textarea { width: 100%; padding: 10px 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: 9px; color: var(--text); font-size: 14px; font-family: 'Heebo', sans-serif; }
+  .mform-field input:focus, .mform-field select:focus, .mform-field textarea:focus { outline: none; border-color: var(--accent); }
+  .mform-field textarea { min-height: 92px; resize: vertical; }
+  .mform-field.full { grid-column: 1 / -1; }
+  .contact-link { color: var(--text); text-decoration: none; font-weight: 700; }
+  .contact-link:hover { color: var(--accent2); text-decoration: underline; }
+  .project-equipment-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+  .project-equipment-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 12px; min-height: 76px; }
+  .project-equipment-label { color: var(--text2); font-size: 12px; font-weight: 800; margin-bottom: 6px; }
 
   /* BACKUP */
   .backup-panel {
@@ -252,6 +258,7 @@
     .dash-grid, .dash-stats, .billing-grid, .sig-layout { grid-template-columns: 1fr; max-width: none; }
     .projects-layout { grid-template-columns: 1fr; }
     .project-inline-form { grid-template-columns: 1fr; }
+    .project-equipment-grid { grid-template-columns: 1fr; }
     .topbar { height: auto; min-height: 60px; padding: 12px 16px; flex-direction: column; align-items: stretch; gap: 10px; }
     .topbar-logo, .topbar-user { justify-content: center; text-align: center; }
     .topbar-logo { flex: 0 0 auto; width: 100%; max-width: 100%; }
@@ -826,10 +833,24 @@ function renderVehicles(){
 // MODAL
 let currentModal=null, editIndex=-1, editId=null;
 function renderProjects(){}
+const PROJECT_STATUS_OPTIONS = [
+  { value: 'active', label: 'פעיל - בביצוע' },
+  { value: 'waiting', label: 'ממתין' },
+  { value: 'done', label: 'נגמר' }
+];
+
+function normalizeProjectStatus(status){
+  const value = String(status || '').trim();
+  if(['open','active','פתוח','פעיל','בביצוע','פעיל - בביצוע'].includes(value)) return 'active';
+  if(['waiting','paused','ממתין','מושהה'].includes(value)) return 'waiting';
+  if(['done','finished','closed','הסתיים','סגור','נגמר'].includes(value)) return 'done';
+  return value || 'active';
+}
+
 const modalDefs={
   emp:{title:'עובד',fields:[['name','שם מלא'],['role','תפקיד'],['email','מייל'],['email_status','מייל פרטי'],['phone','טלפון']],store:'employees',render:renderEmployees},
   price:{title:'מוצר',fields:[['category','קטגוריה'],['name','שם מוצר'],['sku','מק״ט'],['buy_price','מחיר עלות'],['multiplier','מכפיל'],['supplier','ספק'],['price_updated_at','תאריך עדכון מחיר'],['notes','הערות']],store:'prices',render:renderPrices},
-  project:{title:'פרויקט',fields:[['name','שם פרויקט'],['client_name','לקוח'],['location','מיקום / אתר'],['status','סטטוס'],['priority','עדיפות'],['due_date','תאריך יעד'],['description','תיאור'],['notes','הערות']],store:'projects',render:renderProjects},
+  project:{title:'פרויקט',fields:[['name','שם פרויקט'],['client_name','לקוח'],['location','מיקום / אתר'],['status','סטטוס'],['priority','עדיפות'],['due_date','תאריך יעד'],['description','תיאור'],['work_equipment','ציוד עבודה'],['supplier_equipment','ציוד לספק'],['notes','הערות']],store:'projects',render:renderProjects},
   client:{title:'לקוח',fields:[['name','שם'],['company','חברה'],['phone','טלפון'],['email','מייל'],['city','מיקום חברה'],['payment_terms','תנאי תשלום'],['notes','הערות']],store:'clients',render:renderClients},
   supplier:{title:'ספק',fields:[['name','שם'],['company','חברה'],['address','כתובת'],['website','אתר'],['phone','טלפון'],['email','מייל'],['product','מוצרים עיקריים'],['terms','תנאי תשלום']],store:'suppliers',render:renderSuppliers},
   lib:{title:'פריט ספרייה',fields:[['name','שם'],['type','סוג (link/guide/image)'],['url','קישור URL'],['icon','אייקון (emoji)']],store:'library',render:()=>renderLibrary('all')},
@@ -842,18 +863,27 @@ function openModal(type,data=null){
   document.getElementById('modal-title').textContent=(data?'ערוך ':'הוסף ')+def.title;
   const dateFields = ['insExp','testExp','price_updated_at','due_date'];
   const numberFields = ['buy_price','multiplier','sell_price','price'];
+  const textareaFields = ['description','notes','work_equipment','supplier_equipment'];
   document.getElementById('modal-body').innerHTML=`<div class="mform-grid">${def.fields.map(([k,label])=>{
     const value = data ? (data[k] ?? '') : '';
+    const fullClass = textareaFields.includes(k) ? ' full' : '';
     if(k === 'multiplier'){
       const baseOptions = ['1','1.1','1.15','1.2','1.25','1.3','1.35','1.4','1.5','1.75','2'];
       const selected = String(value || '1');
       const options = baseOptions.includes(selected) ? baseOptions : [selected, ...baseOptions];
       return `<div class="mform-field"><label>${label}</label><select id="mf-${k}">${options.map(opt=>`<option value="${esc(opt)}"${String(opt)===selected?' selected':''}>×${esc(opt)}</option>`).join('')}</select></div>`;
     }
+    if(type === 'project' && k === 'status'){
+      const selected = normalizeProjectStatus(value);
+      return `<div class="mform-field"><label>${label}</label><select id="mf-${k}">${PROJECT_STATUS_OPTIONS.map(opt=>`<option value="${esc(opt.value)}"${opt.value===selected?' selected':''}>${esc(opt.label)}</option>`).join('')}</select></div>`;
+    }
+    if(textareaFields.includes(k)){
+      return `<div class="mform-field${fullClass}"><label>${label}</label><textarea id="mf-${k}">${esc(value)}</textarea></div>`;
+    }
     const typeAttr = dateFields.includes(k) ? 'date' : (numberFields.includes(k) && k !== 'buy_price' ? 'number' : 'text');
     const stepAttr = typeAttr === 'number' ? ' step="1"' : '';
     const inputMode = k === 'buy_price' ? ' inputmode="decimal"' : '';
-    return `<div class="mform-field"><label>${label}</label><input id="mf-${k}" type="${typeAttr}"${inputMode}${stepAttr} value="${esc(value)}" /></div>`;
+    return `<div class="mform-field${fullClass}"><label>${label}</label><input id="mf-${k}" type="${typeAttr}"${inputMode}${stepAttr} value="${esc(value)}" /></div>`;
   }).join('')}</div>`;
   document.getElementById('modal-overlay').classList.add('open');
   if(type === 'project') setupProjectClientDatalist();
@@ -1016,6 +1046,61 @@ function productToDb(p){
 
 function esc(v){
   return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function phoneHref(phone){
+  const raw = String(phone ?? '').trim();
+  if(!raw) return '';
+  const cleaned = raw.replace(/[^\d+]/g, '');
+  return cleaned ? `tel:${cleaned}` : '';
+}
+
+function emailHref(email){
+  const raw = String(email ?? '').trim();
+  return raw && raw.includes('@') ? `mailto:${raw}` : '';
+}
+
+function contactLink(value, type, empty='-'){
+  const text = String(value ?? '').trim();
+  if(!text) return esc(empty);
+  const href = type === 'phone' ? phoneHref(text) : emailHref(text);
+  return href ? `<a class="contact-link" href="${esc(href)}">${esc(text)}</a>` : esc(text);
+}
+
+function dbMissingColumn(error, column){
+  const msg = String(error?.message || error?.details || '');
+  return (error?.code === '42703' || error?.code === 'PGRST204' || msg.toLowerCase().includes('column')) && msg.includes(column);
+}
+
+const PROJECT_META_START = '[SP_PROJECT_META]';
+const PROJECT_META_END = '[/SP_PROJECT_META]';
+
+function parseProjectNotes(rawNotes){
+  const raw = String(rawNotes ?? '');
+  const start = raw.indexOf(PROJECT_META_START);
+  const end = raw.indexOf(PROJECT_META_END);
+  if(start < 0 || end < 0 || end <= start) return { notes: raw, work_equipment: '', supplier_equipment: '' };
+  const jsonText = raw.slice(start + PROJECT_META_START.length, end).trim();
+  const visibleNotes = (raw.slice(0, start) + raw.slice(end + PROJECT_META_END.length)).trim();
+  try{
+    const meta = JSON.parse(jsonText);
+    return {
+      notes: visibleNotes,
+      work_equipment: meta.work_equipment || '',
+      supplier_equipment: meta.supplier_equipment || ''
+    };
+  } catch(_error) {
+    return { notes: raw, work_equipment: '', supplier_equipment: '' };
+  }
+}
+
+function buildProjectNotesWithEquipment(notes, workEquipment, supplierEquipment){
+  const cleanNotes = String(notes ?? '').trim();
+  const work = String(workEquipment ?? '').trim();
+  const supplier = String(supplierEquipment ?? '').trim();
+  if(!work && !supplier) return cleanNotes;
+  const meta = JSON.stringify({ work_equipment: work, supplier_equipment: supplier });
+  return `${cleanNotes}${cleanNotes ? '\n\n' : ''}${PROJECT_META_START}${meta}${PROJECT_META_END}`;
 }
 
 function nullableDate(v){
@@ -1283,11 +1368,11 @@ async function renderEmployees(){
   employeesCache = await withEmployeePhotoUrls(data || []);
   const rows = employeesCache.filter(e=>!q||(e.name||'').toLowerCase().includes(q)||(e.role||'').toLowerCase().includes(q)||(e.email||'').toLowerCase().includes(q));
   tbody.innerHTML = rows.length ? rows.map(e=>`<tr>
-    <td><div class="employee-cell">${employeePhotoHtml(e)}<div><b>${esc(e.name)}</b><div style="color:var(--text3);font-size:12px">${esc(e.photo_name || 'ללא תמונה')}</div></div></div></td>
+    <td><div class="employee-cell">${employeePhotoHtml(e)}<div><b>${esc(e.name)}</b></div></div></td>
     <td><span class="badge badge-blue">${esc(e.role)}</span></td>
-    <td>${esc(e.email)}</td>
-    <td><span class="badge badge-gold">${esc(e.email_status || 'לא הוגדר')}</span></td>
-    <td>${esc(e.phone)}</td>
+    <td>${contactLink(e.email, 'email')}</td>
+    <td><span class="badge badge-gold">${contactLink(e.email_status, 'email', 'לא הוגדר')}</span></td>
+    <td>${contactLink(e.phone, 'phone')}</td>
     <td><button class="action-btn" onclick="setEmployeePhotoTarget('${e.id}')">📷</button><button class="action-btn" onclick="editItemById('emp','${e.id}')">✏️</button><button class="action-btn danger" onclick="delItemById('employees','${e.id}',renderEmployees)">🗑️</button></td>
   </tr>`).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:36px">לא נמצאו עובדים</td></tr>';
 }
@@ -1377,7 +1462,7 @@ async function renderPrices(){
 
 modalDefs.emp.fields = [['name','שם מלא'],['role','תפקיד'],['email','מייל'],['email_status','מייל פרטי'],['phone','טלפון']];
 modalDefs.price.fields = [['category','קטגוריה'],['name','שם מוצר'],['sku','מק״ט'],['buy_price','מחיר עלות'],['multiplier','מכפיל'],['supplier','ספק'],['price_updated_at','תאריך עדכון מחיר'],['notes','הערות']];
-modalDefs.project.fields = [['name','שם פרויקט'],['client_name','לקוח'],['location','מיקום / אתר'],['status','סטטוס'],['priority','עדיפות'],['due_date','תאריך יעד'],['description','תיאור'],['notes','הערות']];
+modalDefs.project.fields = [['name','שם פרויקט'],['client_name','לקוח'],['location','מיקום / אתר'],['status','סטטוס'],['priority','עדיפות'],['due_date','תאריך יעד'],['description','תיאור'],['work_equipment','ציוד עבודה'],['supplier_equipment','ציוד לספק'],['notes','הערות']];
 modalDefs.client.fields = [['name','שם'],['company','חברה'],['phone','טלפון'],['email','מייל'],['city','מיקום חברה'],['payment_terms','תנאי תשלום'],['notes','הערות']];
 modalDefs.supplier.fields = [['name','שם'],['company','חברה'],['address','כתובת'],['website','אתר'],['phone','טלפון'],['email','מייל'],['product','מוצרים עיקריים'],['terms','תנאי תשלום']];
 
@@ -1479,7 +1564,7 @@ async function renderDashboard(){
       supabaseClient.from('employees').select('id, name, role, photo_path').order('created_at', { ascending: false }),
       supabaseClient.from('billing').select('total, month, items').eq('month', month),
       supabaseClient.from('vehicles').select('plate, owner, ins_type, ins_exp, test_exp'),
-      supabaseClient.from('projects').select('id, name, client_name, status, created_at').in('status', ['open','active','פתוח']).order('created_at', { ascending: false })
+      supabaseClient.from('projects').select('id, name, client_name, status, created_at').in('status', ['open','active','waiting','paused','פתוח','פעיל','ממתין','מושהה','פעיל - בביצוע']).order('created_at', { ascending: false })
     ]);
 
     if(employeeRows.error) throw employeeRows.error;
@@ -1540,8 +1625,8 @@ async function renderClients(){
   tbody.innerHTML = rows.length ? rows.map(c=>`<tr>
     <td><b>${esc(c.name)}</b></td>
     <td>${esc(c.company)}</td>
-    <td>${esc(c.phone)}</td>
-    <td>${esc(c.email)}</td>
+    <td>${contactLink(c.phone, 'phone')}</td>
+    <td>${contactLink(c.email, 'email')}</td>
     <td>${esc(c.city)}</td>
     <td><span class="badge badge-blue">${esc(c.payment_terms || '-')}</span></td>
     <td style="color:var(--text2)">${esc(c.notes || '')}</td>
@@ -1575,8 +1660,8 @@ async function renderSuppliers(){
       <td>${esc(s.company)}</td>
       <td>${esc(s.address)}</td>
       <td>${site ? `<a href="${esc(site)}" target="_blank" rel="noopener">פתח אתר</a>` : '-'}</td>
-      <td>${esc(s.phone)}</td>
-      <td>${esc(s.email)}</td>
+      <td>${contactLink(s.phone, 'phone')}</td>
+      <td>${contactLink(s.email, 'email')}</td>
       <td>${esc(s.product)}</td>
       <td><span class="badge badge-blue">${esc(s.terms)}</span></td>
       <td><button class="action-btn" onclick="editItemById('supplier','${s.id}')">✏️</button><button class="action-btn danger" onclick="delItemById('suppliers','${s.id}',renderSuppliers)">🗑️</button></td>
@@ -2111,6 +2196,7 @@ async function uploadLibraryFile(event){
 }
 
 function projectFromDb(p){
+  const noteMeta = parseProjectNotes(p.notes);
   return {
     id: p.id,
     client_id: p.client_id || null,
@@ -2118,10 +2204,12 @@ function projectFromDb(p){
     name: p.name || '',
     description: p.description || '',
     location: p.location || '',
-    status: p.status || 'open',
+    status: normalizeProjectStatus(p.status),
     priority: p.priority || 'רגיל',
     due_date: p.due_date || '',
-    notes: p.notes || '',
+    work_equipment: p.work_equipment || noteMeta.work_equipment || '',
+    supplier_equipment: p.supplier_equipment || noteMeta.supplier_equipment || '',
+    notes: noteMeta.notes || '',
     created_at: p.created_at,
     updated_at: p.updated_at
   };
@@ -2152,13 +2240,15 @@ async function loadProjectLookups(){
 }
 
 function projectStatusLabel(status){
-  const labels = { open:'פתוח', active:'פעיל', done:'הסתיים', paused:'מושהה', 'פתוח':'פתוח' };
-  return labels[status] || status || 'פתוח';
+  const normalized = normalizeProjectStatus(status);
+  const match = PROJECT_STATUS_OPTIONS.find(opt=>opt.value===normalized);
+  return match?.label || normalized || 'פעיל - בביצוע';
 }
 
 function projectStatusBadge(status){
-  if(['done','הסתיים','סגור'].includes(status)) return 'badge-green';
-  if(['paused','מושהה'].includes(status)) return 'badge-gold';
+  const normalized = normalizeProjectStatus(status);
+  if(normalized === 'done') return 'badge-green';
+  if(normalized === 'waiting') return 'badge-gold';
   return 'badge-blue';
 }
 
@@ -2166,6 +2256,27 @@ function projectProgress(projectId){
   const tasks = projectTasksCache.filter(t=>t.project_id===projectId);
   if(!tasks.length) return '0/0';
   return `${tasks.filter(t=>t.done).length}/${tasks.length}`;
+}
+
+const PROJECT_COLUMNS = 'id, client_id, client_name, name, description, location, status, priority, due_date, notes, work_equipment, supplier_equipment, created_at, updated_at';
+const PROJECT_COLUMNS_BASE = 'id, client_id, client_name, name, description, location, status, priority, due_date, notes, created_at, updated_at';
+const PROJECT_FILE_COLUMNS = 'id, project_id, file_path, file_name, file_description, file_type, kind, created_at';
+const PROJECT_FILE_COLUMNS_BASE = 'id, project_id, file_path, file_name, file_type, kind, created_at';
+
+async function selectProjectsForScreen(){
+  let result = await supabaseClient.from('projects').select(PROJECT_COLUMNS).order('created_at', { ascending: false });
+  if(result.error && (dbMissingColumn(result.error, 'work_equipment') || dbMissingColumn(result.error, 'supplier_equipment'))){
+    result = await supabaseClient.from('projects').select(PROJECT_COLUMNS_BASE).order('created_at', { ascending: false });
+  }
+  return result;
+}
+
+async function selectProjectFilesForScreen(projectId){
+  let result = await supabaseClient.from('project_files').select(PROJECT_FILE_COLUMNS).eq('project_id', projectId).order('created_at', { ascending: false });
+  if(result.error && dbMissingColumn(result.error, 'file_description')){
+    result = await supabaseClient.from('project_files').select(PROJECT_FILE_COLUMNS_BASE).eq('project_id', projectId).order('created_at', { ascending: false });
+  }
+  return result;
 }
 
 async function renderProjects(){
@@ -2178,7 +2289,7 @@ async function renderProjects(){
   try{
     await loadProjectLookups();
     const [projects, tasks] = await Promise.all([
-      supabaseClient.from('projects').select('id, client_id, client_name, name, description, location, status, priority, due_date, notes, created_at, updated_at').order('created_at', { ascending: false }),
+      selectProjectsForScreen(),
       supabaseClient.from('project_tasks').select('id, project_id, title, assigned_employee_id, assigned_employee_name, due_date, done, created_at, updated_at')
     ]);
     if(projects.error) throw projects.error;
@@ -2229,7 +2340,7 @@ async function openProject(id, refreshList=true){
     const [tasks, activity, files] = await Promise.all([
       supabaseClient.from('project_tasks').select('id, project_id, title, assigned_employee_id, assigned_employee_name, due_date, done, created_at, updated_at').eq('project_id', id).order('created_at', { ascending: true }),
       supabaseClient.from('project_activity').select('id, project_id, type, message, created_by, created_at').eq('project_id', id).order('created_at', { ascending: false }),
-      supabaseClient.from('project_files').select('id, project_id, file_path, file_name, file_type, kind, created_at').eq('project_id', id).order('created_at', { ascending: false })
+      selectProjectFilesForScreen(id)
     ]);
     if(tasks.error) throw tasks.error;
     if(activity.error) throw activity.error;
@@ -2269,6 +2380,16 @@ function renderProjectDetail(project){
       </div>
     </div>
     <div class="project-card-meta">${esc(project.description || '')}</div>
+    <div class="project-equipment-grid">
+      <div class="project-equipment-box">
+        <div class="project-equipment-label">ציוד עבודה</div>
+        <div class="project-card-meta">${esc(project.work_equipment || '-')}</div>
+      </div>
+      <div class="project-equipment-box">
+        <div class="project-equipment-label">ציוד לספק</div>
+        <div class="project-card-meta">${esc(project.supplier_equipment || '-')}</div>
+      </div>
+    </div>
     <div class="project-section">
       <div class="project-section-title">משימות</div>
       <div class="project-inline-form">
@@ -2324,7 +2445,11 @@ function renderProjectActivity(){
 function renderProjectFiles(){
   if(!projectFilesCache.length) return '<div class="project-card-meta">אין קבצים בפרויקט</div>';
   const kindLabel = { file:'קובץ', photo:'תמונה', plan:'תוכנית' };
-  return projectFilesCache.map(f=>`<div class="file-row"><div><div>${esc(f.file_name)}</div><div class="project-card-meta">${esc(kindLabel[f.kind] || f.kind || 'קובץ')}</div></div><div><button class="action-btn" data-url="${esc(f.signed_url)}" onclick="openLink(this.dataset.url)">פתח</button><button class="action-btn danger" onclick="deleteProjectFile('${f.id}')">🗑️</button></div></div>`).join('');
+  return projectFilesCache.map(f=>{
+    const title = f.file_description || f.file_name || 'קובץ ללא תיאור';
+    const meta = kindLabel[f.kind] || f.kind || 'קובץ';
+    return `<div class="file-row"><div><div>${esc(title)}</div><div class="project-card-meta">${esc(meta)}</div></div><div><button class="action-btn" data-url="${esc(f.signed_url)}" onclick="openLink(this.dataset.url)">פתח</button><button class="action-btn danger" onclick="deleteProjectFile('${f.id}')">🗑️</button></div></div>`;
+  }).join('');
 }
 
 async function addProjectTask(){
@@ -2380,23 +2505,40 @@ function chooseProjectFile(kind){
 async function uploadProjectFile(event){
   const file = event.target.files?.[0];
   if(!file || !currentProjectId) return;
+  const descriptionInput = prompt('כתוב תיאור קצר לקובץ כדי שיהיה ברור מה הוא');
+  if(descriptionInput === null){
+    event.target.value = '';
+    projectFileKind = 'file';
+    return;
+  }
+  const fileDescription = descriptionInput.trim() || file.name;
   const safeName = file.name.replace(/[^\w.\-\u0590-\u05FF ]+/g,'_');
   const path = `${currentProjectId}/${Date.now()}-${safeName}`;
   try{
     const upload = await supabaseClient.storage.from('project-files').upload(path, file, { upsert: false, contentType: file.type || 'application/octet-stream' });
     if(upload.error) throw upload.error;
-    const insert = await supabaseClient.from('project_files').insert({
+    let insert = await supabaseClient.from('project_files').insert({
       project_id: currentProjectId,
       file_path: path,
       file_name: file.name,
+      file_description: fileDescription,
       file_type: file.type || '',
       kind: projectFileKind
     });
+    if(insert.error && dbMissingColumn(insert.error, 'file_description')){
+      insert = await supabaseClient.from('project_files').insert({
+        project_id: currentProjectId,
+        file_path: path,
+        file_name: fileDescription,
+        file_type: file.type || '',
+        kind: projectFileKind
+      });
+    }
     if(insert.error){
       await supabaseClient.storage.from('project-files').remove([path]);
       throw insert.error;
     }
-    await addProjectActivity(`עלה קובץ: ${file.name}`, false);
+    await addProjectActivity(`עלה קובץ: ${fileDescription}`, false);
     await openProject(currentProjectId);
   } catch(error) {
     showDbError('project file upload', error);
@@ -2515,16 +2657,29 @@ async function saveModal(){
       client_id: matchedClient?.id || null,
       client_name: obj.client_name || '',
       location: obj.location || '',
-      status: obj.status || 'open',
+      status: normalizeProjectStatus(obj.status),
       priority: obj.priority || 'רגיל',
       due_date: nullableDate(obj.due_date),
       description: obj.description || '',
+      work_equipment: obj.work_equipment || '',
+      supplier_equipment: obj.supplier_equipment || '',
       notes: obj.notes || '',
       updated_at: new Date().toISOString()
     };
-    const result = editId
+    let result = editId
       ? await supabaseClient.from('projects').update(payload).eq('id', editId)
       : await supabaseClient.from('projects').insert(payload).select('id').single();
+    if(result.error && (dbMissingColumn(result.error, 'work_equipment') || dbMissingColumn(result.error, 'supplier_equipment'))){
+      const fallbackPayload = {
+        ...payload,
+        notes: buildProjectNotesWithEquipment(obj.notes || '', obj.work_equipment || '', obj.supplier_equipment || '')
+      };
+      delete fallbackPayload.work_equipment;
+      delete fallbackPayload.supplier_equipment;
+      result = editId
+        ? await supabaseClient.from('projects').update(fallbackPayload).eq('id', editId)
+        : await supabaseClient.from('projects').insert(fallbackPayload).select('id').single();
+    }
     if(result.error){ showDbError('projects save', result.error); return; }
     if(!editId && result.data?.id) currentProjectId = result.data.id;
     closeModal(); await renderProjects(); return;
@@ -2643,6 +2798,17 @@ async function loadDbTable(table, columns){
   return data || [];
 }
 
+async function loadDbTableWithFallback(table, columns, fallbackColumns, watchedColumn){
+  try{
+    return await loadDbTable(table, columns);
+  } catch(error) {
+    if(fallbackColumns && watchedColumn && dbMissingColumn(error, watchedColumn)){
+      return await loadDbTable(table, fallbackColumns);
+    }
+    throw error;
+  }
+}
+
 async function exportBackup(){
   try{
     const [employees, products, clients, suppliers, projects, projectTasks, projectActivity, projectFiles, billing, certs, vehicles, library, settings] = await Promise.all([
@@ -2650,10 +2816,10 @@ async function exportBackup(){
       loadDbTable('products','id, name, description, sku, category, buy_price, multiplier, sell_price, supplier, price_updated_at, notes, created_at'),
       loadDbTable('clients','id, name, company, phone, email, city, payment_terms, notes, created_at'),
       loadDbTable('suppliers','id, name, company, address, website, phone, email, product, terms, created_at'),
-      loadDbTable('projects','id, client_id, client_name, name, description, location, status, priority, due_date, notes, created_at, updated_at'),
+      loadDbTableWithFallback('projects', PROJECT_COLUMNS, PROJECT_COLUMNS_BASE, 'work_equipment'),
       loadDbTable('project_tasks','id, project_id, title, assigned_employee_id, assigned_employee_name, due_date, done, created_at, updated_at'),
       loadDbTable('project_activity','id, project_id, type, message, created_by, created_at'),
-      loadDbTable('project_files','id, project_id, file_path, file_name, file_type, kind, created_at'),
+      loadDbTableWithFallback('project_files', PROJECT_FILE_COLUMNS, PROJECT_FILE_COLUMNS_BASE, 'file_description'),
       loadDbTable('billing','id, month, date, project, notes, items, total, created_at'),
       loadDbTable('certs','id, client, date, project, description, hours, price, employees, items, notes, total, signature_data, created_at'),
       loadDbTable('vehicles','id, plate, owner, ins_type, ins_exp, test_exp, notes, created_at'),
@@ -2698,6 +2864,35 @@ async function replaceDbTable(table, rows){
   }
 }
 
+async function replaceProjectsTable(rows){
+  try{
+    await replaceDbTable('projects', rows);
+  } catch(error) {
+    if(!(dbMissingColumn(error, 'work_equipment') || dbMissingColumn(error, 'supplier_equipment'))) throw error;
+    await replaceDbTable('projects', rows.map(row=>{
+      const clean = { ...row };
+      clean.notes = buildProjectNotesWithEquipment(clean.notes || '', clean.work_equipment || '', clean.supplier_equipment || '');
+      delete clean.work_equipment;
+      delete clean.supplier_equipment;
+      return clean;
+    }));
+  }
+}
+
+async function replaceProjectFilesTable(rows){
+  try{
+    await replaceDbTable('project_files', rows);
+  } catch(error) {
+    if(!dbMissingColumn(error, 'file_description')) throw error;
+    await replaceDbTable('project_files', rows.map(row=>{
+      const clean = { ...row };
+      clean.file_name = clean.file_description || clean.file_name || '';
+      delete clean.file_description;
+      return clean;
+    }));
+  }
+}
+
 async function importBackup(event){
   const file = event.target.files?.[0];
   if(!file) return;
@@ -2719,16 +2914,18 @@ async function importBackup(event){
     await replaceDbTable('project_files', []);
     await replaceDbTable('project_activity', []);
     await replaceDbTable('project_tasks', []);
-    await replaceDbTable('projects', (data.projects || []).map(p => ({
+    await replaceProjectsTable((data.projects || []).map(p => ({
       id: p.id,
       client_id: p.client_id || null,
       client_name: p.client_name || '',
       name: p.name || '',
       description: p.description || '',
       location: p.location || '',
-      status: p.status || 'open',
+      status: normalizeProjectStatus(p.status),
       priority: p.priority || 'רגיל',
       due_date: nullableDate(p.due_date),
+      work_equipment: p.work_equipment || '',
+      supplier_equipment: p.supplier_equipment || '',
       notes: p.notes || '',
       created_at: p.created_at || new Date().toISOString(),
       updated_at: p.updated_at || new Date().toISOString()
@@ -2752,11 +2949,12 @@ async function importBackup(event){
       created_by: a.created_by || '',
       created_at: a.created_at || new Date().toISOString()
     })));
-    await replaceDbTable('project_files', (data.project_files || []).map(f => ({
+    await replaceProjectFilesTable((data.project_files || []).map(f => ({
       id: f.id,
       project_id: f.project_id,
       file_path: f.file_path || '',
       file_name: f.file_name || '',
+      file_description: f.file_description || '',
       file_type: f.file_type || '',
       kind: f.kind || 'file',
       created_at: f.created_at || new Date().toISOString()
