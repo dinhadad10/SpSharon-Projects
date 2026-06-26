@@ -3,12 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>מערכת ניהול עסקית</title>
+<title>SP Projects - מערכת ניהול עסקית</title>
 <meta name="description" content="מערכת ניהול עסקית לניהול עובדים, מחירונים, לקוחות, ספקים, חיובים, חתימות ורכבים">
-<meta property="og:title" content="מערכת ניהול עסקית">
+<meta property="og:title" content="SP Projects - מערכת ניהול עסקית">
 <meta property="og:description" content="ניהול עובדים, מחירונים, לקוחות, ספקים, חיובים, חתימות ורכבים במקום אחד">
 <meta property="og:type" content="website">
+<meta property="og:image" content="/icon-512.png">
 <meta name="theme-color" content="#0f1117">
+<meta name="application-name" content="SP Projects">
+<meta name="apple-mobile-web-app-title" content="SP Projects">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="manifest" href="/manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&family=Frank+Ruhl+Libre:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -36,7 +44,9 @@
   /* LOGIN */
   #screen-login { align-items: center; justify-content: center; background: radial-gradient(ellipse at 30% 40%, #1a2a5e 0%, #0f1117 60%); }
   .login-box { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 48px 40px; width: 380px; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
-  .login-logo { font-family: 'Frank Ruhl Libre', serif; font-size: 32px; font-weight: 900; color: var(--accent); margin-bottom: 8px; text-align: center; }
+  .login-logo { display: flex; align-items: center; justify-content: center; margin-bottom: 8px; text-align: center; }
+  .brand-logo-img { display: block; max-width: 100%; object-fit: contain; background: #fff; border-radius: 10px; }
+  .login-logo .brand-logo-img { width: min(260px, 100%); max-height: 165px; padding: 8px; }
   .login-sub { color: var(--text2); text-align: center; margin-bottom: 36px; font-size: 14px; }
   .field { margin-bottom: 18px; }
   .field label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 7px; font-weight: 500; }
@@ -51,7 +61,8 @@
   .alert-row { background: rgba(244,110,110,0.08); }
   .warn-row { background: rgba(245,200,66,0.06); }
   .topbar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-  .topbar-logo { font-family: 'Frank Ruhl Libre', serif; font-size: 20px; font-weight: 900; color: var(--accent); }
+  .topbar-logo { display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+  .topbar-logo .brand-logo-img { width: 150px; height: 46px; padding: 4px 8px; }
   .topbar-nav { display: flex; gap: 4px; flex-wrap: wrap; }
   .nav-btn { padding: 7px 12px; background: transparent; border: 1px solid transparent; border-radius: 8px; color: var(--text2); font-size: 12px; font-family: 'Heebo', sans-serif; cursor: pointer; transition: all 0.18s; font-weight: 500; }
   .nav-btn:hover, .nav-btn.active { background: var(--bg3); border-color: var(--border); color: var(--text); }
@@ -266,7 +277,7 @@
 <!-- SCREEN 1: LOGIN -->
 <div id="screen-login" class="screen active">
   <div class="login-box">
-    <div class="login-logo">S.P Sharon-projects LTD</div>
+    <div class="login-logo"><img src="/brand-logo.png" alt="SP Projects Electronic Repair" class="brand-logo-img"></div>
     <div class="login-sub">כניסה למערכת הניהול</div>
     <div class="field"><label>אימייל</label><input type="email" id="login-user" placeholder="name@example.com" autocomplete="email" /></div>
     <div class="field"><label>סיסמה</label><input type="password" id="login-pass" placeholder="הכנס סיסמה" /></div>
@@ -278,7 +289,7 @@
 <!-- SCREEN 2: MAIN -->
 <div id="screen-main" class="screen">
   <div class="topbar">
-    <div class="topbar-logo">S.P Sharon-projects LTD</div>
+    <div class="topbar-logo"><img src="/brand-logo.png" alt="SP Projects Electronic Repair" class="brand-logo-img"></div>
     <div class="topbar-nav" id="nav-main"></div>
     <div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div>
   </div>
@@ -315,7 +326,7 @@
 
 <!-- SCREEN VEHICLES -->
 <div id="screen-vehicles" class="screen" style="flex-direction:column">
-  <div class="topbar"><div class="topbar-logo">S.P Sharon-projects LTD</div><div class="topbar-nav" id="nav-vehicles"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="topbar"><div class="topbar-logo"><img src="/brand-logo.png" alt="SP Projects Electronic Repair" class="brand-logo-img"></div><div class="topbar-nav" id="nav-vehicles"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
   <div class="content">
     <div class="section-header"><div class="section-title">🚗 רכבים וביטוחים</div><button class="btn-add" onclick="openModal('vehicle')">+ הוסף רכב</button></div>
     <div id="vehicles-alerts"></div>
@@ -336,7 +347,7 @@
 
 <!-- SCREEN 3: EMPLOYEES -->
 <div id="screen-employees" class="screen" style="flex-direction:column">
-  <div class="topbar"><div class="topbar-logo">S.P Sharon-projects LTD</div><div class="topbar-nav" id="nav-employees"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="topbar"><div class="topbar-logo"><img src="/brand-logo.png" alt="SP Projects Electronic Repair" class="brand-logo-img"></div><div class="topbar-nav" id="nav-employees"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
   <div class="content">
     <div class="section-header"><div class="section-title">👥 עובדים</div><button class="btn-add" onclick="openModal('emp')">+ הוסף עובד</button></div>
     <div class="search-bar"><input class="search-input" id="emp-search" placeholder="חיפוש עובד..." oninput="renderEmployees()" /></div>
@@ -347,7 +358,7 @@
 
 <!-- SCREEN 4: PRICES -->
 <div id="screen-prices" class="screen" style="flex-direction:column">
-  <div class="topbar"><div class="topbar-logo">S.P Sharon-projects LTD</div><div class="topbar-nav" id="nav-prices"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="topbar"><div class="topbar-logo"><img src="/brand-logo.png" alt="SP Projects Electronic Repair" class="brand-logo-img"></div><div class="topbar-nav" id="nav-prices"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
   <div class="content">
     <div class="section-header"><div class="section-title">💰 מוצרים</div><button class="btn-add" onclick="openModal('price')">+ הוסף מוצר</button></div>
     <div class="search-bar"><input class="search-input" id="price-search" placeholder="חיפוש מוצר..." oninput="renderPrices()" /></div>
@@ -357,7 +368,7 @@
 
 <!-- SCREEN 5: CLIENTS & SUPPLIERS -->
 <div id="screen-clients" class="screen" style="flex-direction:column">
-  <div class="topbar"><div class="topbar-logo">S.P Sharon-projects LTD</div><div class="topbar-nav" id="nav-clients"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="topbar"><div class="topbar-logo"><img src="/brand-logo.png" alt="SP Projects Electronic Repair" class="brand-logo-img"></div><div class="topbar-nav" id="nav-clients"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
   <div class="content">
     <div class="tabs">
       <button class="tab active" id="tab-clients" onclick="switchTab('clients')">🧑‍💼 לקוחות</button>
@@ -378,7 +389,7 @@
 
 <!-- SCREEN 6: PROJECTS -->
 <div id="screen-projects" class="screen" style="flex-direction:column">
-  <div class="topbar"><div class="topbar-logo">S.P Sharon-projects LTD</div><div class="topbar-nav" id="nav-projects"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="topbar"><div class="topbar-logo"><img src="/brand-logo.png" alt="SP Projects Electronic Repair" class="brand-logo-img"></div><div class="topbar-nav" id="nav-projects"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
   <div class="content">
     <div class="section-header"><div class="section-title">🗂️ פרויקטים</div><button class="btn-add" onclick="openModal('project')">+ הוסף פרויקט</button></div>
     <div class="search-bar"><input class="search-input" id="project-search" placeholder="חיפוש פרויקט, לקוח או אתר..." oninput="renderProjects()" /></div>
@@ -392,7 +403,7 @@
 
 <!-- SCREEN 7: BILLING -->
 <div id="screen-billing" class="screen" style="flex-direction:column">
-  <div class="topbar"><div class="topbar-logo">S.P Sharon-projects LTD</div><div class="topbar-nav" id="nav-billing"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="topbar"><div class="topbar-logo"><img src="/brand-logo.png" alt="SP Projects Electronic Repair" class="brand-logo-img"></div><div class="topbar-nav" id="nav-billing"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
   <div class="content">
     <div class="section-title" style="margin-bottom:24px">📋 חיוב אורן</div>
     <div class="billing-grid">
@@ -440,7 +451,7 @@
 
 <!-- SCREEN 7: SIGNATURE -->
 <div id="screen-signature" class="screen" style="flex-direction:column">
-  <div class="topbar"><div class="topbar-logo">S.P Sharon-projects LTD</div><div class="topbar-nav" id="nav-signature"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="topbar"><div class="topbar-logo"><img src="/brand-logo.png" alt="SP Projects Electronic Repair" class="brand-logo-img"></div><div class="topbar-nav" id="nav-signature"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
   <div class="content">
     <div class="section-title" style="margin-bottom:24px">✍️ תעודות שירות</div>
     <div class="sig-layout">
@@ -479,7 +490,7 @@
 
 <!-- SCREEN 8: LIBRARY -->
 <div id="screen-library" class="screen" style="flex-direction:column">
-  <div class="topbar"><div class="topbar-logo">S.P Sharon-projects LTD</div><div class="topbar-nav" id="nav-library"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
+  <div class="topbar"><div class="topbar-logo"><img src="/brand-logo.png" alt="SP Projects Electronic Repair" class="brand-logo-img"></div><div class="topbar-nav" id="nav-library"></div><div class="topbar-user"><div class="avatar">A</div><button class="logout-btn" onclick="doLogout()">יציאה</button></div></div>
   <div class="content">
     <div class="section-header">
       <div class="section-title">📚 ספריות ומדריכים</div>
