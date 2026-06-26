@@ -146,11 +146,17 @@
   .archive-month { font-size: 14px; font-weight: 600; }
   .archive-sum { color: var(--gold); font-weight: 700; font-size: 15px; }
   .archive-date { color: var(--text3); font-size: 12px; margin-top: 2px; }
+  .archive-notes { color: var(--text2); font-size: 12px; line-height: 1.7; margin-top: 8px; }
+  .archive-tools { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin: 0 0 14px; }
+  .archive-tools input { width: 100%; padding: 9px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'Heebo', sans-serif; }
   .settings-panel { background: rgba(79,142,247,0.06); border: 1px solid rgba(79,142,247,0.22); border-radius: 10px; padding: 14px; margin-bottom: 16px; }
   .settings-actions { display: flex; justify-content: flex-start; margin-top: 10px; }
   .helper-text { color: var(--text3); font-size: 12px; line-height: 1.6; margin-top: 8px; }
   .cert-section-title { font-size: 13px; color: var(--text2); margin: 14px 0 10px; font-weight: 700; }
   .cert-total { color: var(--gold); font-size: 18px; font-weight: 800; }
+  .billing-note-box { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .cert-clause-list { display: grid; gap: 8px; margin: 12px 0 14px; }
+  .cert-clause { background: rgba(245,200,66,0.08); border: 1px solid rgba(245,200,66,0.22); border-radius: 10px; color: var(--text); font-size: 15px; line-height: 1.7; font-weight: 700; padding: 10px 12px; }
 
   /* PROJECTS */
   .projects-layout { display: grid; grid-template-columns: minmax(280px, 420px) 1fr; gap: 18px; align-items: start; }
@@ -166,6 +172,7 @@
   .project-meta-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
   .project-section { border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px; }
   .project-section-title { color: var(--text2); font-size: 13px; font-weight: 800; margin-bottom: 10px; }
+  .project-section-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
   .task-row, .activity-row, .file-row { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
   .task-main { display: flex; align-items: center; gap: 10px; min-width: 0; }
   .task-main input { width: 18px; height: 18px; accent-color: var(--accent); }
@@ -222,6 +229,10 @@
   .mform-field.full { grid-column: 1 / -1; }
   .contact-link { color: var(--text); text-decoration: none; font-weight: 700; }
   .contact-link:hover { color: var(--accent2); text-decoration: underline; }
+  .map-cell { display: flex; flex-direction: column; gap: 6px; }
+  .map-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .map-actions a { color: var(--accent2); text-decoration: none; font-size: 12px; font-weight: 800; border: 1px solid var(--border); border-radius: 999px; padding: 3px 8px; background: var(--bg3); }
+  .map-actions a:hover { border-color: var(--accent); color: var(--accent); }
   .project-equipment-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
   .project-equipment-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 12px; min-height: 76px; }
   .project-equipment-label { color: var(--text2); font-size: 12px; font-weight: 800; margin-bottom: 6px; }
@@ -276,7 +287,7 @@
     .search-bar { flex-direction: column; }
     .table-wrap { overflow-x: auto; }
     table { min-width: 760px; }
-    .form-row, .mform-grid, .item-row { grid-template-columns: 1fr; }
+    .form-row, .mform-grid, .item-row, .billing-note-box, .archive-tools { grid-template-columns: 1fr; }
     .login-box { width: min(380px, calc(100vw - 28px)); padding: 34px 24px; }
     .backup-panel { flex-direction: column; align-items: stretch; }
     .backup-actions { justify-content: stretch; }
@@ -321,17 +332,6 @@
       <div class="stat-card"><div class="stat-number">...</div><div class="stat-label">טוען נתונים</div></div>
     </div>
     <div class="dash-alerts" id="dash-alerts"></div>
-    <div class="backup-panel">
-      <div>
-        <div class="backup-title">💾 כלי גיבוי למנהל</div>
-        <div class="backup-desc">ייצוא או ייבוא ידני של נתוני המערכת במקרה שרוצים לשמור עותק חיצוני.</div>
-      </div>
-      <div class="backup-actions">
-        <button class="btn-secondary" onclick="exportBackup()">ייצוא גיבוי</button>
-        <label class="btn-secondary" for="backup-file" style="display:inline-block">ייבוא גיבוי</label>
-        <input type="file" id="backup-file" accept="application/json" style="display:none" onchange="importBackup(event)">
-      </div>
-    </div>
     <div class="dash-grid">
       <div class="dash-card" onclick="go('employees')"><div class="dash-card-icon">👥</div><div class="dash-card-title">עובדים</div><div class="dash-card-desc">פרטי עובדים, מיילים, טלפונים ותמונות</div><div class="dash-card-arrow">← כניסה</div></div>
       <div class="dash-card" onclick="go('prices')"><div class="dash-card-icon">💰</div><div class="dash-card-title">מוצרים</div><div class="dash-card-desc">מוצרים, ספקים, מחיר עלות ומחיר לקוח</div><div class="dash-card-arrow">← כניסה</div></div>
@@ -457,6 +457,10 @@
         <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:600">פריטים לחיוב</div>
         <div id="bill-items-list"></div>
         <button onclick="addBillItem()" style="background:none;border:1px dashed var(--border);border-radius:8px;color:var(--accent);width:100%;padding:9px;cursor:pointer;font-family:'Heebo',sans-serif;font-size:13px;margin-bottom:14px;">+ הוסף פריט</button>
+        <div class="billing-note-box">
+          <div class="form-field"><label>הערת נסיעות לחיוב</label><textarea id="bill-travel-text" placeholder="הערה שתישמר עם החיוב"></textarea></div>
+          <div class="form-field"><label>הערת מע״מ לחיוב</label><textarea id="bill-vat-text" placeholder="הערה שתישמר עם החיוב"></textarea></div>
+        </div>
         <div class="billing-total"><span class="total-label">סה"כ לחיוב</span><span class="total-amount" id="bill-total">₪0</span></div>
         <div class="form-field" style="margin-bottom:16px"><label>הערות</label><textarea id="bill-notes" placeholder="הערות נוספות..."></textarea></div>
         <button class="btn-primary" id="bill-save-btn" onclick="saveBilling()">שמור חיוב</button>
@@ -464,6 +468,10 @@
       </div>
       <div class="billing-archive">
         <div class="form-title">📂 ארכיון חיובים — אורן</div>
+        <div class="archive-tools">
+          <input type="month" id="billing-export-month">
+          <button class="btn-secondary" onclick="exportBillingMonthCsv()">ייצוא CSV לחודש</button>
+        </div>
         <div id="billing-archive-list"></div>
       </div>
     </div>
@@ -492,7 +500,7 @@
         <button onclick="addCertItemRow()" style="background:none;border:1px dashed var(--border);border-radius:8px;color:var(--accent);width:100%;padding:9px;cursor:pointer;font-family:'Heebo',sans-serif;font-size:13px;margin-bottom:14px;">+ הוסף מוצר או פריט</button>
         <div class="billing-total"><span class="total-label">סה״כ תעודה</span><span class="cert-total" id="sig-total">₪0</span></div>
         <div class="helper-text" id="sig-clauses"></div>
-        <div class="form-field" style="margin-bottom:14px"><label>הערות ליד חתימה</label><textarea id="sig-notes" placeholder="הערות נוספות ללקוח..." style="min-height:70px"></textarea></div>
+        <div class="form-field" style="margin-bottom:14px"><textarea id="sig-notes" placeholder="הערות נוספות ללקוח..." style="min-height:90px"></textarea></div>
         <div style="font-size:13px;color:var(--text2);font-weight:600;margin-bottom:8px">חתימת לקוח</div>
         <div class="canvas-wrap"><canvas id="sig-canvas" width="480" height="150"></canvas></div>
         <div class="sig-btns">
@@ -704,6 +712,8 @@ function initBilling(){
   const t=new Date();
   if(!document.getElementById('bill-date').value) document.getElementById('bill-date').value=t.toISOString().split('T')[0];
   if(!document.getElementById('bill-month').value) document.getElementById('bill-month').value=t.toISOString().slice(0,7);
+  const exportMonth = document.getElementById('billing-export-month');
+  if(exportMonth && !exportMonth.value) exportMonth.value = t.toISOString().slice(0,7);
   if(!document.getElementById('bill-items-list').children.length) addBillItem();
   loadOranSettings();
   loadProjectChoices().then(()=>setupProjectInputs());
@@ -1013,6 +1023,7 @@ let editingBillingId = null;
 let editingCertId = null;
 let photoEmployeeId = null;
 let currentProjectId = null;
+let projectActivityOpen = false;
 let projectFileKind = 'file';
 let oranSettings = {
   hourly_rate: 0,
@@ -1092,6 +1103,21 @@ function contactLink(value, type, empty='-'){
   return href ? `<a class="contact-link" href="${esc(href)}">${esc(text)}</a>` : esc(text);
 }
 
+function mapLinks(address, empty='-'){
+  const text = String(address ?? '').trim();
+  if(!text) return esc(empty);
+  const query = encodeURIComponent(text);
+  const waze = `https://waze.com/ul?q=${query}&navigate=yes`;
+  const google = `https://www.google.com/maps/search/?api=1&query=${query}`;
+  return `<div class="map-cell">
+    <div>${esc(text)}</div>
+    <div class="map-actions">
+      <a href="${esc(waze)}" target="_blank" rel="noopener">Waze</a>
+      <a href="${esc(google)}" target="_blank" rel="noopener">Google</a>
+    </div>
+  </div>`;
+}
+
 function dbMissingColumn(error, column){
   const msg = String(error?.message || error?.details || '');
   return (error?.code === '42703' || error?.code === 'PGRST204' || msg.toLowerCase().includes('column')) && msg.includes(column);
@@ -1126,6 +1152,39 @@ function buildProjectNotesWithEquipment(notes, workEquipment, supplierEquipment)
   if(!work && !supplier) return cleanNotes;
   const meta = JSON.stringify({ work_equipment: work, supplier_equipment: supplier });
   return `${cleanNotes}${cleanNotes ? '\n\n' : ''}${PROJECT_META_START}${meta}${PROJECT_META_END}`;
+}
+
+const BILLING_META_START = '[SP_BILLING_META]';
+const BILLING_META_END = '[/SP_BILLING_META]';
+
+function parseBillingNotes(rawNotes){
+  const raw = String(rawNotes ?? '');
+  const start = raw.indexOf(BILLING_META_START);
+  const end = raw.indexOf(BILLING_META_END);
+  if(start < 0 || end < 0 || end <= start) {
+    return { notes: raw, travel_text: '', vat_text: '' };
+  }
+  const jsonText = raw.slice(start + BILLING_META_START.length, end).trim();
+  const visibleNotes = (raw.slice(0, start) + raw.slice(end + BILLING_META_END.length)).trim();
+  try{
+    const meta = JSON.parse(jsonText);
+    return {
+      notes: visibleNotes,
+      travel_text: meta.travel_text || '',
+      vat_text: meta.vat_text || ''
+    };
+  } catch(_error) {
+    return { notes: raw, travel_text: '', vat_text: '' };
+  }
+}
+
+function buildBillingNotesWithMeta(notes, travelText, vatText){
+  const cleanNotes = String(notes ?? '').trim();
+  const travel = String(travelText ?? '').trim();
+  const vat = String(vatText ?? '').trim();
+  if(!travel && !vat) return cleanNotes;
+  const meta = JSON.stringify({ travel_text: travel, vat_text: vat });
+  return `${cleanNotes}${cleanNotes ? '\n\n' : ''}${BILLING_META_START}${meta}${BILLING_META_END}`;
 }
 
 function nullableDate(v){
@@ -1230,10 +1289,14 @@ function applyOranSettingsToInputs(){
   const multiplier = document.getElementById('oran-product-multiplier');
   const travel = document.getElementById('oran-travel-text');
   const vat = document.getElementById('oran-vat-text');
+  const billTravel = document.getElementById('bill-travel-text');
+  const billVat = document.getElementById('bill-vat-text');
   if(hourly) hourly.value = oranSettings.hourly_rate ?? 0;
   if(multiplier) multiplier.value = oranSettings.product_multiplier ?? 1.25;
   if(travel) travel.value = oranSettings.travel_text || '';
   if(vat) vat.value = oranSettings.vat_text || '';
+  if(billTravel && !billTravel.value) billTravel.value = oranSettings.travel_text || '';
+  if(billVat && !billVat.value) billVat.value = oranSettings.vat_text || '';
   renderCertClauses();
 }
 
@@ -1282,7 +1345,7 @@ function renderCertClauses(){
   const el = document.getElementById('sig-clauses');
   if(!el) return;
   const parts = [oranSettings.travel_text, oranSettings.vat_text].filter(Boolean);
-  el.innerHTML = parts.length ? parts.map(esc).join('<br>') : '';
+  el.innerHTML = parts.length ? `<div class="cert-clause-list">${parts.map(part=>`<div class="cert-clause">${esc(part)}</div>`).join('')}</div>` : '';
 }
 
 function certFromDb(c){
@@ -1317,12 +1380,15 @@ function vehicleFromDb(v){
 }
 
 function billingFromDb(b){
+  const parsedNotes = parseBillingNotes(b.notes);
   return {
     id: b.id,
     month: b.month || '',
     date: b.date || '',
     project: b.project || '',
-    notes: b.notes || '',
+    notes: parsedNotes.notes || '',
+    travel_text: parsedNotes.travel_text || '',
+    vat_text: parsedNotes.vat_text || '',
     items: Array.isArray(b.items) ? b.items : [],
     total: Number(b.total || 0),
     created_at: b.created_at
@@ -1652,7 +1718,7 @@ async function renderClients(){
     <td>${esc(c.company)}</td>
     <td>${contactLink(c.phone, 'phone')}</td>
     <td>${contactLink(c.email, 'email')}</td>
-    <td>${esc(c.city)}</td>
+    <td>${mapLinks(c.city)}</td>
     <td><span class="badge badge-blue">${esc(c.payment_terms || '-')}</span></td>
     <td style="color:var(--text2)">${esc(c.notes || '')}</td>
     <td><button class="action-btn" onclick="editItemById('client','${c.id}')">✏️</button><button class="action-btn danger" onclick="delItemById('clients','${c.id}',renderClients)">🗑️</button></td>
@@ -1683,7 +1749,7 @@ async function renderSuppliers(){
     return `<tr>
       <td><b>${esc(s.name)}</b></td>
       <td>${esc(s.company)}</td>
-      <td>${esc(s.address)}</td>
+      <td>${mapLinks(s.address)}</td>
       <td>${site ? `<a href="${esc(site)}" target="_blank" rel="noopener">פתח אתר</a>` : '-'}</td>
       <td>${contactLink(s.phone, 'phone')}</td>
       <td>${contactLink(s.email, 'email')}</td>
@@ -1698,7 +1764,11 @@ async function saveBilling(){
   const month=document.getElementById('bill-month').value;
   const date=document.getElementById('bill-date').value;
   const project=document.getElementById('bill-project').value;
-  const notes=document.getElementById('bill-notes').value;
+  const notes=buildBillingNotesWithMeta(
+    document.getElementById('bill-notes').value,
+    document.getElementById('bill-travel-text')?.value,
+    document.getElementById('bill-vat-text')?.value
+  );
   const items=[]; let total=0;
   document.querySelectorAll('#bill-items-list .item-row').forEach(r=>{
     const inp=r.querySelectorAll('input');
@@ -1727,6 +1797,12 @@ function resetBillingForm(){
   document.getElementById('bill-date').value = now.toISOString().split('T')[0];
   document.getElementById('bill-project').value = '';
   document.getElementById('bill-notes').value = '';
+  const travel = document.getElementById('bill-travel-text');
+  const vat = document.getElementById('bill-vat-text');
+  const exportMonth = document.getElementById('billing-export-month');
+  if(travel) travel.value = oranSettings.travel_text || '';
+  if(vat) vat.value = oranSettings.vat_text || '';
+  if(exportMonth && !exportMonth.value) exportMonth.value = now.toISOString().slice(0,7);
   document.getElementById('bill-items-list').innerHTML = '';
   addBillItem();
   calcTotal();
@@ -1789,7 +1865,11 @@ async function fillBillingFromCertificates(){
       });
     });
     document.getElementById('bill-project').value = `חיוב אורן ${month}`;
-    document.getElementById('bill-notes').value = [oranSettings.travel_text, oranSettings.vat_text].filter(Boolean).join('\n');
+    document.getElementById('bill-notes').value = '';
+    const travel = document.getElementById('bill-travel-text');
+    const vat = document.getElementById('bill-vat-text');
+    if(travel) travel.value = oranSettings.travel_text || '';
+    if(vat) vat.value = oranSettings.vat_text || '';
     calcTotal();
     alert('החיוב מולא מתעודות השירות של החודש ✓');
   } catch(error) {
@@ -1847,7 +1927,54 @@ async function renderBillingArchive(){
 
   billingCache = (data || []).map(billingFromDb);
   if(!billingCache.length){el.innerHTML='<div style="color:var(--text3);text-align:center;padding:30px;font-size:14px">אין חיובים בארכיון</div>';return;}
-  el.innerHTML=billingCache.map(b=>`<div class="archive-item"><div><div class="archive-month">📅 ${esc(b.month)} ${b.project?'- '+esc(b.project):''}</div><div class="archive-date">${esc(b.date)} ${b.notes?'| '+esc(b.notes):''}</div><div style="margin-top:8px"><button class="action-btn" onclick="editBilling('${b.id}')">✏️</button><button class="action-btn danger" onclick="deleteBilling('${b.id}')">🗑️</button></div></div><div class="archive-sum">₪${(b.total||0).toLocaleString('he-IL')}</div></div>`).join('');
+  el.innerHTML=billingCache.map(b=>{
+    const notes = [
+      b.notes ? `<div><b>הערות:</b> ${esc(b.notes)}</div>` : '',
+      b.travel_text ? `<div><b>נסיעות:</b> ${esc(b.travel_text)}</div>` : '',
+      b.vat_text ? `<div><b>מע״מ:</b> ${esc(b.vat_text)}</div>` : ''
+    ].filter(Boolean).join('');
+    return `<div class="archive-item">
+      <div>
+        <div class="archive-month">📅 ${esc(b.month)} ${b.project?'- '+esc(b.project):''}</div>
+        <div class="archive-date">${esc(b.date || '')}</div>
+        ${notes ? `<div class="archive-notes">${notes}</div>` : ''}
+        <div style="margin-top:8px"><button class="action-btn" onclick="editBilling('${b.id}')">✏️</button><button class="action-btn danger" onclick="deleteBilling('${b.id}')">🗑️</button></div>
+      </div>
+      <div class="archive-sum">₪${(b.total||0).toLocaleString('he-IL')}</div>
+    </div>`;
+  }).join('');
+}
+
+async function exportBillingMonthCsv(){
+  try{
+    const month = document.getElementById('billing-export-month')?.value || document.getElementById('bill-month')?.value || '';
+    if(!month){ alert('בחר חודש לייצוא'); return; }
+    const { data, error } = await supabaseClient
+      .from('billing')
+      .select('id, month, date, project, notes, items, total, created_at')
+      .eq('month', month)
+      .order('date', { ascending: true });
+    if(error) throw error;
+    const bills = (data || []).map(billingFromDb);
+    if(!bills.length){ alert('אין חיובים בארכיון לחודש הזה'); return; }
+    const lines = [
+      csvLine(['חודש','תאריך','פרויקט','תיאור פריט','כמות','מחיר','סה״כ שורה','הערות','הערת נסיעות','הערת מע״מ','סה״כ חיוב'])
+    ];
+    bills.forEach(bill=>{
+      const items = Array.isArray(bill.items) ? bill.items : [];
+      if(!items.length){
+        lines.push(csvLine([bill.month, bill.date, bill.project, '', '', '', '', bill.notes, bill.travel_text, bill.vat_text, bill.total]));
+        return;
+      }
+      items.forEach(item=>{
+        const lineTotal = Number(item.qty || 0) * Number(item.price || 0);
+        lines.push(csvLine([bill.month, bill.date, bill.project, item.desc || '', item.qty || 0, item.price || 0, lineTotal, bill.notes, bill.travel_text, bill.vat_text, bill.total]));
+      });
+    });
+    downloadTextFile(`oran-billing-archive-${month}.csv`, '\ufeff' + lines.join('\n'), 'text/csv;charset=utf-8');
+  } catch(error) {
+    showDbError('billing csv export', error);
+  }
 }
 
 function editBilling(id){
@@ -1858,6 +1985,10 @@ function editBilling(id){
   document.getElementById('bill-date').value = b.date || '';
   document.getElementById('bill-project').value = b.project || '';
   document.getElementById('bill-notes').value = b.notes || '';
+  const travel = document.getElementById('bill-travel-text');
+  const vat = document.getElementById('bill-vat-text');
+  if(travel) travel.value = b.travel_text || '';
+  if(vat) vat.value = b.vat_text || '';
   document.getElementById('bill-items-list').innerHTML = '';
   (b.items || []).forEach(item=>addBillItem(item));
   if(!b.items?.length) addBillItem();
@@ -2364,7 +2495,14 @@ function projectEmployeeById(id){
   return projectEmployeesCache.find(e=>String(e.id)===String(id)) || null;
 }
 
+function toggleProjectActivity(){
+  projectActivityOpen = !projectActivityOpen;
+  const project = projectsCache.find(p=>p.id===currentProjectId);
+  if(project) renderProjectDetail(project);
+}
+
 async function openProject(id, refreshList=true){
+  if(currentProjectId !== id) projectActivityOpen = false;
   currentProjectId = id;
   const project = projectsCache.find(p=>p.id===id);
   const detail = document.getElementById('project-detail');
@@ -2438,12 +2576,17 @@ function renderProjectDetail(project){
       <div id="project-tasks-list">${renderProjectTasks(tasks)}</div>
     </div>
     <div class="project-section">
-      <div class="project-section-title">פעילות והערות</div>
-      <div class="project-inline-form" style="grid-template-columns:1fr auto">
-        <input id="project-activity-message" placeholder="כתוב הערה / עדכון">
-        <button class="btn-secondary" onclick="addProjectActivity()">הוסף</button>
+      <div class="project-section-head">
+        <div class="project-section-title" style="margin-bottom:0">פעילות והערות</div>
+        <button class="btn-secondary" onclick="toggleProjectActivity()">${projectActivityOpen ? 'הסתר' : 'הצג'}</button>
       </div>
-      <div id="project-activity-list">${renderProjectActivity()}</div>
+      <div style="${projectActivityOpen ? '' : 'display:none'}">
+        <div class="project-inline-form" style="grid-template-columns:1fr auto">
+          <input id="project-activity-message" placeholder="כתוב הערה / עדכון">
+          <button class="btn-secondary" onclick="addProjectActivity()">הוסף</button>
+        </div>
+        <div id="project-activity-list">${renderProjectActivity()}</div>
+      </div>
     </div>
     <div class="project-section">
       <div class="project-section-title">קבצים, תמונות ותוכניות</div>
@@ -2527,6 +2670,7 @@ async function deleteProjectTask(id){
 async function addProjectActivity(message=null, refresh=true){
   const text = message || document.getElementById('project-activity-message')?.value.trim();
   if(!currentProjectId || !text){ if(!message) alert('יש לכתוב הערה'); return; }
+  if(!message) projectActivityOpen = true;
   const { error } = await supabaseClient.from('project_activity').insert({
     project_id: currentProjectId,
     type: message ? 'system' : 'comment',
@@ -3001,7 +3145,7 @@ async function importBackup(event){
       created_at: f.created_at || new Date().toISOString()
     })));
     await replaceDbTable('billing', (data.billing || []).map(b => ({
-      month: b.month || '', date: nullableDate(b.date), project: b.project || '', notes: b.notes || '', items: Array.isArray(b.items) ? b.items : [], total: nullableNumber(b.total) || 0
+      month: b.month || '', date: nullableDate(b.date), project: b.project || '', notes: buildBillingNotesWithMeta(b.notes || '', b.travel_text || '', b.vat_text || ''), items: Array.isArray(b.items) ? b.items : [], total: nullableNumber(b.total) || 0
     })));
     await replaceDbTable('certs', (data.certs || []).map(c => ({
       client: c.client || '', date: nullableDate(c.date), project: c.project || '', description: c.desc || c.description || '', hours: nullableNumber(c.hours), price: nullableNumber(c.price), employees: Array.isArray(c.employees) ? c.employees : [], items: Array.isArray(c.items) ? c.items : [], notes: c.notes || '', total: nullableNumber(c.total), signature_data: c.signature_data || ''
