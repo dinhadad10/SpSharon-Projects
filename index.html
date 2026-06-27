@@ -2260,9 +2260,11 @@ function collectCertItems(){
 }
 
 function calcCertTotal(){
-  const employeeTotal = collectCertEmployees().reduce((sum,e)=>sum + (Number(e.hours||0) * Number(e.rate||0)),0);
+  // בתעודות שירות שעות עבודה הן לתיעוד בלבד.
+  // לכל לקוח יש הנחות/סיכומים משלו, לכן רק פריטים מוסיפים כסף לתעודה.
+  // חיובי אורן נשארים נפרדים ושם שעות עבודה כן מתומחרות לפי מחיר קבוע/דינמי.
   const itemTotal = collectCertItems().reduce((sum,item)=>sum + (Number(item.qty||0) * Number(item.price||0)),0);
-  const total = employeeTotal + itemTotal;
+  const total = itemTotal;
   const el = document.getElementById('sig-total');
   if(el) el.textContent = '₪' + total.toLocaleString('he-IL');
   return total;
@@ -2388,7 +2390,7 @@ async function exportCerts(){
   if(!list.length){alert('אין תעודות לחודש זה');return;}
   let txt=`תעודות חודש ${month}\n${'='.repeat(40)}\n\n`;
   list.forEach((c,i)=>{
-    const employees=(c.employees||[]).map(e=>`  - ${e.name || 'עובד'}: ${e.hours || 0} שעות × ₪${e.rate || 0}`).join('\n');
+    const employees=(c.employees||[]).map(e=>`  - ${e.name || 'עובד'}: ${e.hours || 0} שעות`).join('\n');
     const items=(c.items||[]).map(item=>`  - ${item.name || 'פריט'}: ${item.qty || 0} × ₪${item.price || 0}`).join('\n');
     txt+=`תעודה ${i+1}\nלקוח: ${c.client}\nפרויקט: ${c.project || '-'}\nתאריך: ${c.date}\nתיאור: ${c.desc}\nעובדים:\n${employees || '  - אין'}\nפריטים:\n${items || '  - אין'}\nהערות: ${c.notes || '-'}\nסה״כ: ₪${c.total || c.price || 0}\n${oranSettings.travel_text}\n${oranSettings.vat_text}\n${'-'.repeat(30)}\n\n`;
   });
