@@ -747,14 +747,37 @@ function productDisplayLabel(product){
   return name || category || String(product?.sku || '').trim();
 }
 
-function billProductOptions(selected=''){
+function productSearchValue(selected=''){
   const selectedText = String(selected || '');
-  const options = certProductsCache.map(p=>{
-    const label = productDisplayLabel(p);
-    const value = p.id || p.name || '';
-    return `<option value="${esc(value)}" ${selectedText===String(value)||selectedText===String(p.name)?'selected':''}>${esc(label)}</option>`;
-  }).join('');
-  return `<option value="">פריט ידני / בחר מוצר</option>${options}`;
+  const product = certProductsCache.find(p=>
+    selectedText && (String(p.id)===selectedText || String(p.name)===selectedText || productDisplayLabel(p)===selectedText)
+  );
+  return product ? productDisplayLabel(product) : selectedText;
+}
+
+function findProductBySearchValue(value=''){
+  const text = String(value || '').trim();
+  if(!text) return null;
+  return certProductsCache.find(p=>
+    String(p.id)===text ||
+    String(p.name || '').trim()===text ||
+    productDisplayLabel(p)===text
+  ) || null;
+}
+
+function ensureProductsDatalist(){
+  let dl = document.getElementById('products-search-list');
+  if(!dl){
+    dl = document.createElement('datalist');
+    dl.id = 'products-search-list';
+    document.body.appendChild(dl);
+  }
+  dl.innerHTML = certProductsCache.map(p=>`<option value="${esc(productDisplayLabel(p))}"></option>`).join('');
+}
+
+function billProductOptions(selected=''){
+  ensureProductsDatalist();
+  return productSearchValue(selected);
 }
 
 function billProductUnitPrice(product){
@@ -770,10 +793,10 @@ function addBillItem(item={}){
   const d=document.createElement('div');
   d.className='item-row bill-product-row';
   d.dataset.type = item.type || 'product';
-  const selectedProduct = item.product_id || '';
-  d.innerHTML=`<select onchange="fillBillProductRow(this);calcTotal()">${billProductOptions(selectedProduct)}</select><input placeholder="תיאור מוצר / פריט" value="${esc(item.desc||item.name||'')}" oninput="calcTotal()"/><input type="number" step="1" placeholder="כמות" value="${item.qty ?? 1}" oninput="calcTotal()"/><input type="number" step="0.01" placeholder="מחיר יחידה" value="${item.price ?? ''}" oninput="calcTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcTotal()">×</button>`;
+  const selectedProduct = item.product_id || item.name || item.desc || '';
+  d.innerHTML=`<input class="product-search" list="products-search-list" placeholder="חפש מוצר לפי קטגוריה / שם" value="${esc(billProductOptions(selectedProduct))}" onchange="fillBillProductRow(this);calcTotal()" oninput="fillBillProductRow(this);calcTotal()"/><input placeholder="תיאור מוצר / פריט" value="${esc(item.desc||item.name||'')}" oninput="calcTotal()"/><input type="number" step="1" placeholder="כמות" value="${item.qty ?? 1}" oninput="calcTotal()"/><input type="number" step="0.01" placeholder="מחיר יחידה" value="${item.price ?? ''}" oninput="calcTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcTotal()">×</button>`;
   list.appendChild(d);
-  if(selectedProduct && (item.price === undefined || item.price === null || item.price === '')) fillBillProductRow(d.querySelector('select'));
+  if(item.product_id && (item.price === undefined || item.price === null || item.price === '')) fillBillProductRow(d.querySelector('.product-search'));
 }
 
 function addBillEmployee(item={}){
@@ -789,19 +812,21 @@ function addBillEmployee(item={}){
   list.appendChild(d);
 }
 
-function fillBillProductRow(select){
-  const row = select.closest('.bill-product-row');
-  const product = certProductsCache.find(p=>String(p.id)===String(select.value));
+function fillBillProductRow(input){
+  const row = input.closest('.bill-product-row');
+  const product = findProductBySearchValue(input.value);
   if(!row || !product) return;
   row.dataset.type = 'product';
+  row.dataset.productId = product.id || '';
+  input.value = productDisplayLabel(product);
   const inputs = row.querySelectorAll('input');
-  if(inputs[0]) inputs[0].value = product.name || '';
-  if(inputs[2]) inputs[2].value = billProductUnitPrice(product);
+  if(inputs[1]) inputs[1].value = product.name || '';
+  if(inputs[3]) inputs[3].value = billProductUnitPrice(product);
 }
 
 function repriceBillProductRows(){
-  document.querySelectorAll('.bill-product-row select').forEach(select=>{
-    if(select.value) fillBillProductRow(select);
+  document.querySelectorAll('.bill-product-row .product-search').forEach(input=>{
+    if(input.value) fillBillProductRow(input);
   });
 }
 
@@ -828,14 +853,14 @@ function collectBillingItems(){
       }
       return;
     }
-    const select = row.querySelector('select');
+    const searchInput = row.querySelector('.product-search');
     const inputs = row.querySelectorAll('input');
-    const product = certProductsCache.find(p=>String(p.id)===String(select?.value));
-    const desc = inputs[0]?.value || product?.name || '';
-    const qty = nullableNumber(inputs[1]?.value) || 0;
-    const price = nullableNumber(inputs[2]?.value) || 0;
+    const product = findProductBySearchValue(searchInput?.value || '') || certProductsCache.find(p=>String(p.id)===String(row.dataset.productId));
+    const desc = inputs[1]?.value || product?.name || '';
+    const qty = nullableNumber(inputs[2]?.value) || 0;
+    const price = nullableNumber(inputs[3]?.value) || 0;
     if(desc){
-      items.push({ type: select?.value ? 'product' : 'manual', product_id: select?.value || '', desc, name: desc, qty, price });
+      items.push({ type: product ? 'product' : 'manual', product_id: product?.id || '', desc, name: desc, qty, price });
       total += qty * price;
     }
   });
@@ -2172,15 +2197,9 @@ function employeeOptions(selected=''){
 }
 
 function productOptions(selected=''){
-  // תעודות שירות: להציג בבחירת מוצר קטגוריה + שם מוצר, בלי מק"ט.
-  const options = certProductsCache.map(p=>{
-    const category = String(p?.category || p?.cat || '').trim();
-    const name = String(p?.name || '').trim();
-    const label = category && name ? `${category} - ${name}` : (name || category || 'מוצר ללא שם');
-    const value = p.id || p.name || '';
-    return `<option value="${esc(value)}" ${String(selected)===String(value)||String(selected)===String(p.name)?'selected':''}>${esc(label)}</option>`;
-  }).join('');
-  return `<option value="">מוצר ידני / בחר מוצר</option>${options}`;
+  // תעודות שירות: שדה חיפוש לפי קטגוריה + שם מוצר, בלי מק"ט.
+  ensureProductsDatalist();
+  return productSearchValue(selected);
 }
 
 async function initCertForm(){
@@ -2216,24 +2235,26 @@ function addCertItemRow(item={}){
   if(!list) return;
   const d=document.createElement('div');
   d.className='item-row cert-item-row';
-  d.innerHTML=`<select onchange="fillCertProductRow(this);calcCertTotal()">${productOptions(item.product_id || item.name || '')}</select><input type="number" step="1" placeholder="כמות" value="${item.qty ?? 1}" oninput="calcCertTotal()"/><input type="number" step="1" placeholder="מחיר" value="${item.price ?? ''}" oninput="calcCertTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcCertTotal()">×</button><input type="text" placeholder="שם מוצר / פריט ידני" value="${esc(item.name || item.desc || '')}" oninput="calcCertTotal()" style="grid-column:1 / 4"/>`;
+  d.innerHTML=`<input class="product-search" list="products-search-list" placeholder="חפש מוצר לפי קטגוריה / שם" value="${esc(productOptions(item.product_id || item.name || ''))}" onchange="fillCertProductRow(this);calcCertTotal()" oninput="fillCertProductRow(this);calcCertTotal()"/><input type="number" step="1" placeholder="כמות" value="${item.qty ?? 1}" oninput="calcCertTotal()"/><input type="number" step="1" placeholder="מחיר" value="${item.price ?? ''}" oninput="calcCertTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcCertTotal()">×</button><input type="text" placeholder="שם מוצר / פריט ידני" value="${esc(item.name || item.desc || '')}" oninput="calcCertTotal()" style="grid-column:1 / 4"/>`;
   list.appendChild(d);
-  const select = d.querySelector('select');
-  if(item.product_id && !item.price) fillCertProductRow(select);
+  const input = d.querySelector('.product-search');
+  if(item.product_id && !item.price) fillCertProductRow(input);
 }
 
-function fillCertProductRow(select){
-  const row = select.closest('.cert-item-row');
-  const product = certProductsCache.find(p=>String(p.id)===String(select.value));
+function fillCertProductRow(input){
+  const row = input.closest('.cert-item-row');
+  const product = findProductBySearchValue(input.value);
   if(!row || !product) return;
+  row.dataset.productId = product.id || '';
+  input.value = productDisplayLabel(product);
   const inputs = row.querySelectorAll('input');
   const price = productCustomerPrice(product);
-  if(inputs[1]) inputs[1].value = Number(price.toFixed(2));
-  if(inputs[2]) inputs[2].value = product.name || '';
+  if(inputs[2]) inputs[2].value = Number(price.toFixed(2));
+  if(inputs[3]) inputs[3].value = product.name || '';
 }
 
 function repriceCertItems(){
-  document.querySelectorAll('.cert-item-row select').forEach(select => fillCertProductRow(select));
+  document.querySelectorAll('.cert-item-row .product-search').forEach(input => fillCertProductRow(input));
 }
 
 function collectCertEmployees(){
@@ -2247,14 +2268,14 @@ function collectCertEmployees(){
 
 function collectCertItems(){
   return Array.from(document.querySelectorAll('.cert-item-row')).map(row=>{
-    const select = row.querySelector('select');
+    const searchInput = row.querySelector('.product-search');
     const inputs = row.querySelectorAll('input');
-    const product = certProductsCache.find(p=>String(p.id)===String(select?.value));
+    const product = findProductBySearchValue(searchInput?.value || '') || certProductsCache.find(p=>String(p.id)===String(row.dataset.productId));
     return {
       product_id: product?.id || '',
-      name: inputs[2]?.value || product?.name || select?.value || '',
-      qty: nullableNumber(inputs[0]?.value) || 0,
-      price: nullableNumber(inputs[1]?.value) || 0
+      name: inputs[3]?.value || product?.name || searchInput?.value || '',
+      qty: nullableNumber(inputs[1]?.value) || 0,
+      price: nullableNumber(inputs[2]?.value) || 0
     };
   }).filter(item=>item.name || item.qty || item.price);
 }
