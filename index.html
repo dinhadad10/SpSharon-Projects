@@ -136,6 +136,7 @@
   .form-field input:focus, .form-field select:focus, .form-field textarea:focus { outline: none; border-color: var(--accent); }
   .item-row { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 8px; align-items: center; margin-bottom: 10px; }
   .bill-product-row { grid-template-columns: 1.25fr 1.6fr 0.7fr 0.9fr auto; }
+  input.invalid { border-color: var(--red) !important; box-shadow: 0 0 0 2px rgba(244,110,110,.15); }
   .bill-employee-row { grid-template-columns: 1.7fr 0.8fr 0.9fr auto; }
   .cert-employee-row { grid-template-columns: 2fr 1fr auto; }
   .item-row input { padding: 9px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; font-family: 'Heebo', sans-serif; width: 100%; }
@@ -765,6 +766,24 @@ function findProductBySearchValue(value=''){
   ) || null;
 }
 
+function setProductSearchValidity(input, product){
+  // מאפשר גם מוצר ידני שלא קיים ברשימת המוצרים.
+  if(!input) return;
+  input.setCustomValidity('');
+  input.classList.remove('invalid');
+  input.title = '';
+}
+
+function clearInvalidProductSearch(input){
+  // לא מוחקים טקסט ידני: אם המוצר לא נמצא ברשימה הוא נשמר כפריט ידני.
+  if(!input) return false;
+  const product = findProductBySearchValue(input.value);
+  const row = input.closest('.bill-product-row, .cert-item-row');
+  if(!product && row) delete row.dataset.productId;
+  setProductSearchValidity(input, product);
+  return Boolean(product);
+}
+
 function ensureProductsDatalist(){
   let dl = document.getElementById('products-search-list');
   if(!dl){
@@ -794,7 +813,7 @@ function addBillItem(item={}){
   d.className='item-row bill-product-row';
   d.dataset.type = item.type || 'product';
   const selectedProduct = item.product_id || item.name || item.desc || '';
-  d.innerHTML=`<input class="product-search" list="products-search-list" placeholder="חפש מוצר לפי קטגוריה / שם" value="${esc(billProductOptions(selectedProduct))}" onchange="fillBillProductRow(this);calcTotal()" oninput="fillBillProductRow(this);calcTotal()"/><input placeholder="תיאור מוצר / פריט" value="${esc(item.desc||item.name||'')}" oninput="calcTotal()"/><input type="number" step="1" placeholder="כמות" value="${item.qty ?? 1}" oninput="calcTotal()"/><input type="number" step="0.01" placeholder="מחיר יחידה" value="${item.price ?? ''}" oninput="calcTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcTotal()">×</button>`;
+  d.innerHTML=`<input class="product-search" list="products-search-list" placeholder="חפש מוצר לפי קטגוריה / שם" value="${esc(billProductOptions(selectedProduct))}" onchange="fillBillProductRow(this);calcTotal()" oninput="fillBillProductRow(this);calcTotal()" onblur="clearInvalidProductSearch(this);calcTotal()"/><input placeholder="תיאור מוצר / פריט" value="${esc(item.desc||item.name||'')}" oninput="calcTotal()"/><input type="number" step="1" placeholder="כמות" value="${item.qty ?? 1}" oninput="calcTotal()"/><input type="number" step="0.01" placeholder="מחיר יחידה" value="${item.price ?? ''}" oninput="calcTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcTotal()">×</button>`;
   list.appendChild(d);
   if(item.product_id && (item.price === undefined || item.price === null || item.price === '')) fillBillProductRow(d.querySelector('.product-search'));
 }
@@ -815,10 +834,16 @@ function addBillEmployee(item={}){
 function fillBillProductRow(input){
   const row = input.closest('.bill-product-row');
   const product = findProductBySearchValue(input.value);
-  if(!row || !product) return;
+  setProductSearchValidity(input, product);
+  if(!row) return;
+  if(!product){
+    delete row.dataset.productId;
+    return;
+  }
   row.dataset.type = 'product';
   row.dataset.productId = product.id || '';
   input.value = productDisplayLabel(product);
+  setProductSearchValidity(input, product);
   const inputs = row.querySelectorAll('input');
   if(inputs[1]) inputs[1].value = product.name || '';
   if(inputs[3]) inputs[3].value = billProductUnitPrice(product);
@@ -856,11 +881,12 @@ function collectBillingItems(){
     const searchInput = row.querySelector('.product-search');
     const inputs = row.querySelectorAll('input');
     const product = findProductBySearchValue(searchInput?.value || '') || certProductsCache.find(p=>String(p.id)===String(row.dataset.productId));
-    const desc = inputs[1]?.value || product?.name || '';
+    const manualName = String(searchInput?.value || '').trim();
+    const desc = inputs[1]?.value || product?.name || manualName || '';
     const qty = nullableNumber(inputs[2]?.value) || 0;
     const price = nullableNumber(inputs[3]?.value) || 0;
     if(desc){
-      items.push({ type: product ? 'product' : 'manual', product_id: product?.id || '', desc, name: desc, qty, price });
+      items.push({ type: 'product', product_id: product?.id || '', desc, name: desc, qty, price });
       total += qty * price;
     }
   });
@@ -2235,7 +2261,7 @@ function addCertItemRow(item={}){
   if(!list) return;
   const d=document.createElement('div');
   d.className='item-row cert-item-row';
-  d.innerHTML=`<input class="product-search" list="products-search-list" placeholder="חפש מוצר לפי קטגוריה / שם" value="${esc(productOptions(item.product_id || item.name || ''))}" onchange="fillCertProductRow(this);calcCertTotal()" oninput="fillCertProductRow(this);calcCertTotal()"/><input type="number" step="1" placeholder="כמות" value="${item.qty ?? 1}" oninput="calcCertTotal()"/><input type="number" step="1" placeholder="מחיר" value="${item.price ?? ''}" oninput="calcCertTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcCertTotal()">×</button><input type="text" placeholder="שם מוצר / פריט ידני" value="${esc(item.name || item.desc || '')}" oninput="calcCertTotal()" style="grid-column:1 / 4"/>`;
+  d.innerHTML=`<input class="product-search" list="products-search-list" placeholder="חפש מוצר לפי קטגוריה / שם" value="${esc(productOptions(item.product_id || item.name || ''))}" onchange="fillCertProductRow(this);calcCertTotal()" oninput="fillCertProductRow(this);calcCertTotal()" onblur="clearInvalidProductSearch(this);calcCertTotal()"/><input type="number" step="1" placeholder="כמות" value="${item.qty ?? 1}" oninput="calcCertTotal()"/><input type="number" step="1" placeholder="מחיר" value="${item.price ?? ''}" oninput="calcCertTotal()"/><button class="remove-item" onclick="this.parentElement.remove();calcCertTotal()">×</button><input type="text" placeholder="שם מוצר / פריט ידני" value="${esc(item.name || item.desc || '')}" oninput="calcCertTotal()" style="grid-column:1 / 4"/>`;
   list.appendChild(d);
   const input = d.querySelector('.product-search');
   if(item.product_id && !item.price) fillCertProductRow(input);
@@ -2244,9 +2270,15 @@ function addCertItemRow(item={}){
 function fillCertProductRow(input){
   const row = input.closest('.cert-item-row');
   const product = findProductBySearchValue(input.value);
-  if(!row || !product) return;
+  setProductSearchValidity(input, product);
+  if(!row) return;
+  if(!product){
+    delete row.dataset.productId;
+    return;
+  }
   row.dataset.productId = product.id || '';
   input.value = productDisplayLabel(product);
+  setProductSearchValidity(input, product);
   const inputs = row.querySelectorAll('input');
   const price = productCustomerPrice(product);
   if(inputs[2]) inputs[2].value = Number(price.toFixed(2));
@@ -2271,13 +2303,14 @@ function collectCertItems(){
     const searchInput = row.querySelector('.product-search');
     const inputs = row.querySelectorAll('input');
     const product = findProductBySearchValue(searchInput?.value || '') || certProductsCache.find(p=>String(p.id)===String(row.dataset.productId));
+    const manualName = String(searchInput?.value || '').trim();
     return {
       product_id: product?.id || '',
-      name: inputs[3]?.value || product?.name || searchInput?.value || '',
+      name: inputs[3]?.value || product?.name || manualName || '',
       qty: nullableNumber(inputs[1]?.value) || 0,
       price: nullableNumber(inputs[2]?.value) || 0
     };
-  }).filter(item=>item.name || item.qty || item.price);
+  }).filter(item=>item && (item.name || item.qty || item.price));
 }
 
 function calcCertTotal(){
