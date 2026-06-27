@@ -1154,9 +1154,11 @@ function showDbError(area, error){
 }
 
 function productFromDb(p){
-  const buyPrice = p.buy_price ?? p.sell_price ?? '';
+  const buyPrice = p.buy_price ?? '';
   const multiplier = p.multiplier ?? 1;
-  const customerPrice = buyPrice !== '' && buyPrice !== null ? Number(buyPrice) * Number(multiplier || 1) : '';
+  const savedSellPrice = nullableNumber(p.sell_price);
+  const calculatedSellPrice = buyPrice !== '' && buyPrice !== null ? Number(buyPrice) * Number(multiplier || 1) : null;
+  const customerPrice = savedSellPrice !== null ? savedSellPrice : calculatedSellPrice;
   return {
     id: p.id,
     name: p.name || '',
@@ -1170,7 +1172,7 @@ function productFromDb(p){
     sku: p.sku || '',
     buy_price: buyPrice,
     multiplier,
-    sell_price: customerPrice === '' ? '' : Number(customerPrice.toFixed(2)),
+    sell_price: customerPrice === null || customerPrice === '' ? '' : Number(Number(customerPrice).toFixed(2)),
     price_updated_at: p.price_updated_at || ''
   };
 }
@@ -2168,8 +2170,11 @@ function employeeOptions(selected=''){
 }
 
 function productOptions(selected=''){
+  // תעודות שירות: להציג בבחירת מוצר קטגוריה + שם מוצר, בלי מק"ט.
   const options = certProductsCache.map(p=>{
-    const label = `${p.name || ''}${p.sku ? ' - ' + p.sku : ''}`;
+    const category = String(p?.category || p?.cat || '').trim();
+    const name = String(p?.name || '').trim();
+    const label = category && name ? `${category} - ${name}` : (name || category || 'מוצר ללא שם');
     const value = p.id || p.name || '';
     return `<option value="${esc(value)}" ${String(selected)===String(value)||String(selected)===String(p.name)?'selected':''}>${esc(label)}</option>`;
   }).join('');
