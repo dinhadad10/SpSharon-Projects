@@ -732,10 +732,25 @@ function syncBillingExportMonth(){
   if(exportMonth && billMonth) exportMonth.value = billMonth;
 }
 
+function productCustomerPrice(product){
+  const sell = nullableNumber(product?.sell_price);
+  if(sell !== null) return Number(sell.toFixed(2));
+  const buy = nullableNumber(product?.buy_price ?? product?.price);
+  const multiplier = nullableNumber(product?.multiplier) ?? 1;
+  return buy !== null ? Number((buy * multiplier).toFixed(2)) : 0;
+}
+
+function productDisplayLabel(product){
+  const category = String(product?.category || '').trim();
+  const name = String(product?.name || '').trim();
+  if(category && name) return `${category} - ${name}`;
+  return name || category || String(product?.sku || '').trim();
+}
+
 function billProductOptions(selected=''){
   const selectedText = String(selected || '');
   const options = certProductsCache.map(p=>{
-    const label = `${p.name || ''}${p.sku ? ' - ' + p.sku : ''}`;
+    const label = productDisplayLabel(p);
     const value = p.id || p.name || '';
     return `<option value="${esc(value)}" ${selectedText===String(value)||selectedText===String(p.name)?'selected':''}>${esc(label)}</option>`;
   }).join('');
@@ -743,8 +758,7 @@ function billProductOptions(selected=''){
 }
 
 function billProductUnitPrice(product){
-  const base = nullableNumber(product?.buy_price ?? product?.price ?? product?.sell_price) || 0;
-  return Number((base * Number(oranSettings.product_multiplier || 1)).toFixed(2));
+  return productCustomerPrice(product);
 }
 
 function addBillItem(item={}){
@@ -1496,6 +1510,19 @@ function billingFromDb(b){
   };
 }
 
+function formatDayMonth(value){
+  const str = String(value || '').trim();
+  const match = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(match) return `${match[3]}-${match[2]}`;
+  const monthMatch = str.match(/^(\d{4})-(\d{2})$/);
+  if(monthMatch) return `01-${monthMatch[2]}`;
+  return str;
+}
+
+function billingArchiveTitle(b){
+  return formatDayMonth(b.date || b.month);
+}
+
 function userDisplayName(user){
   const meta = user?.user_metadata || {};
   const value = meta.full_name || meta.name || meta.display_name || (user?.email || '').split('@')[0];
@@ -2008,7 +2035,7 @@ async function renderBillingArchive(){
     ].filter(Boolean).join('');
     return `<div class="archive-item">
       <div>
-        <div class="archive-month">📅 ${esc(b.month)} ${b.project?'- '+esc(b.project):''}</div>
+        <div class="archive-month">📅 ${esc(billingArchiveTitle(b))} ${b.project?'- '+esc(b.project):''}</div>
         <div class="archive-date">${esc(b.date || '')}</div>
         ${notes ? `<div class="archive-notes">${notes}</div>` : ''}
         <div style="margin-top:8px"><button class="action-btn" onclick="editBilling('${b.id}')">✏️</button><button class="action-btn danger" onclick="deleteBilling('${b.id}')">🗑️</button></div>
@@ -2193,7 +2220,7 @@ function fillCertProductRow(select){
   const product = certProductsCache.find(p=>String(p.id)===String(select.value));
   if(!row || !product) return;
   const inputs = row.querySelectorAll('input');
-  const price = Number(product.buy_price || product.price || 0) * Number(oranSettings.product_multiplier || 1);
+  const price = productCustomerPrice(product);
   if(inputs[1]) inputs[1].value = Number(price.toFixed(2));
   if(inputs[2]) inputs[2].value = product.name || '';
 }
