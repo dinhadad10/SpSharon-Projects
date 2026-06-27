@@ -758,7 +758,9 @@ function billProductOptions(selected=''){
 }
 
 function billProductUnitPrice(product){
-  return productCustomerPrice(product);
+  const buy = nullableNumber(product?.buy_price ?? product?.price);
+  const multiplier = nullableNumber(oranSettings?.product_multiplier) ?? 1;
+  return buy !== null ? Number((buy * multiplier).toFixed(2)) : 0;
 }
 
 function addBillItem(item={}){
